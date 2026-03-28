@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nifty100 Control Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117;--card:#161b22;--card2:#21262d;--border:#30363d;
+  --text:#e6edf3;--muted:#8b949e;--green:#3fb950;--red:#f85149;
+  --blue:#58a6ff;--yellow:#d29922;--purple:#bc8cff;--orange:#ffa657;
+}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
+
+/* ── TOP BAR ── */
+.topbar{background:var(--card);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200}
+.logo{font-size:17px;font-weight:700;color:var(--green);display:flex;align-items:center;gap:8px}
+.status-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.nav-links{display:flex;gap:4px}
+.nav-btn{background:none;border:none;color:var(--muted);padding:7px 14px;border-radius:6px;cursor:pointer;font-size:13px;transition:all .2s}
+.nav-btn:hover{background:var(--card2);color:var(--text)}
+.nav-btn.active{background:var(--card2);color:var(--blue)}
+
+/* ── LAYOUT ── */
+.page{display:none;padding:20px;max-width:1100px;margin:0 auto}
+.page.active{display:block}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.grid4{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media(min-width:640px){.grid4{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:600px){.grid2{grid-template-columns:1fr}.grid3{grid-template-columns:1fr}}
+
+/* ── CARDS ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:14px}
+.card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.card-title{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;font-weight:600}
+.card-val{font-size:26px;font-weight:700}
+.card-sub{font-size:12px;color:var(--muted);margin-top:3px}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:7px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-green{background:var(--green);color:#000}
+.btn-green:hover:not(:disabled){background:#46c55a}
+.btn-blue{background:var(--blue);color:#000}
+.btn-blue:hover:not(:disabled){background:#79b8ff}
+.btn-red{background:var(--red);color:#fff}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn-outline:hover{background:var(--card2)}
+.btn-sm{padding:6px 12px;font-size:12px}
+
+/* ── FORM ── */
+.form-row{margin-bottom:14px}
+.form-row label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px}
+.form-row input,.form-row select{width:100%;background:var(--card2);border:1px solid var(--border);color:var(--text);padding:9px 12px;border-radius:7px;font-size:14px;outline:none;transition:border .2s}
+.form-row input:focus,.form-row select:focus{border-color:var(--blue)}
+.form-row input[type=password]{letter-spacing:2px}
+
+/* ── STATS ── */
+.stat-up{color:var(--green)}.stat-dn{color:var(--red)}.stat-neu{color:var(--yellow)}
+
+/* ── TABLE ── */
+.tbl-wrap{overflow-x:auto;border-radius:8px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{background:var(--card2);padding:9px 11px;text-align:left;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;white-space:nowrap;border-bottom:1px solid var(--border)}
+tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--card2)}
+tbody td{padding:8px 11px;white-space:nowrap}
+.search-input{width:100%;background:var(--card2);border:1px solid var(--border);color:var(--text);padding:9px 12px;border-radius:7px;font-size:13px;outline:none;margin-bottom:12px}
+.search-input:focus{border-color:var(--blue)}
+
+/* ── BADGE ── */
+.badge{display:inline-block;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600}
+.badge-green{background:rgba(63,185,80,.15);color:var(--green)}
+.badge-red{background:rgba(248,81,73,.15);color:var(--red)}
+.badge-blue{background:rgba(88,166,255,.15);color:var(--blue)}
+.badge-yellow{background:rgba(210,153,34,.15);color:var(--yellow)}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:24px;right:20px;padding:11px 18px;border-radius:8px;font-size:13px;font-weight:600;z-index:999;display:none;animation:slideup .3s ease}
+@keyframes slideup{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+/* ── LOADER ── */
+.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── LOG ── */
+.log-box{background:#010409;border:1px solid var(--border);border-radius:8px;padding:12px;font-family:monospace;font-size:12px;color:#7ee787;min-height:80px;max-height:200px;overflow-y:auto;white-space:pre-wrap;word-break:break-all}
+
+/* ── CRON TABLE ── */
+.cron-tbl{width:100%;border-collapse:collapse;font-size:13px}
+.cron-tbl th,.cron-tbl td{padding:8px 12px;border:1px solid var(--border);text-align:left}
+.cron-tbl th{background:var(--card2);color:var(--muted);font-size:11px;text-transform:uppercase}
+.cron-tbl tr:hover td{background:var(--card2)}
+code{background:var(--card2);padding:1px 6px;border-radius:4px;font-family:monospace;color:var(--yellow);font-size:12px}
+
+/* ── DIVIDER ── */
+hr{border:none;border-top:1px solid var(--border);margin:18px 0}
+
+/* ── UPLOAD ── */
+.drop-zone{border:2px dashed var(--border);border-radius:10px;padding:36px 20px;text-align:center;cursor:pointer;transition:all .2s}
+.drop-zone:hover,.drop-zone.drag{border-color:var(--green);background:rgba(63,185,80,.05)}
+.drop-icon{font-size:36px;margin-bottom:8px}
+
+/* ── CHART ── */
+.chart-box{position:relative;height:260px}
+.chart-box-sm{position:relative;height:220px}
+
+/* ── SETUP STEPS ── */
+.setup-step{display:flex;gap:12px;margin-bottom:14px;align-items:flex-start}
+.setup-num{background:var(--blue);color:#000;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:2px}
+.setup-text{font-size:13px;line-height:1.7;color:var(--text)}
+
+.info-box{background:rgba(88,166,255,.07);border:1px solid rgba(88,166,255,.25);border-radius:8px;padding:12px 14px;font-size:13px;color:#a0c4f7;line-height:1.7}
+.warn-box{background:rgba(210,153,34,.07);border:1px solid rgba(210,153,34,.25);border-radius:8px;padding:12px 14px;font-size:13px;color:#e3b847;line-height:1.7;margin-top:12px}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="logo">
+    <div class="status-dot" id="status-dot"></div>
+    📊 Nifty100 Dashboard
+  </div>
+  <div class="nav-links">
+    <button class="nav-btn active" onclick="showPage('control',this)">🎛️ Control</button>
+    <button class="nav-btn" onclick="showPage('analysis',this)">📈 Analysis</button>
+    <button class="nav-btn" onclick="showPage('table',this)">📋 Table</button>
+    <button class="nav-btn" onclick="showPage('settings',this)">⚙️ Settings</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- ════════════════════════════════════════════════ -->
+<!-- PAGE 1 · CONTROL CENTER -->
+<!-- ════════════════════════════════════════════════ -->
+<div id="page-control" class="page active">
+
+  <!-- Setup check banner -->
+  <div id="setup-banner" class="card" style="border-color:rgba(210,153,34,.4);background:rgba(210,153,34,.05);display:none">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <span style="font-size:20px">⚠️</span>
+      <div>
+        <div style="font-weight:600;color:var(--yellow)">GitHub token not configured</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:2px">Go to ⚙️ Settings and enter your GitHub details to enable control features</div>
+      </div>
+      <button class="btn btn-outline btn-sm" style="margin-left:auto" onclick="showPage('settings',document.querySelector('.nav-btn:nth-child(4)'))">Open Settings →</button>
+    </div>
+  </div>
+
+  <!-- Main controls -->
+  <div class="grid2">
+    <!-- Download Now -->
+    <div class="card" style="border-color:rgba(63,185,80,.3)">
+      <div class="card-title" style="margin-bottom:10px">⚡ Download CSV Right Now</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.6">Triggers GitHub Actions immediately. Nifty100 CSV will be sent to your Telegram within 1–2 minutes.</div>
+      <button class="btn btn-green" id="run-now-btn" onclick="triggerWorkflow()">
+        <span>▶ Send to Telegram Now</span>
+      </button>
+      <div id="run-status" style="margin-top:10px;font-size:12px;color:var(--muted)"></div>
+    </div>
+
+    <!-- Scheduler status -->
+    <div class="card">
+      <div class="card-title" style="margin-bottom:10px">🕐 Daily Schedule</div>
+      <div style="font-size:28px;font-weight:700;color:var(--blue)" id="sched-time-display">9:30 AM</div>
+      <div style="font-size:12px;color:var(--muted);margin:4px 0 12px">IST · Monday to Friday</div>
+      <div class="form-row" style="margin:0">
+        <label>Change Time</label>
+        <select id="time-picker" onchange="updateTimeDisplay()">
+          <option value="30 3 * * 1-5" data-label="9:00 AM">9:00 AM IST</option>
+          <option value="45 3 * * 1-5" data-label="9:15 AM">9:15 AM IST</option>
+          <option value="0 4 * * 1-5" data-label="9:30 AM" selected>9:30 AM IST (default)</option>
+          <option value="30 4 * * 1-5" data-label="10:00 AM">10:00 AM IST</option>
+          <option value="0 5 * * 1-5" data-label="10:30 AM">10:30 AM IST</option>
+          <option value="30 5 * * 1-5" data-label="11:00 AM">11:00 AM IST</option>
+          <option value="30 6 * * 1-5" data-label="12:00 PM">12:00 PM IST</option>
+          <option value="0 8 * * 1-5" data-label="1:30 PM">1:30 PM IST</option>
+          <option value="30 9 * * 1-5" data-label="3:00 PM">3:00 PM IST</option>
+          <option value="0 10 * * 1-5" data-label="3:30 PM">3:30 PM IST</option>
+          <option value="0 4 * * *" data-label="9:30 AM (7 days)">9:30 AM IST (All 7 days)</option>
+        </select>
+      </div>
+      <button class="btn btn-blue btn-sm" style="margin-top:10px" onclick="updateSchedule()">💾 Apply New Time</button>
+    </div>
+  </div>
+
+  <!-- Run log -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">📋 Activity Log</div>
+      <button class="btn btn-outline btn-sm" onclick="fetchRunHistory()">🔄 Refresh</button>
+    </div>
+    <div class="log-box" id="activity-log">Waiting for activity... Configure Settings first to see live logs.</div>
+  </div>
+
+  <!-- Recent runs table -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">🕐 Recent GitHub Actions Runs</div>
+      <button class="btn btn-outline btn-sm" onclick="fetchRunHistory()">🔄 Refresh</button>
+    </div>
+    <div id="runs-table-wrap">
+      <div style="color:var(--muted);font-size:13px;padding:20px 0;text-align:center">Configure Settings to see run history</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════ -->
+<!-- PAGE 2 · ANALYSIS -->
+<!-- ════════════════════════════════════════════════ -->
+<div id="page-analysis" class="page">
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+      <div>
+        <div style="font-size:16px;font-weight:700">Market Analysis</div>
+        <div id="file-label" style="font-size:12px;color:var(--muted);margin-top:3px">No file loaded — upload a CSV from your Telegram</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-outline btn-sm" onclick="document.getElementById('fileInput').click()">📂 Load CSV</button>
+        <input type="file" id="fileInput" accept=".csv" style="display:none" onchange="loadCSV(event)">
+      </div>
+    </div>
+  </div>
+
+  <div id="no-data-msg" style="text-align:center;padding:60px 20px">
+    <div style="font-size:48px;margin-bottom:12px">📂</div>
+    <div style="font-size:16px;font-weight:600;margin-bottom:6px">Upload your CSV to see analysis</div>
+    <div style="color:var(--muted);font-size:13px;margin-bottom:18px">Download the CSV file from your Telegram bot, then load it here</div>
+    <button class="btn btn-blue" onclick="document.getElementById('fileInput').click()">Upload CSV File</button>
+  </div>
+
+  <div id="analysis-content" style="display:none">
+    <div class="grid4" style="margin-bottom:14px">
+      <div class="card"><div class="card-title">Total Stocks</div><div class="card-val" id="s-total">—</div><div class="card-sub">in Nifty 100</div></div>
+      <div class="card"><div class="card-title">Gainers</div><div class="card-val stat-up" id="s-gainers">—</div><div class="card-sub">price up ▲</div></div>
+      <div class="card"><div class="card-title">Losers</div><div class="card-val stat-dn" id="s-losers">—</div><div class="card-sub">price down ▼</div></div>
+      <div class="card"><div class="card-title">Unchanged</div><div class="card-val stat-neu" id="s-unch">—</div><div class="card-sub">no change</div></div>
+    </div>
+    <div class="grid2">
+      <div class="card"><div class="card-title">Gainers vs Losers</div><div class="chart-box-sm"><canvas id="pieChart"></canvas></div></div>
+      <div class="card"><div class="card-title">Top 10 Gainers (%)</div><div class="chart-box-sm"><canvas id="gainChart"></canvas></div></div>
+    </div>
+    <div class="grid2">
+      <div class="card"><div class="card-title">Top 10 Losers (%)</div><div class="chart-box-sm"><canvas id="lossChart"></canvas></div></div>
+      <div class="card"><div class="card-title">Top 10 by Volume</div><div class="chart-box-sm"><canvas id="volChart"></canvas></div></div>
+    </div>
+    <div class="card"><div class="card-title">Top 15 by Last Price (₹)</div><div class="chart-box"><canvas id="priceChart"></canvas></div></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════ -->
+<!-- PAGE 3 · DATA TABLE -->
+<!-- ════════════════════════════════════════════════ -->
+<div id="page-table" class="page">
+  <div class="card">
+    <div class="card-head">
+      <div style="font-weight:600;font-size:15px">All Stocks <span id="tbl-count" style="font-size:12px;color:var(--muted)"></span></div>
+      <button class="btn btn-outline btn-sm" id="dl-btn" onclick="downloadCSV()" style="display:none">⬇ Export CSV</button>
+    </div>
+    <input class="search-input" id="search" placeholder="🔍 Search symbol or company name..." oninput="filterTable()">
+    <div class="tbl-wrap">
+      <table><thead id="tbl-head"></thead><tbody id="tbl-body"></tbody></table>
+    </div>
+    <div id="tbl-empty" style="text-align:center;padding:40px;color:var(--muted)">Load a CSV file from the Analysis tab first</div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════ -->
+<!-- PAGE 4 · SETTINGS -->
+<!-- ════════════════════════════════════════════════ -->
+<div id="page-settings" class="page">
+
+  <!-- GitHub Config -->
+  <div class="card" style="border-color:rgba(88,166,255,.3)">
+    <div class="card-title" style="margin-bottom:14px">🔑 GitHub Configuration (Required for Control Panel)</div>
+
+    <div class="info-box" style="margin-bottom:16px">
+      To control your bot from this dashboard, enter your GitHub details below. These are saved <b>only in your browser</b> — never uploaded anywhere.
+    </div>
+
+    <div class="grid2">
+      <div class="form-row">
+        <label>GitHub Username</label>
+        <input type="text" id="gh-user" placeholder="e.g. maheshmaximusmax">
+      </div>
+      <div class="form-row">
+        <label>Repository Name</label>
+        <input type="text" id="gh-repo" placeholder="e.g. nifty100-telegram">
+      </div>
+    </div>
+    <div class="form-row">
+      <label>GitHub Personal Access Token (PAT)</label>
+      <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+    </div>
+
+    <div class="warn-box" style="margin-bottom:14px">
+      <b>How to create your GitHub Token (PAT):</b><br>
+      1. Go to github.com → tap your profile picture (top right) → Settings<br>
+      2. Scroll all the way down on left sidebar → tap <b>Developer settings</b><br>
+      3. Tap <b>Personal access tokens</b> → <b>Tokens (classic)</b><br>
+      4. Tap <b>Generate new token (classic)</b><br>
+      5. Give it a name like "nifty dashboard"<br>
+      6. Tick these boxes: <b>repo</b> and <b>workflow</b><br>
+      7. Tap <b>Generate token</b> at bottom → Copy the token shown (starts with ghp_)<br>
+      8. Paste it in the field above<br>
+      ⚠️ GitHub shows this token only ONCE. Copy it immediately.
+    </div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-green" onclick="saveSettings()">💾 Save Settings</button>
+      <button class="btn btn-blue" onclick="testConnection()">🔌 Test Connection</button>
+      <button class="btn btn-red btn-sm" onclick="clearSettings()">🗑 Clear</button>
+    </div>
+    <div id="conn-result" style="margin-top:10px;font-size:13px"></div>
+  </div>
+
+  <!-- Telegram Secrets Info -->
+  <div class="card">
+    <div class="card-title" style="margin-bottom:12px">🤖 Update Telegram Bot / Chat ID</div>
+    <div style="font-size:13px;color:var(--muted);line-height:1.8;margin-bottom:14px">
+      Your BOT_TOKEN and CHAT_ID are stored securely in GitHub Secrets. To change them:<br>
+      GitHub Repo → Settings → Secrets and variables → Actions → tap ✏️ pencil next to the secret name
+    </div>
+    <button class="btn btn-outline btn-sm" onclick="openGithubSecrets()">🔗 Open GitHub Secrets Page</button>
+  </div>
+
+  <!-- How to update yml -->
+  <div class="card">
+    <div class="card-title" style="margin-bottom:12px">📝 How the Schedule Update Works</div>
+    <div style="font-size:13px;color:var(--muted);line-height:1.8">
+      When you tap <b>"Apply New Time"</b> on the Control tab, this dashboard calls the GitHub API to automatically update the <code>nifty100.yml</code> file with the new cron time. No manual editing needed — it happens in seconds.
+    </div>
+  </div>
+
+  <!-- Full cron reference -->
+  <div class="card">
+    <div class="card-title" style="margin-bottom:12px">⏰ IST → UTC Cron Reference</div>
+    <div style="overflow-x:auto">
+    <table class="cron-tbl">
+      <tr><th>India Time</th><th>UTC</th><th>Cron (Mon–Fri)</th></tr>
+      <tr><td>9:00 AM</td><td>3:30 AM</td><td><code>30 3 * * 1-5</code></td></tr>
+      <tr><td>9:15 AM</td><td>3:45 AM</td><td><code>45 3 * * 1-5</code></td></tr>
+      <tr><td>9:30 AM</td><td>4:00 AM</td><td><code>0 4 * * 1-5</code></td></tr>
+      <tr><td>10:00 AM</td><td>4:30 AM</td><td><code>30 4 * * 1-5</code></td></tr>
+      <tr><td>11:00 AM</td><td>5:30 AM</td><td><code>30 5 * * 1-5</code></td></tr>
+      <tr><td>12:00 PM</td><td>6:30 AM</td><td><code>30 6 * * 1-5</code></td></tr>
+      <tr><td>3:30 PM</td><td>10:00 AM</td><td><code>0 10 * * 1-5</code></td></tr>
+    </table>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ JAVASCRIPT ════════ -->
+<script>
+// ── Config stored in localStorage ──
+const CFG_KEY = 'nifty100_cfg';
+function getCfg(){ try{ return JSON.parse(localStorage.getItem(CFG_KEY)||'{}'); }catch(e){ return {}; } }
+function saveCfg(o){ localStorage.setItem(CFG_KEY, JSON.stringify(o)); }
+
+// ── Page nav ──
+function showPage(name, btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  if(btn) btn.classList.add('active');
+}
+
+// ── Toast ──
+function toast(msg, type){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = type==='err' ? 'var(--red)' : type==='warn' ? 'var(--yellow)' : 'var(--green)';
+  t.style.color = type==='warn' ? '#000' : '#fff';
+  t.style.display = 'block';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(()=>t.style.display='none', 3000);
+}
+
+// ── Log ──
+function log(msg){
+  const el = document.getElementById('activity-log');
+  const ts = new Date().toLocaleTimeString('en-IN');
+  el.textContent = `[${ts}] ${msg}\n` + el.textContent;
+}
+
+// ── GitHub API helper ──
+async function ghAPI(path, method='GET', body=null){
+  const cfg = getCfg();
+  if(!cfg.token||!cfg.user||!cfg.repo) throw new Error('GitHub not configured. Go to Settings.');
+  const opts = {
+    method,
+    headers:{
+      'Authorization': 'Bearer '+cfg.token,
+      'Accept': 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28',
+      'Content-Type': 'application/json'
+    }
+  };
+  if(body) opts.body = JSON.stringify(body);
+  const r = await fetch(`https://api.github.com/repos/${cfg.user}/${cfg.repo}${path}`, opts);
+  const data = await r.json();
+  if(!r.ok) throw new Error(data.message || 'GitHub API error '+r.status);
+  return data;
+}
+
+// ── Trigger workflow ──
+async function triggerWorkflow(){
+  const btn = document.getElementById('run-now-btn');
+  const st  = document.getElementById('run-status');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Sending...';
+  st.textContent = '';
+  try {
+    await ghAPI('/actions/workflows/nifty100.yml/dispatches','POST',{ref:'main',inputs:{reason:'Manual run from dashboard'}});
+    toast('✅ Triggered! Check Telegram in ~1 min');
+    log('✅ Manual download triggered from dashboard');
+    st.innerHTML = '<span style="color:var(--green)">✅ Running... CSV will arrive on Telegram in ~1 minute</span>';
+    setTimeout(fetchRunHistory, 5000);
+  } catch(e){
+    toast('❌ '+e.message,'err');
+    log('❌ Trigger failed: '+e.message);
+    st.innerHTML = '<span style="color:var(--red)">❌ '+e.message+'</span>';
+  }
+  btn.disabled = false;
+  btn.innerHTML = '▶ Send to Telegram Now';
+}
+
+// ── Update schedule ──
+async function updateSchedule(){
+  const sel   = document.getElementById('time-picker');
+  const cron  = sel.value;
+  const label = sel.options[sel.selectedIndex].dataset.label;
+  try {
+    log('📡 Fetching current nifty100.yml...');
+    const fileData = await ghAPI('/contents/.github/workflows/nifty100.yml');
+    let content = atob(fileData.content.replace(/\n/g,''));
+    // Replace the cron line
+    content = content.replace(/- cron: '[^']*'/, `- cron: '${cron}'`);
+    const newContent = btoa(unescape(encodeURIComponent(content)));
+    log('📡 Updating schedule to '+label+'...');
+    await ghAPI('/contents/.github/workflows/nifty100.yml','PUT',{
+      message: `Update schedule to ${label} IST`,
+      content: newContent,
+      sha: fileData.sha
+    });
+    toast('✅ Schedule updated to '+label);
+    log('✅ Schedule changed to '+label+' (cron: '+cron+')');
+    document.getElementById('sched-time-display').textContent = label;
+  } catch(e){
+    toast('❌ '+e.message,'err');
+    log('❌ Schedule update failed: '+e.message);
+  }
+}
+
+function updateTimeDisplay(){
+  const sel = document.getElementById('time-picker');
+  const label = sel.options[sel.selectedIndex].dataset.label;
+  document.getElementById('sched-time-display').textContent = label;
+}
+
+// ── Fetch run history ──
+async function fetchRunHistory(){
+  try {
+    const data = await ghAPI('/actions/workflows/nifty100.yml/runs?per_page=8');
+    const runs = data.workflow_runs || [];
+    log('🔄 Fetched '+runs.length+' recent runs');
+    const wrap = document.getElementById('runs-table-wrap');
+    if(!runs.length){ wrap.innerHTML='<div style="color:var(--muted);padding:20px;text-align:center;font-size:13px">No runs yet</div>'; return; }
+    const rows = runs.map(r=>{
+      const status = r.conclusion==='success' ? '<span class="badge badge-green">✅ success</span>'
+        : r.conclusion==='failure' ? '<span class="badge badge-red">❌ failed</span>'
+        : r.status==='in_progress' ? '<span class="badge badge-yellow">🔄 running</span>'
+        : '<span class="badge badge-blue">'+r.status+'</span>';
+      const dt = new Date(r.created_at).toLocaleString('en-IN',{timeZone:'Asia/Kolkata',hour12:true});
+      const trigger = r.event==='schedule' ? '⏰ Auto' : '▶ Manual';
+      return `<tr><td>${status}</td><td>${dt} IST</td><td>${trigger}</td><td><a href="${r.html_url}" target="_blank" style="color:var(--blue);font-size:11px">View →</a></td></tr>`;
+    }).join('');
+    wrap.innerHTML = `<div class="tbl-wrap"><table><thead><tr><th>Status</th><th>Time</th><th>Trigger</th><th>Link</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  } catch(e){
+    log('⚠️ Could not fetch runs: '+e.message);
+  }
+}
+
+// ── Settings ──
+function saveSettings(){
+  const cfg = {
+    user:  document.getElementById('gh-user').value.trim(),
+    repo:  document.getElementById('gh-repo').value.trim(),
+    token: document.getElementById('gh-token').value.trim()
+  };
+  if(!cfg.user||!cfg.repo||!cfg.token){ toast('Fill all 3 fields','warn'); return; }
+  saveCfg(cfg);
+  toast('✅ Settings saved');
+  log('✅ GitHub settings saved');
+  checkSetup();
+}
+function clearSettings(){
+  if(!confirm('Clear all saved settings?')) return;
+  localStorage.removeItem(CFG_KEY);
+  document.getElementById('gh-user').value='';
+  document.getElementById('gh-repo').value='';
+  document.getElementById('gh-token').value='';
+  checkSetup();
+  toast('Settings cleared','warn');
+}
+async function testConnection(){
+  const res = document.getElementById('conn-result');
+  res.innerHTML = '<span style="color:var(--muted)">Testing...</span>';
+  saveSettings();
+  try {
+    const data = await ghAPI('');
+    res.innerHTML = `<span style="color:var(--green)">✅ Connected! Repo: <b>${data.full_name}</b> · Stars: ${data.stargazers_count}</span>`;
+    toast('✅ GitHub connected!');
+    fetchRunHistory();
+  } catch(e){
+    res.innerHTML = `<span style="color:var(--red)">❌ ${e.message}</span>`;
+    toast('❌ '+e.message,'err');
+  }
+}
+function openGithubSecrets(){
+  const cfg = getCfg();
+  const url = cfg.user&&cfg.repo ? `https://github.com/${cfg.user}/${cfg.repo}/settings/secrets/actions` : 'https://github.com';
+  window.open(url,'_blank');
+}
+function checkSetup(){
+  const cfg = getCfg();
+  const ok  = cfg.user&&cfg.repo&&cfg.token;
+  document.getElementById('setup-banner').style.display = ok ? 'none' : 'flex';
+  document.getElementById('status-dot').style.background = ok ? 'var(--green)' : 'var(--yellow)';
+  if(ok){
+    document.getElementById('gh-user').value  = cfg.user;
+    document.getElementById('gh-repo').value  = cfg.repo;
+    document.getElementById('gh-token').value = cfg.token;
+  }
+}
+
+// ── CSV Analysis ──
+let allRows=[], allCols=[], charts={};
+
+function loadCSV(evt){
+  const file = evt.target.files[0];
+  if(!file) return;
+  Papa.parse(file,{
+    header:true, skipEmptyLines:true,
+    complete(res){
+      allRows = res.data;
+      allCols = res.meta.fields||[];
+      document.getElementById('file-label').textContent = '✅ '+file.name+' ('+allRows.length+' rows)';
+      document.getElementById('no-data-msg').style.display='none';
+      document.getElementById('analysis-content').style.display='block';
+      document.getElementById('dl-btn').style.display='inline-flex';
+      renderStats(); renderCharts(); renderTable();
+      toast('✅ Loaded '+allRows.length+' stocks');
+      log('📂 CSV loaded: '+file.name+' ('+allRows.length+' rows)');
+    },
+    error(e){ toast('❌ CSV error: '+e.message,'err'); }
+  });
+}
+function num(row,keys){ for(const k of keys){ const v=parseFloat(String(row[k]||'').replace(/,/g,'')); if(!isNaN(v)) return v; } return 0; }
+function str(row,keys){ for(const k of keys){ if(row[k]) return String(row[k]); } return ''; }
+function kill(id){ if(charts[id]){charts[id].destroy();delete charts[id];} }
+
+function renderStats(){
+  let g=0,l=0,u=0;
+  allRows.forEach(r=>{ const c=num(r,['pChange','change','chng']); if(c>0)g++; else if(c<0)l++; else u++; });
+  document.getElementById('s-total').textContent=allRows.length;
+  document.getElementById('s-gainers').textContent=g;
+  document.getElementById('s-losers').textContent=l;
+  document.getElementById('s-unch').textContent=u;
+}
+
+const CHART_OPTS = (axis='x')=>({
+  responsive:true, maintainAspectRatio:false,
+  plugins:{legend:{display:false}},
+  scales:{
+    x:{ticks:{color:'#8b949e',font:{size:10}},grid:{color:'#21262d'}},
+    y:{ticks:{color:'#8b949e'},grid:{color:'#21262d'}}
+  }
+});
+
+function renderCharts(){
+  let g=0,l=0,u=0;
+  allRows.forEach(r=>{ const c=num(r,['pChange','change','chng']); if(c>0)g++; else if(c<0)l++; else u++; });
+
+  kill('pie');
+  charts['pie']=new Chart(document.getElementById('pieChart'),{
+    type:'doughnut',
+    data:{labels:['Gainers','Losers','Unchanged'],datasets:[{data:[g,l,u],backgroundColor:['#3fb950','#f85149','#d29922'],borderWidth:0,hoverOffset:6}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8b949e',font:{size:12}}}}}
+  });
+
+  const sg=[...allRows].sort((a,b)=>num(b,['pChange','change','chng'])-num(a,['pChange','change','chng'])).slice(0,10);
+  kill('gain');
+  charts['gain']=new Chart(document.getElementById('gainChart'),{
+    type:'bar',
+    data:{labels:sg.map(r=>str(r,['symbol','Symbol','SYMBOL'])),datasets:[{data:sg.map(r=>num(r,['pChange','change','chng'])),backgroundColor:'#3fb950',borderRadius:4}]},
+    options:CHART_OPTS()
+  });
+
+  const sl=[...allRows].sort((a,b)=>num(a,['pChange','change','chng'])-num(b,['pChange','change','chng'])).slice(0,10);
+  kill('loss');
+  charts['loss']=new Chart(document.getElementById('lossChart'),{
+    type:'bar',
+    data:{labels:sl.map(r=>str(r,['symbol','Symbol','SYMBOL'])),datasets:[{data:sl.map(r=>num(r,['pChange','change','chng'])),backgroundColor:'#f85149',borderRadius:4}]},
+    options:CHART_OPTS()
+  });
+
+  const sv=[...allRows].sort((a,b)=>num(b,['totalTradedVolume','volume','Volume'])-num(a,['totalTradedVolume','volume','Volume'])).slice(0,10);
+  kill('vol');
+  charts['vol']=new Chart(document.getElementById('volChart'),{
+    type:'bar',
+    data:{labels:sv.map(r=>str(r,['symbol','Symbol','SYMBOL'])),datasets:[{data:sv.map(r=>Math.round(num(r,['totalTradedVolume','volume','Volume'])/100)),backgroundColor:'#bc8cff',borderRadius:4}]},
+    options:CHART_OPTS()
+  });
+
+  const sp=[...allRows].sort((a,b)=>num(b,['lastPrice','ltp','LTP','last'])-num(a,['lastPrice','ltp','LTP','last'])).slice(0,15);
+  kill('price');
+  charts['price']=new Chart(document.getElementById('priceChart'),{
+    type:'bar',
+    data:{labels:sp.map(r=>str(r,['symbol','Symbol','SYMBOL'])),datasets:[{data:sp.map(r=>num(r,['lastPrice','ltp','LTP','last'])),backgroundColor:'#58a6ff',borderRadius:4}]},
+    options:CHART_OPTS()
+  });
+}
+
+function renderTable(){
+  document.getElementById('tbl-empty').style.display='none';
+  const priority=['symbol','Symbol','SYMBOL','lastPrice','ltp','pChange','change','totalTradedVolume','dayHigh','dayLow','open','previousClose'];
+  const cols=[...new Set([...priority.filter(c=>allCols.includes(c)),...allCols])].slice(0,12);
+  document.getElementById('tbl-head').innerHTML='<tr>'+cols.map(c=>`<th>${c}</th>`).join('')+'</tr>';
+  renderRows(allRows,cols);
+  document.getElementById('tbl-count').textContent='('+allRows.length+' stocks)';
+}
+function renderRows(rows,cols){
+  cols=cols||[];
+  const priority=['symbol','Symbol','SYMBOL','lastPrice','ltp','pChange','change','totalTradedVolume','dayHigh','dayLow','open','previousClose'];
+  if(!cols.length) cols=[...new Set([...priority.filter(c=>allCols.includes(c)),...allCols])].slice(0,12);
+  document.getElementById('tbl-body').innerHTML=rows.slice(0,300).map(row=>'<tr>'+cols.map(c=>{
+    const v=row[c]||''; const n=parseFloat(String(v).replace(/,/g,''));
+    if((c.toLowerCase().includes('change')||c==='pChange')&&!isNaN(n)){
+      const cls=n>0?'stat-up':n<0?'stat-dn':'';
+      return `<td class="${cls}">${n>0?'▲ ':n<0?'▼ ':''}${v}</td>`;
+    }
+    return `<td>${v}</td>`;
+  }).join('')+'</tr>').join('');
+}
+function filterTable(){
+  const q=document.getElementById('search').value.toLowerCase();
+  const filtered=allRows.filter(r=>Object.values(r).some(v=>String(v).toLowerCase().includes(q)));
+  renderRows(filtered,[]);
+  document.getElementById('tbl-count').textContent='('+filtered.length+' of '+allRows.length+')';
+}
+function downloadCSV(){
+  if(!allRows.length) return;
+  const csv=Papa.unparse(allRows);
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download='Nifty100_export.csv'; a.click();
+  toast('✅ CSV downloaded');
+}
+
+// ── Init ──
+checkSetup();
+const cfg=getCfg();
+if(cfg.user&&cfg.repo&&cfg.token) fetchRunHistory();
+</script>
+</body>
+</html>
