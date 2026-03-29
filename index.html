@@ -894,6 +894,7 @@ function doLogin(){
   if(!found){amsg('le','Invalid username or password');return;}
   if(found.status==='suspended'){amsg('le','Account suspended. Contact admin.');return;}
   ss(K.sess,found);showApp(found);
+  
 }
 
 // ════════════ REGISTER ════════════
