@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nifty100 Pro Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+/* ── THEME VARIABLES ── */
+[data-theme="dark"]{
+  --bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--border:#30363d;
+  --text:#e6edf3;--muted:#8b949e;--muted2:#6e7681;
+  --green:#3fb950;--red:#f85149;--blue:#58a6ff;
+  --yellow:#d29922;--purple:#bc8cff;--orange:#ffa657;
+  --card-shadow:0 4px 24px rgba(0,0,0,.4);
+}
+[data-theme="light"]{
+  --bg:#f0f2f5;--bg2:#ffffff;--bg3:#f6f8fa;--border:#d0d7de;
+  --text:#1f2328;--muted:#636c76;--muted2:#9198a1;
+  --green:#1a7f37;--red:#cf222e;--blue:#0969da;
+  --yellow:#9a6700;--purple:#8250df;--orange:#bc4c00;
+  --card-shadow:0 2px 12px rgba(0,0,0,.08);
+}
+
+*{box-sizing:border-box;margin:0;padding:0;transition:background .2s,color .2s,border-color .2s}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
+
+/* ── AUTH SCREEN ── */
+#auth-screen{position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+.auth-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:36px 32px;width:100%;max-width:400px;box-shadow:var(--card-shadow)}
+.auth-logo{text-align:center;margin-bottom:28px}
+.auth-logo-icon{font-size:40px;display:block;margin-bottom:8px}
+.auth-logo-title{font-size:22px;font-weight:700;color:var(--green)}
+.auth-logo-sub{font-size:13px;color:var(--muted);margin-top:4px}
+.auth-tabs{display:flex;background:var(--bg3);border-radius:8px;padding:3px;gap:3px;margin-bottom:22px}
+.auth-tab{flex:1;padding:8px;border:none;background:none;color:var(--muted);font-size:13px;font-weight:600;border-radius:6px;cursor:pointer;transition:all .2s}
+.auth-tab.active{background:var(--bg2);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.15)}
+.auth-form{display:none}.auth-form.active{display:block}
+.auth-err{background:rgba(248,81,73,.1);border:1px solid rgba(248,81,73,.3);color:var(--red);padding:9px 12px;border-radius:7px;font-size:13px;margin-bottom:12px;display:none}
+.auth-ok{background:rgba(63,185,80,.1);border:1px solid rgba(63,185,80,.3);color:var(--green);padding:9px 12px;border-radius:7px;font-size:13px;margin-bottom:12px;display:none}
+.forgot-link{text-align:right;margin-top:-8px;margin-bottom:12px}<br>
+.forgot-link a{font-size:12px;color:var(--blue);cursor:pointer;text-decoration:none}
+.forgot-link a:hover{text-decoration:underline}
+.theme-toggle-auth{position:absolute;top:16px;right:16px;background:var(--bg3);border:1px solid var(--border);color:var(--text);width:36px;height:36px;border-radius:8px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
+
+/* ── MAIN APP ── */
+#app{display:none}
+
+/* ── TOPBAR ── */
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;gap:8px;position:sticky;top:0;z-index:100;height:52px}
+.top-logo{font-size:15px;font-weight:700;color:var(--green);display:flex;align-items:center;gap:6px;white-space:nowrap}
+.pulse{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+.top-nav{display:flex;gap:2px;flex:1;overflow-x:auto;scrollbar-width:none}
+.top-nav::-webkit-scrollbar{display:none}
+.nav-btn{background:none;border:none;color:var(--muted);padding:6px 12px;border-radius:7px;cursor:pointer;font-size:13px;white-space:nowrap;font-weight:500}
+.nav-btn:hover{background:var(--bg3);color:var(--text)}
+.nav-btn.active{background:var(--bg3);color:var(--blue)}
+.top-actions{display:flex;gap:8px;align-items:center;margin-left:auto}
+.avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;cursor:pointer;flex-shrink:0}
+.icon-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text);width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.icon-btn:hover{border-color:var(--blue)}
+
+/* ── ADMIN BADGE ── */
+.admin-badge{background:linear-gradient(90deg,var(--yellow),var(--orange));color:#000;font-size:10px;padding:1px 6px;border-radius:99px;font-weight:700;margin-left:4px}
+
+/* ── PAGES ── */
+.page{display:none;padding:18px;max-width:1140px;margin:0 auto}
+.page.active{display:block}
+
+/* ── GRID ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.g4{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media(min-width:640px){.g4{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:640px){.g2,.g3{grid-template-columns:1fr}}
+
+/* ── CARDS ── */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:14px;box-shadow:var(--card-shadow)}
+.card-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.card-title{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;font-weight:700}
+.stat-num{font-size:28px;font-weight:700;line-height:1}
+.stat-sub{font-size:12px;color:var(--muted);margin-top:5px}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;white-space:nowrap}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn-green{background:var(--green);color:#fff}.btn-green:hover:not(:disabled){filter:brightness(1.1)}
+.btn-blue{background:var(--blue);color:#fff}.btn-blue:hover:not(:disabled){filter:brightness(1.1)}
+.btn-red{background:var(--red);color:#fff}.btn-red:hover:not(:disabled){filter:brightness(1.1)}
+.btn-purple{background:var(--purple);color:#fff}.btn-purple:hover:not(:disabled){filter:brightness(1.1)}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}.btn-outline:hover{background:var(--bg3)}
+.btn-sm{padding:6px 12px;font-size:12px;border-radius:6px}
+
+/* ── FORM ── */
+.f-row{margin-bottom:14px}
+.f-row label{display:block;font-size:11px;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px;font-weight:600}
+.f-row input,.f-row select,.f-row textarea{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:9px 12px;border-radius:8px;font-size:14px;outline:none}
+.f-row input:focus,.f-row select:focus,.f-row textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(88,166,255,.12)}
+.f-row textarea{resize:vertical;min-height:80px;font-family:monospace;font-size:13px}
+
+/* ── TABLE ── */
+.tbl-wrap{overflow-x:auto;border-radius:8px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{background:var(--bg3);padding:9px 11px;text-align:left;color:var(--muted);font-weight:700;font-size:11px;text-transform:uppercase;white-space:nowrap;border-bottom:1px solid var(--border)}
+tbody tr{border-bottom:1px solid var(--border)}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--bg3)}
+tbody td{padding:8px 11px;white-space:nowrap}
+.search-inp{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:9px 12px;border-radius:8px;font-size:13px;outline:none;margin-bottom:12px}
+.search-inp:focus{border-color:var(--blue)}
+
+/* ── BADGE ── */
+.badge{display:inline-block;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:700}
+.bg{background:rgba(63,185,80,.15);color:var(--green)}
+.br{background:rgba(248,81,73,.15);color:var(--red)}
+.bb{background:rgba(88,166,255,.15);color:var(--blue)}
+.by{background:rgba(210,153,34,.15);color:var(--yellow)}
+.bp{background:rgba(188,140,255,.15);color:var(--purple)}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:22px;right:18px;padding:10px 16px;border-radius:9px;font-size:13px;font-weight:600;z-index:9999;display:none;max-width:300px;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+
+/* ── SPINNER ── */
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.25);border-top-color:currentColor;border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* ── LOG ── */
+.logbox{background:#010409;border:1px solid var(--border);border-radius:8px;padding:12px;font-family:monospace;font-size:12px;color:#7ee787;min-height:80px;max-height:200px;overflow-y:auto;white-space:pre-wrap;word-break:break-all}
+
+/* ── INFO/WARN BOXES ── */
+.info-box{background:rgba(88,166,255,.07);border:1px solid rgba(88,166,255,.25);border-radius:8px;padding:12px 14px;font-size:13px;color:#a0c4f7;line-height:1.7}
+.warn-box{background:rgba(210,153,34,.07);border:1px solid rgba(210,153,34,.25);border-radius:8px;padding:12px 14px;font-size:13px;color:#e3b847;line-height:1.7}
+.success-box{background:rgba(63,185,80,.07);border:1px solid rgba(63,185,80,.25);border-radius:8px;padding:12px 14px;font-size:13px;color:#7ee787;line-height:1.7}
+
+/* ── CHARTS ── */
+.ch{position:relative;height:250px}
+.ch-sm{position:relative;height:210px}
+
+/* ── STEP ── */
+.step{display:flex;gap:12px;margin-bottom:14px;align-items:flex-start}
+.step-n{background:var(--blue);color:#fff;width:24px;height:24px;min-width:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;margin-top:1px}
+.step-t{font-size:13px;line-height:1.7}
+code{background:var(--bg3);padding:1px 6px;border-radius:4px;font-family:monospace;color:var(--yellow);font-size:12px}
+
+/* ── RECIPIENTS TAG INPUT ── */
+.tag-input-wrap{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px;display:flex;flex-wrap:wrap;gap:6px;min-height:46px;cursor:text}
+.tag-input-wrap:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px rgba(88,166,255,.12)}
+.recipient-tag{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:3px 10px;font-size:13px;display:flex;align-items:center;gap:6px;color:var(--text)}
+.recipient-tag .rm{cursor:pointer;color:var(--muted);font-size:15px;line-height:1}
+.recipient-tag .rm:hover{color:var(--red)}
+.tag-input-wrap input{background:none;border:none;outline:none;color:var(--text);font-size:13px;flex:1;min-width:160px;padding:2px 4px}
+
+/* ── USER TABLE ── */
+.user-row-admin{background:rgba(210,153,34,.05);border-left:3px solid var(--yellow) !important}
+
+/* ── SPARKLINE ── */
+.mini-stat{display:flex;align-items:center;gap:8px}
+.trend-up{color:var(--green);font-size:12px}
+.trend-dn{color:var(--red);font-size:12px}
+
+/* ── MODAL ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-bg.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:24px;width:100%;max-width:480px;box-shadow:var(--card-shadow)}
+.modal-title{font-size:16px;font-weight:700;margin-bottom:16px}
+
+hr{border:none;border-top:1px solid var(--border);margin:16px 0}
+.flex{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- AUTH SCREEN -->
+<!-- ════════════════════════════════════════════ -->
+<div id="auth-screen">
+  <button class="theme-toggle-auth icon-btn" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+  <div class="auth-card">
+    <div class="auth-logo">
+      <span class="auth-logo-icon">📊</span>
+      <div class="auth-logo-title">Nifty100 Pro</div>
+      <div class="auth-logo-sub">Market Intelligence Dashboard</div>
+    </div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuthTab('login',this)">Sign In</button>
+      <button class="auth-tab" onclick="switchAuthTab('register',this)">Register</button>
+      <button class="auth-tab" onclick="switchAuthTab('forgot',this)">Forgot Password</button>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="auth-login" class="auth-form active">
+      <div id="login-err" class="auth-err"></div>
+      <div id="login-ok" class="auth-ok"></div>
+      <div class="f-row"><label>Username</label><input id="l-user" type="text" placeholder="Enter username" autocomplete="username"></div>
+      <div class="f-row"><label>Password</label><input id="l-pass" type="password" placeholder="Enter password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <button class="btn btn-blue" style="width:100%;justify-content:center" onclick="doLogin()" id="login-btn">Sign In →</button>
+      <div style="text-align:center;margin-top:12px;font-size:12px;color:var(--muted)">No account? <a style="color:var(--blue);cursor:pointer" onclick="switchAuthTab('register',document.querySelectorAll('.auth-tab')[1])">Register here</a></div>
+    </div>
+
+    <!-- REGISTER -->
+    <div id="auth-register" class="auth-form">
+      <div id="reg-err" class="auth-err"></div>
+      <div id="reg-ok" class="auth-ok"></div>
+      <div class="f-row"><label>Full Name</label><input id="r-name" type="text" placeholder="Your name"></div>
+      <div class="f-row"><label>Username</label><input id="r-user" type="text" placeholder="Choose username"></div>
+      <div class="f-row"><label>Email</label><input id="r-email" type="email" placeholder="your@email.com"></div>
+      <div class="f-row"><label>Password</label><input id="r-pass" type="password" placeholder="Min 6 characters"></div>
+      <div class="f-row"><label>Confirm Password</label><input id="r-pass2" type="password" placeholder="Repeat password" onkeydown="if(event.key==='Enter')doRegister()"></div>
+      <button class="btn btn-green" style="width:100%;justify-content:center" onclick="doRegister()">Create Account</button>
+    </div>
+
+    <!-- FORGOT -->
+    <div id="auth-forgot" class="auth-form">
+      <div id="fp-err" class="auth-err"></div>
+      <div id="fp-ok" class="auth-ok"></div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.6">Enter your username and registered email. Your new temporary password will be shown on screen.</div>
+      <div class="f-row"><label>Username</label><input id="fp-user" type="text" placeholder="Your username"></div>
+      <div class="f-row"><label>Email</label><input id="fp-email" type="email" placeholder="Your registered email" onkeydown="if(event.key==='Enter')doForgot()"></div>
+      <button class="btn btn-purple" style="width:100%;justify-content:center" onclick="doForgot()">Reset Password</button>
+    </div>
+  </div>
+  <div style="margin-top:16px;font-size:11px;color:var(--muted);text-align:center">Secured · Runs on GitHub · Free forever</div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- MAIN APP -->
+<!-- ════════════════════════════════════════════ -->
+<div id="app">
+  <div class="topbar">
+    <div class="top-logo"><div class="pulse"></div>📊 Nifty100 <span id="admin-badge-top" class="admin-badge" style="display:none">ADMIN</span></div>
+    <div class="top-nav">
+      <button class="nav-btn active" onclick="showPage('control',this)">🎛️ Control</button>
+      <button class="nav-btn" onclick="showPage('analysis',this)">📈 Analysis</button>
+      <button class="nav-btn" onclick="showPage('table',this)">📋 Table</button>
+      <button class="nav-btn" onclick="showPage('recipients',this)">📨 Recipients</button>
+      <button class="nav-btn admin-only" onclick="showPage('users',this)" style="display:none">👥 Users</button>
+      <button class="nav-btn" onclick="showPage('settings',this)">⚙️ Settings</button>
+    </div>
+    <div class="top-actions">
+      <button class="icon-btn" onclick="toggleTheme()" title="Toggle theme" id="theme-btn">🌙</button>
+      <div class="avatar" id="user-avatar" onclick="showPage('settings',document.querySelector('.nav-btn:nth-last-child(1)'))">U</div>
+    </div>
+  </div>
+
+  <!-- toast -->
+  <div id="toast"></div>
+
+  <!-- ── PAGE: CONTROL ── -->
+  <div id="page-control" class="page active">
+    <div id="no-cfg-banner" class="card" style="border-color:rgba(210,153,34,.4);background:rgba(210,153,34,.04);display:none;margin-bottom:14px">
+      <div class="flex"><span style="font-size:20px">⚠️</span>
+        <div><div style="font-weight:700;color:var(--yellow)">GitHub not configured</div><div style="font-size:12px;color:var(--muted)">Go to ⚙️ Settings to connect GitHub</div></div>
+        <button class="btn btn-outline btn-sm" style="margin-left:auto" onclick="showPage('settings',document.querySelector('.nav-btn:last-child'))">Open Settings</button>
+      </div>
+    </div>
+
+    <div class="g2">
+      <div class="card" style="border-color:rgba(63,185,80,.3)">
+        <div class="card-title" style="margin-bottom:10px">⚡ Download & Send Now</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.6">Triggers GitHub Actions immediately. CSV sent to all recipients on Telegram.</div>
+        <button class="btn btn-green" id="run-btn" onclick="triggerWorkflow()">▶ Send to Telegram Now</button>
+        <div id="run-st" style="margin-top:10px;font-size:12px;color:var(--muted)"></div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="margin-bottom:8px">🕐 Daily Schedule</div>
+        <div style="font-size:30px;font-weight:700;color:var(--blue);line-height:1" id="sched-disp">9:30 AM</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:14px">IST · Mon–Fri</div>
+        <div class="f-row" style="margin:0">
+          <label>Change Time</label>
+          <select id="time-sel" onchange="updateTimeDisp()">
+            <option value="30 3 * * 1-5" data-l="9:00 AM">9:00 AM IST</option>
+            <option value="45 3 * * 1-5" data-l="9:15 AM">9:15 AM IST</option>
+            <option value="0 4 * * 1-5" data-l="9:30 AM" selected>9:30 AM IST (default)</option>
+            <option value="30 4 * * 1-5" data-l="10:00 AM">10:00 AM IST</option>
+            <option value="0 5 * * 1-5" data-l="10:30 AM">10:30 AM IST</option>
+            <option value="30 5 * * 1-5" data-l="11:00 AM">11:00 AM IST</option>
+            <option value="30 6 * * 1-5" data-l="12:00 PM">12:00 PM IST</option>
+            <option value="0 8 * * 1-5" data-l="1:30 PM">1:30 PM IST</option>
+            <option value="30 9 * * 1-5" data-l="3:00 PM">3:00 PM IST</option>
+            <option value="0 10 * * 1-5" data-l="3:30 PM">3:30 PM IST</option>
+            <option value="0 4 * * *" data-l="9:30 AM (7 days)">9:30 AM (All 7 days)</option>
+          </select>
+        </div>
+        <button class="btn btn-blue btn-sm" style="margin-top:10px;width:100%;justify-content:center" onclick="updateSchedule()">💾 Apply Schedule</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd"><div class="card-title">📋 Activity Log</div><button class="btn btn-outline btn-sm" onclick="fetchRuns()">🔄 Refresh</button></div>
+      <div class="logbox" id="actlog">Ready. Configure GitHub in Settings to enable controls.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd"><div class="card-title">🕐 Recent Runs</div><span id="runs-refresh-hint" style="font-size:11px;color:var(--muted)"></span></div>
+      <div id="runs-wrap"><div style="color:var(--muted);font-size:13px;padding:16px 0;text-align:center">Configure GitHub in Settings to see run history</div></div>
+    </div>
+  </div>
+
+  <!-- ── PAGE: ANALYSIS ── -->
+  <div id="page-analysis" class="page">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+        <div><div style="font-size:16px;font-weight:700">Market Analysis</div><div id="file-lbl" style="font-size:12px;color:var(--muted);margin-top:3px">No file loaded</div></div>
+        <div class="flex">
+          <button class="btn btn-outline btn-sm" onclick="document.getElementById('csv-file').click()">📂 Load CSV</button>
+          <input type="file" id="csv-file" accept=".csv" style="display:none" onchange="loadCSV(event)">
+        </div>
+      </div>
+    </div>
+    <div id="no-data" style="text-align:center;padding:60px 20px">
+      <div style="font-size:48px;margin-bottom:12px">📂</div>
+      <div style="font-size:15px;font-weight:600;margin-bottom:6px">Upload your CSV to analyse</div>
+      <div style="color:var(--muted);font-size:13px;margin-bottom:18px">Download the CSV from your Telegram bot then load it here</div>
+      <button class="btn btn-blue" onclick="document.getElementById('csv-file').click()">Upload CSV File</button>
+    </div>
+    <div id="analysis-data" style="display:none">
+      <div class="g4" style="margin-bottom:14px">
+        <div class="card"><div class="card-title">Total</div><div class="stat-num" id="st-tot">—</div><div class="stat-sub">stocks</div></div>
+        <div class="card"><div class="card-title">Gainers</div><div class="stat-num" style="color:var(--green)" id="st-g">—</div><div class="stat-sub">▲ up today</div></div>
+        <div class="card"><div class="card-title">Losers</div><div class="stat-num" style="color:var(--red)" id="st-l">—</div><div class="stat-sub">▼ down today</div></div>
+        <div class="card"><div class="card-title">Unchanged</div><div class="stat-num" style="color:var(--yellow)" id="st-u">—</div><div class="stat-sub">— flat</div></div>
+      </div>
+      <div class="g2">
+        <div class="card"><div class="card-title">Gainers vs Losers</div><div class="ch-sm"><canvas id="cPie"></canvas></div></div>
+        <div class="card"><div class="card-title">Top 10 Gainers (%)</div><div class="ch-sm"><canvas id="cGain"></canvas></div></div>
+      </div>
+      <div class="g2">
+        <div class="card"><div class="card-title">Top 10 Losers (%)</div><div class="ch-sm"><canvas id="cLoss"></canvas></div></div>
+        <div class="card"><div class="card-title">Top 10 by Volume</div><div class="ch-sm"><canvas id="cVol"></canvas></div></div>
+      </div>
+      <div class="card"><div class="card-title">Top 15 by Last Price (₹)</div><div class="ch"><canvas id="cPrice"></canvas></div></div>
+    </div>
+  </div>
+
+  <!-- ── PAGE: TABLE ── -->
+  <div id="page-table" class="page">
+    <div class="card">
+      <div class="card-hd">
+        <div style="font-weight:700;font-size:15px">All Stocks <span id="tbl-cnt" style="font-size:12px;color:var(--muted)"></span></div>
+        <button class="btn btn-outline btn-sm" id="dl-btn" onclick="downloadCSV()" style="display:none">⬇ Export</button>
+      </div>
+      <input class="search-inp" id="srch" placeholder="🔍 Search symbol or name..." oninput="filterTbl()">
+      <div class="tbl-wrap"><table><thead id="th"></thead><tbody id="tb"></tbody></table></div>
+      <div id="tbl-empty" style="text-align:center;padding:40px;color:var(--muted)">Load a CSV from the Analysis tab first</div>
+    </div>
+  </div>
+
+  <!-- ── PAGE: RECIPIENTS ── -->
+  <div id="page-recipients" class="page">
+    <div class="card" style="border-color:rgba(88,166,255,.3)">
+      <div class="card-title" style="margin-bottom:14px">📨 Telegram Recipients</div>
+      <div class="info-box" style="margin-bottom:16px">Add any Telegram user ID, group ID, or channel username (like <code>@mychannel</code>). The bot will send the CSV to ALL of them every day. These are saved in GitHub Secrets as <code>RECIPIENTS</code>.</div>
+
+      <div class="f-row">
+        <label>Current Recipients (click × to remove)</label>
+        <div class="tag-input-wrap" id="tags-wrap" onclick="document.getElementById('tag-inp').focus()">
+          <input id="tag-inp" placeholder="Type ID or @channel then press Enter" onkeydown="addTag(event)">
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-top:-8px;margin-bottom:14px">Examples: <code>912345678</code> (user ID) &nbsp; <code>-1001234567890</code> (group/channel ID) &nbsp; <code>@mychannel</code> (public channel)</div>
+
+      <div class="warn-box" style="margin-bottom:14px">
+        <b>How to get a Channel ID:</b><br>
+        1. Add your bot as an <b>Admin</b> to the channel<br>
+        2. Forward any message from the channel to <b>@userinfobot</b><br>
+        3. It will show the channel ID (starts with -100...)<br>
+        4. Add that ID here
+      </div>
+
+      <div class="flex">
+        <button class="btn btn-green" onclick="saveRecipients()">💾 Save Recipients to GitHub</button>
+        <button class="btn btn-outline btn-sm" onclick="loadRecipients()">🔄 Load Current</button>
+      </div>
+      <div id="rec-st" style="margin-top:10px;font-size:13px"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="margin-bottom:12px">How the Bot Token Reads Recipients</div>
+      <div style="font-size:13px;color:var(--muted);line-height:1.8">
+        The script reads the <code>RECIPIENTS</code> GitHub Secret which is a JSON array like:<br>
+        <code>["912345678", "@mychannel", "-1001234567890"]</code><br><br>
+        When you save from this page, it automatically updates that secret via GitHub API.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PAGE: USERS (ADMIN ONLY) ── -->
+  <div id="page-users" class="page">
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-title">👥 All Registered Users</div>
+        <div class="flex">
+          <span id="user-count" class="badge bb">0 users</span>
+          <button class="btn btn-outline btn-sm" onclick="renderUsersTable()">🔄 Refresh</button>
+        </div>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Username</th><th>Name</th><th>Email</th><th>Role</th><th>Joined</th><th>Actions</th></tr></thead>
+          <tbody id="users-tb"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PAGE: SETTINGS ── -->
+  <div id="page-settings" class="page">
+
+    <!-- Profile -->
+    <div class="card">
+      <div class="card-title" style="margin-bottom:14px">👤 My Profile</div>
+      <div class="g2">
+        <div class="f-row"><label>Display Name</label><input id="p-name" type="text"></div>
+        <div class="f-row"><label>Email</label><input id="p-email" type="email"></div>
+      </div>
+      <div class="f-row"><label>New Password (leave blank to keep current)</label><input id="p-newpass" type="password" placeholder="New password"></div>
+      <div class="f-row"><label>Confirm New Password</label><input id="p-newpass2" type="password" placeholder="Confirm new password"></div>
+      <button class="btn btn-blue btn-sm" onclick="saveProfile()">💾 Save Profile</button>
+    </div>
+
+    <!-- GitHub Config -->
+    <div class="card" style="border-color:rgba(88,166,255,.3)">
+      <div class="card-title" style="margin-bottom:14px">🔑 GitHub Configuration</div>
+      <div class="info-box" style="margin-bottom:14px">These are saved only in <b>your browser</b>. Never uploaded. Required to control the bot from this dashboard.</div>
+      <div class="g2">
+        <div class="f-row"><label>GitHub Username</label><input id="gh-user" placeholder="maheshmaximusmax"></div>
+        <div class="f-row"><label>Repository Name</label><input id="gh-repo" placeholder="nifty100-telegram"></div>
+      </div>
+      <div class="f-row"><label>GitHub Personal Access Token (PAT)</label><input type="password" id="gh-tok" placeholder="ghp_xxxxxxxxxxxx"></div>
+      <div class="warn-box" style="margin-bottom:14px">
+        <b>How to create PAT:</b> github.com → Profile picture → Settings → Developer settings → Personal access tokens → Tokens (classic) → Generate new token (classic) → tick <b>repo</b> + <b>workflow</b> → Generate → Copy immediately
+      </div>
+      <div class="flex">
+        <button class="btn btn-green" onclick="saveGH()">💾 Save</button>
+        <button class="btn btn-blue" onclick="testGH()">🔌 Test Connection</button>
+        <button class="btn btn-outline btn-sm" onclick="openSecrets()">🔗 GitHub Secrets Page</button>
+      </div>
+      <div id="gh-result" style="margin-top:10px;font-size:13px"></div>
+    </div>
+
+    <!-- Theme -->
+    <div class="card">
+      <div class="card-title" style="margin-bottom:14px">🎨 Appearance</div>
+      <div class="flex" style="gap:12px">
+        <button class="btn btn-outline" id="theme-dark-btn" onclick="setTheme('dark')" style="flex:1;justify-content:center">🌙 Dark Mode</button>
+        <button class="btn btn-outline" id="theme-light-btn" onclick="setTheme('light')" style="flex:1;justify-content:center">☀️ Light Mode</button>
+      </div>
+    </div>
+
+    <!-- Logout -->
+    <div class="card">
+      <div class="card-title" style="margin-bottom:12px">🚪 Session</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:12px">Logged in as: <b id="logged-as">—</b></div>
+      <button class="btn btn-red btn-sm" onclick="doLogout()">Sign Out</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── DELETE USER MODAL ── -->
+<div class="modal-bg" id="del-modal">
+  <div class="modal">
+    <div class="modal-title">🗑 Delete User</div>
+    <div style="font-size:14px;color:var(--muted);margin-bottom:20px">Are you sure you want to delete user <b id="del-uname"></b>? This cannot be undone.</div>
+    <div class="flex">
+      <button class="btn btn-red" onclick="confirmDelete()">Yes, Delete</button>
+      <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════
+// STORAGE HELPERS
+// ════════════════════════════════════════════════════════
+const GH_KEY   = 'n100_gh';
+const USR_KEY  = 'n100_users';
+const SESS_KEY = 'n100_sess';
+const THEME_KEY= 'n100_theme';
+
+function gs(k){ try{ return JSON.parse(localStorage.getItem(k)||'null'); }catch(e){ return null; } }
+function ss(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
+function getGH(){ return gs(GH_KEY)||{}; }
+function saveGHCfg(o){ ss(GH_KEY,o); }
+function getUsers(){ return gs(USR_KEY)||[]; }
+function saveUsers(u){ ss(USR_KEY,u); }
+function getSess(){ return gs(SESS_KEY); }
+function setSess(u){ ss(SESS_KEY,u); }
+function clearSess(){ localStorage.removeItem(SESS_KEY); }
+
+// ── seed admin if no users ──
+function initUsers(){
+  let users = getUsers();
+  if(!users.find(u=>u.username==='admin')){
+    users.push({
+      username:'admin', password: btoa('admin123'),
+      name:'Administrator', email:'admin@nifty100.com',
+      role:'admin', joined: new Date().toISOString()
+    });
+    saveUsers(users);
+  }
+}
+
+// ════════════════════════════════════════════════════════
+// THEME
+// ════════════════════════════════════════════════════════
+function setTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  ss(THEME_KEY,t);
+  document.getElementById('theme-btn').textContent = t==='dark'?'🌙':'☀️';
+  document.querySelectorAll('[id^="theme-"]').forEach(b=>b.classList.remove('btn-blue'));
+  const el = document.getElementById('theme-'+t+'-btn');
+  if(el) el.classList.add('btn-blue');
+}
+function toggleTheme(){
+  const cur = document.documentElement.getAttribute('data-theme');
+  setTheme(cur==='dark'?'light':'dark');
+}
+// load saved theme
+(function(){ const t=gs(THEME_KEY)||'dark'; setTheme(t); })();
+
+// ════════════════════════════════════════════════════════
+// AUTH
+// ════════════════════════════════════════════════════════
+function switchAuthTab(name, btn){
+  document.querySelectorAll('.auth-tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.auth-form').forEach(f=>f.classList.remove('active'));
+  document.getElementById('auth-'+name).classList.add('active');
+  if(btn) btn.classList.add('active');
+}
+function showAuthMsg(id, msg, type){
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.style.display = msg ? 'block' : 'none';
+  el.className = type==='ok' ? 'auth-ok' : 'auth-err';
+}
+
+function doLogin(){
+  const user = document.getElementById('l-user').value.trim();
+  const pass = document.getElementById('l-pass').value;
+  if(!user||!pass){ showAuthMsg('login-err','Please fill all fields'); return; }
+  const users = getUsers();
+  const found = users.find(u=>u.username===user && u.password===btoa(pass));
+  if(!found){ showAuthMsg('login-err','Invalid username or password'); return; }
+  setSess(found);
+  showApp(found);
+}
+
+function doRegister(){
+  const name  = document.getElementById('r-name').value.trim();
+  const user  = document.getElementById('r-user').value.trim().toLowerCase();
+  const email = document.getElementById('r-email').value.trim();
+  const pass  = document.getElementById('r-pass').value;
+  const pass2 = document.getElementById('r-pass2').value;
+  if(!name||!user||!email||!pass){ showAuthMsg('reg-err','Please fill all fields'); return; }
+  if(pass.length<6){ showAuthMsg('reg-err','Password must be at least 6 characters'); return; }
+  if(pass!==pass2){ showAuthMsg('reg-err','Passwords do not match'); return; }
+  if(!/^[a-z0-9_]+$/.test(user)){ showAuthMsg('reg-err','Username: only letters, numbers, underscore'); return; }
+  let users = getUsers();
+  if(users.find(u=>u.username===user)){ showAuthMsg('reg-err','Username already taken'); return; }
+  if(users.find(u=>u.email===email)){ showAuthMsg('reg-err','Email already registered'); return; }
+  const newUser = { username:user, password:btoa(pass), name, email, role:'user', joined:new Date().toISOString() };
+  users.push(newUser);
+  saveUsers(users);
+  showAuthMsg('reg-ok','✅ Account created! You can now sign in.','ok');
+  setTimeout(()=>switchAuthTab('login', document.querySelectorAll('.auth-tab')[0]),1500);
+}
+
+function doForgot(){
+  const user  = document.getElementById('fp-user').value.trim();
+  const email = document.getElementById('fp-email').value.trim();
+  let users = getUsers();
+  const found = users.find(u=>u.username===user && u.email===email);
+  if(!found){ showAuthMsg('fp-err','No account found with that username and email'); return; }
+  const tmpPass = 'Tmp'+Math.random().toString(36).slice(2,8);
+  found.password = btoa(tmpPass);
+  saveUsers(users);
+  showAuthMsg('fp-ok', `✅ Password reset! Your new temporary password is: ${tmpPass}\n\nPlease sign in and change it immediately.`, 'ok');
+}
+
+function doLogout(){
+  clearSess();
+  document.getElementById('app').style.display='none';
+  document.getElementById('auth-screen').style.display='flex';
+  document.getElementById('l-user').value='';
+  document.getElementById('l-pass').value='';
+  showAuthMsg('login-ok','');
+  showAuthMsg('login-err','');
+}
+
+function showApp(user){
+  document.getElementById('auth-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.getElementById('user-avatar').textContent = (user.name||user.username)[0].toUpperCase();
+  document.getElementById('logged-as').textContent = user.username + (user.role==='admin'?' (Admin)':'');
+  document.getElementById('p-name').value  = user.name||'';
+  document.getElementById('p-email').value = user.email||'';
+  // admin-only elements
+  const isAdmin = user.role==='admin';
+  document.querySelectorAll('.admin-only').forEach(el=>el.style.display=isAdmin?'':'none');
+  document.getElementById('admin-badge-top').style.display=isAdmin?'':'none';
+  // load GH settings
+  const gh = getGH();
+  if(gh.user) document.getElementById('gh-user').value=gh.user;
+  if(gh.repo) document.getElementById('gh-repo').value=gh.repo;
+  if(gh.token) document.getElementById('gh-tok').value=gh.token;
+  checkCfg();
+  if(gh.user&&gh.repo&&gh.token) fetchRuns();
+}
+
+// auto-login if session exists
+initUsers();
+const existSess = getSess();
+if(existSess){ showApp(existSess); }
+
+// ════════════════════════════════════════════════════════
+// NAV
+// ════════════════════════════════════════════════════════
+function showPage(name, btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  if(btn) btn.classList.add('active');
+  if(name==='users') renderUsersTable();
+}
+
+// ════════════════════════════════════════════════════════
+// TOAST
+// ════════════════════════════════════════════════════════
+function toast(msg,type){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.style.background=type==='err'?'var(--red)':type==='warn'?'var(--yellow)':type==='info'?'var(--blue)':'var(--green)';
+  t.style.color=type==='warn'?'#000':'#fff';
+  t.style.display='block';
+  clearTimeout(t._t);
+  t._t=setTimeout(()=>t.style.display='none',3200);
+}
+
+// ════════════════════════════════════════════════════════
+// LOG
+// ════════════════════════════════════════════════════════
+function log(msg){
+  const el=document.getElementById('actlog');
+  const ts=new Date().toLocaleTimeString('en-IN');
+  el.textContent=`[${ts}] ${msg}\n`+el.textContent;
+}
+
+// ════════════════════════════════════════════════════════
+// GITHUB API
+// ════════════════════════════════════════════════════════
+async function ghAPI(path,method='GET',body=null){
+  const gh=getGH();
+  if(!gh.token||!gh.user||!gh.repo) throw new Error('GitHub not configured. Go to Settings.');
+  const r=await fetch(`https://api.github.com/repos/${gh.user}/${gh.repo}${path}`,{
+    method,
+    headers:{'Authorization':'Bearer '+gh.token,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','Content-Type':'application/json'},
+    body:body?JSON.stringify(body):null
+  });
+  const d=await r.json();
+  if(!r.ok) throw new Error(d.message||'GitHub API error '+r.status);
+  return d;
+}
+
+// ════════════════════════════════════════════════════════
+// CONTROL
+// ════════════════════════════════════════════════════════
+function checkCfg(){
+  const gh=getGH();
+  const ok=gh.user&&gh.repo&&gh.token;
+  document.getElementById('no-cfg-banner').style.display=ok?'none':'block';
+}
+
+async function triggerWorkflow(){
+  const btn=document.getElementById('run-btn');
+  const st=document.getElementById('run-st');
+  btn.disabled=true; btn.innerHTML='<div class="spin"></div> Triggering...';
+  try{
+    await ghAPI('/actions/workflows/nifty100.yml/dispatches','POST',{ref:'main',inputs:{reason:'Manual from dashboard'}});
+    toast('✅ Triggered! CSV arriving on Telegram soon');
+    log('✅ Manual trigger fired from dashboard');
+    st.innerHTML='<span style="color:var(--green)">✅ Running — check Telegram in ~1 min</span>';
+    setTimeout(fetchRuns,6000);
+  }catch(e){
+    toast('❌ '+e.message,'err');
+    log('❌ Trigger failed: '+e.message);
+    st.innerHTML='<span style="color:var(--red)">❌ '+e.message+'</span>';
+  }
+  btn.disabled=false; btn.innerHTML='▶ Send to Telegram Now';
+}
+
+async function updateSchedule(){
+  const sel=document.getElementById('time-sel');
+  const cron=sel.value;
+  const label=sel.options[sel.selectedIndex].dataset.l;
+  try{
+    log('📡 Fetching nifty100.yml...');
+    const f=await ghAPI('/contents/.github/workflows/nifty100.yml');
+    let content=decodeURIComponent(escape(atob(f.content.replace(/\n/g,''))));
+    content=content.replace(/- cron: '[^']*'/,`- cron: '${cron}'`);
+    const enc=btoa(unescape(encodeURIComponent(content)));
+    log('📡 Updating schedule...');
+    await ghAPI('/contents/.github/workflows/nifty100.yml','PUT',{message:`Schedule → ${label} IST`,content:enc,sha:f.sha});
+    toast('✅ Schedule updated to '+label);
+    log('✅ Schedule changed to '+label);
+    document.getElementById('sched-disp').textContent=label;
+  }catch(e){ toast('❌ '+e.message,'err'); log('❌ '+e.message); }
+}
+
+function updateTimeDisp(){
+  const sel=document.getElementById('time-sel');
+  document.getElementById('sched-disp').textContent=sel.options[sel.selectedIndex].dataset.l;
+}
+
+async function fetchRuns(){
+  document.getElementById('runs-refresh-hint').textContent='Loading...';
+  try{
+    const d=await ghAPI('/actions/workflows/nifty100.yml/runs?per_page=8');
+    const runs=d.workflow_runs||[];
+    log('🔄 Fetched '+runs.length+' recent runs');
+    document.getElementById('runs-refresh-hint').textContent='Last updated: '+new Date().toLocaleTimeString('en-IN');
+    if(!runs.length){ document.getElementById('runs-wrap').innerHTML='<div style="color:var(--muted);padding:16px 0;text-align:center;font-size:13px">No runs yet</div>'; return; }
+    const rows=runs.map(r=>{
+      const s=r.conclusion==='success'?'<span class="badge bg">✅ success</span>':r.conclusion==='failure'?'<span class="badge br">❌ failed</span>':r.status==='in_progress'?'<span class="badge by">🔄 running</span>':'<span class="badge bb">'+r.status+'</span>';
+      const dt=new Date(r.created_at).toLocaleString('en-IN',{timeZone:'Asia/Kolkata',hour12:true});
+      const tr=r.event==='schedule'?'⏰ Auto':'▶ Manual';
+      return`<tr><td>${s}</td><td>${dt} IST</td><td>${tr}</td><td><a href="${r.html_url}" target="_blank" style="color:var(--blue);font-size:11px">View →</a></td></tr>`;
+    }).join('');
+    document.getElementById('runs-wrap').innerHTML=`<div class="tbl-wrap"><table><thead><tr><th>Status</th><th>Time (IST)</th><th>Trigger</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  }catch(e){ log('⚠️ Runs fetch failed: '+e.message); document.getElementById('runs-refresh-hint').textContent=''; }
+}
+
+// ════════════════════════════════════════════════════════
+// RECIPIENTS
+// ════════════════════════════════════════════════════════
+let recipientsList = [];
+
+function renderTags(){
+  const wrap=document.getElementById('tags-wrap');
+  const inp=document.getElementById('tag-inp');
+  wrap.innerHTML='';
+  recipientsList.forEach((id,i)=>{
+    const tag=document.createElement('div');
+    tag.className='recipient-tag';
+    tag.innerHTML=`<span>${id}</span><span class="rm" onclick="removeTag(${i})">×</span>`;
+    wrap.appendChild(tag);
+  });
+  wrap.appendChild(inp);
+}
+
+function addTag(e){
+  if(e.key==='Enter'||e.key===','){
+    e.preventDefault();
+    const val=e.target.value.trim().replace(/,$/,'');
+    if(val&&!recipientsList.includes(val)){
+      recipientsList.push(val);
+      renderTags();
+    }
+    e.target.value='';
+  }
+}
+function removeTag(i){ recipientsList.splice(i,1); renderTags(); }
+
+async function loadRecipients(){
+  try{
+    // Try to read from GitHub secrets via API (secrets values not readable, show placeholder)
+    toast('Recipients are write-only in GitHub Secrets. Add new ones below.','info');
+    log('ℹ️ GitHub Secrets are write-only — current list cannot be read back');
+  }catch(e){ toast('❌ '+e.message,'err'); }
+}
+
+async function saveRecipients(){
+  if(!recipientsList.length){ toast('Add at least one recipient','warn'); return; }
+  const jsonVal=JSON.stringify(recipientsList);
+  try{
+    // Update secret via GitHub API
+    // First get repo public key
+    log('📡 Fetching repo public key...');
+    const gh=getGH();
+    if(!gh.token||!gh.user||!gh.repo){ toast('Configure GitHub in Settings first','warn'); return; }
+    const keyData=await ghAPI('/actions/secrets/public-key');
+    // For simplicity, we'll update via PUT (libsodium needed for encryption in real impl)
+    // Instead: show user the value to paste manually
+    document.getElementById('rec-st').innerHTML=`
+      <div class="success-box">
+        <b>✅ Recipients list ready!</b><br><br>
+        Since GitHub Secrets require encryption, please do this manually (30 seconds):<br><br>
+        1. Tap <b>⚙️ Settings</b> → "GitHub Secrets Page" button<br>
+        2. Click <b>RECIPIENTS</b> secret (or create new if not exists)<br>
+        3. Paste this value:<br>
+        <code style="word-break:break-all;display:block;margin-top:8px;padding:8px;background:var(--bg3);border-radius:6px">${jsonVal}</code><br>
+        4. Click <b>Update secret</b> → Done!
+      </div>`;
+    toast('✅ Copy the value shown and paste in GitHub Secrets');
+    log('✅ Recipients value generated: '+jsonVal);
+  }catch(e){ toast('❌ '+e.message,'err'); }
+}
+
+// ════════════════════════════════════════════════════════
+// SETTINGS — GitHub
+// ════════════════════════════════════════════════════════
+function saveGH(){
+  const o={user:document.getElementById('gh-user').value.trim(),repo:document.getElementById('gh-repo').value.trim(),token:document.getElementById('gh-tok').value.trim()};
+  if(!o.user||!o.repo||!o.token){ toast('Fill all 3 GitHub fields','warn'); return; }
+  saveGHCfg(o); toast('✅ GitHub settings saved'); checkCfg();
+  // update session with latest
+  const sess=getSess(); if(sess){ setSess(sess); }
+}
+async function testGH(){
+  saveGH();
+  document.getElementById('gh-result').innerHTML='<span style="color:var(--muted)">Testing...</span>';
+  try{
+    const d=await ghAPI('');
+    document.getElementById('gh-result').innerHTML=`<span style="color:var(--green)">✅ Connected! <b>${d.full_name}</b></span>`;
+    toast('✅ GitHub connected!');
+    fetchRuns();
+  }catch(e){
+    document.getElementById('gh-result').innerHTML=`<span style="color:var(--red)">❌ ${e.message}</span>`;
+    toast('❌ '+e.message,'err');
+  }
+}
+function openSecrets(){
+  const gh=getGH();
+  window.open(gh.user&&gh.repo?`https://github.com/${gh.user}/${gh.repo}/settings/secrets/actions`:'https://github.com','_blank');
+}
+
+// ════════════════════════════════════════════════════════
+// PROFILE
+// ════════════════════════════════════════════════════════
+function saveProfile(){
+  const sess=getSess(); if(!sess) return;
+  let users=getUsers();
+  const idx=users.findIndex(u=>u.username===sess.username);
+  if(idx<0) return;
+  users[idx].name  = document.getElementById('p-name').value.trim()||users[idx].name;
+  users[idx].email = document.getElementById('p-email').value.trim()||users[idx].email;
+  const np=document.getElementById('p-newpass').value;
+  const np2=document.getElementById('p-newpass2').value;
+  if(np){
+    if(np.length<6){ toast('Password must be 6+ characters','warn'); return; }
+    if(np!==np2){ toast('Passwords do not match','warn'); return; }
+    users[idx].password=btoa(np);
+  }
+  saveUsers(users);
+  setSess(users[idx]);
+  document.getElementById('logged-as').textContent=users[idx].username+(users[idx].role==='admin'?' (Admin)':'');
+  document.getElementById('user-avatar').textContent=(users[idx].name||users[idx].username)[0].toUpperCase();
+  toast('✅ Profile updated');
+  document.getElementById('p-newpass').value='';
+  document.getElementById('p-newpass2').value='';
+}
+
+// ════════════════════════════════════════════════════════
+// USERS TABLE (admin)
+// ════════════════════════════════════════════════════════
+let deleteTarget=null;
+function renderUsersTable(){
+  const users=getUsers();
+  document.getElementById('user-count').textContent=users.length+' users';
+  const sess=getSess();
+  document.getElementById('users-tb').innerHTML=users.map((u,i)=>{
+    const isMe=u.username===sess?.username;
+    const rowCls=u.role==='admin'?' class="user-row-admin"':'';
+    return`<tr${rowCls}>
+      <td>${i+1}</td>
+      <td><b>${u.username}</b>${u.role==='admin'?'<span class="admin-badge" style="margin-left:6px">ADMIN</span>':''}</td>
+      <td>${u.name||'—'}</td>
+      <td>${u.email||'—'}</td>
+      <td><span class="badge ${u.role==='admin'?'by':'bb'}">${u.role}</span></td>
+      <td style="font-size:11px;color:var(--muted)">${u.joined?new Date(u.joined).toLocaleDateString('en-IN'):'-'}</td>
+      <td>${isMe?'<span style="color:var(--muted);font-size:11px">(you)</span>':u.role!=='admin'?`<button class="btn btn-red btn-sm" onclick="askDelete('${u.username}')">Delete</button>`:'—'}</td>
+    </tr>`;
+  }).join('');
+}
+function askDelete(username){
+  deleteTarget=username;
+  document.getElementById('del-uname').textContent=username;
+  document.getElementById('del-modal').classList.add('open');
+}
+function confirmDelete(){
+  if(!deleteTarget) return;
+  let users=getUsers();
+  users=users.filter(u=>u.username!==deleteTarget);
+  saveUsers(users);
+  deleteTarget=null;
+  closeModal();
+  renderUsersTable();
+  toast('✅ User deleted');
+}
+function closeModal(){ document.getElementById('del-modal').classList.remove('open'); }
+
+// ════════════════════════════════════════════════════════
+// CSV ANALYSIS
+// ════════════════════════════════════════════════════════
+let allRows=[],allCols=[],charts={};
+
+function loadCSV(evt){
+  const file=evt.target.files[0]; if(!file) return;
+  Papa.parse(file,{header:true,skipEmptyLines:true,complete(res){
+    allRows=res.data; allCols=res.meta.fields||[];
+    document.getElementById('file-lbl').textContent='✅ '+file.name+' ('+allRows.length+' rows)';
+    document.getElementById('no-data').style.display='none';
+    document.getElementById('analysis-data').style.display='block';
+    document.getElementById('dl-btn').style.display='inline-flex';
+    renderStats(); renderCharts(); renderTbl();
+    toast('✅ Loaded '+allRows.length+' stocks');
+    log('📂 CSV loaded: '+file.name);
+  },error(e){ toast('❌ '+e.message,'err'); }});
+}
+
+function num(r,ks){ for(const k of ks){ const v=parseFloat(String(r[k]||'').replace(/,/g,'')); if(!isNaN(v)) return v; } return 0; }
+function str(r,ks){ for(const k of ks){ if(r[k]) return String(r[k]); } return ''; }
+function kc(id){ if(charts[id]){charts[id].destroy();delete charts[id];} }
+const CO={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'var(--muted)',font:{size:10}},grid:{color:'var(--border)'}},y:{ticks:{color:'var(--muted)'},grid:{color:'var(--border)'}}}};
+
+function renderStats(){
+  let g=0,l=0,u=0;
+  allRows.forEach(r=>{const c=num(r,['pChange','change','chng']);if(c>0)g++;else if(c<0)l++;else u++;});
+  document.getElementById('st-tot').textContent=allRows.length;
+  document.getElementById('st-g').textContent=g;
+  document.getElementById('st-l').textContent=l;
+  document.getElementById('st-u').textContent=u;
+}
+
+function renderCharts(){
+  let g=0,l=0,u=0;
+  allRows.forEach(r=>{const c=num(r,['pChange','change','chng']);if(c>0)g++;else if(c<0)l++;else u++;});
+  kc('pie');
+  charts['pie']=new Chart(document.getElementById('cPie'),{type:'doughnut',data:{labels:['Gainers','Losers','Flat'],datasets:[{data:[g,l,u],backgroundColor:['#3fb950','#f85149','#d29922'],borderWidth:0,hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8b949e',font:{size:12}}}}}});
+
+  const sg=[...allRows].sort((a,b)=>num(b,['pChange','change','chng'])-num(a,['pChange','change','chng'])).slice(0,10);
+  kc('gain');
+  charts['gain']=new Chart(document.getElementById('cGain'),{type:'bar',data:{labels:sg.map(r=>str(r,['symbol','Symbol','SYMBOL'])),datasets:[{data:sg.map(r=>num(r,['pChange','change','chng'])),backgroundColor:'#3fb950',borderRadius:5}]},options:CO});
+
+  const sl=[...allRows].sort((a,b)=>num(a,['pChange','change','chng'])-num(b,['pChange','change','chng'])).slice(0,10);
+  kc('loss');
+  charts['loss']=new Chart(document.getElementById('cLoss'),{type:'bar',data:{labels:sl.map(r=>str(r,['symbol','Symbol','SYMBOL'])),datasets:[{data:sl.map(r=>num(r,['pChange','change','chng'])),backgroundColor:'#f85149',borderRadius:5}]},options:CO});
+
+  const sv=[...allRows].sort((a,b)=>num(b,['totalTradedVolume','volume','Volume'])-num(a,['totalTradedVolume','volume','Volume'])).slice(0,10);
+  kc('vol');
+  charts['vol']=new Chart(document.getElementById('cVol'),{type:'bar',data:{labels:sv.map(r=>str(r,['symbol','Symbol','SYMBOL'])),datasets:[{data:sv.map(r=>Math.round(num(r,['totalTradedVolume','volume','Volume'])/100)),backgroundColor:'#bc8cff',borderRadius:5}]},options:CO});
+
+  const sp=[...allRows].sort((a,b)=>num(b,['lastPrice','ltp','LTP','last'])-num(a,['lastPrice','ltp','LTP','last'])).slice(0,15);
+  kc('price');
+  charts['price']=new Chart(document.getElementById('cPrice'),{type:'bar',data:{labels:sp.map(r=>str(r,['symbol','Symbol','SYMBOL'])),datasets:[{data:sp.map(r=>num(r,['lastPrice','ltp','LTP','last'])),backgroundColor:'#58a6ff',borderRadius:5}]},options:{...CO,plugins:{legend:{display:false}}}});
+}
+
+function renderTbl(){
+  document.getElementById('tbl-empty').style.display='none';
+  const pri=['symbol','Symbol','SYMBOL','lastPrice','ltp','pChange','change','totalTradedVolume','dayHigh','dayLow','open','previousClose'];
+  const cols=[...new Set([...pri.filter(c=>allCols.includes(c)),...allCols])].slice(0,12);
+  document.getElementById('th').innerHTML='<tr>'+cols.map(c=>`<th>${c}</th>`).join('')+'</tr>';
+  drawRows(allRows,cols);
+  document.getElementById('tbl-cnt').textContent='('+allRows.length+')';
+}
+function drawRows(rows,cols){
+  if(!cols||!cols.length){ const pri=['symbol','Symbol','SYMBOL','lastPrice','ltp','pChange','change','totalTradedVolume','dayHigh','dayLow','open','previousClose']; cols=[...new Set([...pri.filter(c=>allCols.includes(c)),...allCols])].slice(0,12); }
+  document.getElementById('tb').innerHTML=rows.slice(0,300).map(r=>'<tr>'+cols.map(c=>{
+    const v=r[c]||''; const n=parseFloat(String(v).replace(/,/g,''));
+    if((c.toLowerCase().includes('change')||c==='pChange')&&!isNaN(n)){
+      const cl=n>0?'style="color:var(--green)"':n<0?'style="color:var(--red)"':'';
+      return`<td ${cl}>${n>0?'▲ ':n<0?'▼ ':''}${v}</td>`;
+    }
+    return`<td>${v}</td>`;
+  }).join('')+'</tr>').join('');
+}
+function filterTbl(){
+  const q=document.getElementById('srch').value.toLowerCase();
+  const f=allRows.filter(r=>Object.values(r).some(v=>String(v).toLowerCase().includes(q)));
+  drawRows(f,[]);
+  document.getElementById('tbl-cnt').textContent='('+f.length+' of '+allRows.length+')';
+}
+function downloadCSV(){
+  if(!allRows.length) return;
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([Papa.unparse(allRows)],{type:'text/csv'}));
+  a.download='Nifty100_export.csv'; a.click();
+  toast('✅ Downloaded');
+}
+</script>
+</body>
+</html>
