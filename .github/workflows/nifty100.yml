@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       reason:
-        description: 'Manual trigger reason'
+        description: 'Trigger reason'
         required: false
         default: 'Manual run from dashboard'
 
@@ -27,6 +27,7 @@ jobs:
 
       - name: Run Nifty100 bot
         env:
-          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
-          CHAT_ID:   ${{ secrets.CHAT_ID }}
+          BOT_TOKEN:  ${{ secrets.BOT_TOKEN }}
+          CHAT_ID:    ${{ secrets.CHAT_ID }}
+          RECIPIENTS: ${{ secrets.RECIPIENTS }}
         run: python nifty100_bot.py
