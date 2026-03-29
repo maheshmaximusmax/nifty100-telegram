@@ -1,10 +1,23 @@
 import requests, time, csv, io, os, pytz, json
 from datetime import datetime
 
-BOT_TOKEN   = os.environ["BOT_TOKEN"]
-# RECIPIENTS is a JSON array of chat ids / channel ids e.g. ["123456","@mychannel"]
+BOT_TOKEN      = os.environ["BOT_TOKEN"]
 RECIPIENTS_RAW = os.environ.get("RECIPIENTS", "")
-CHAT_ID_LEGACY = os.environ.get("CHAT_ID", "")
+CHAT_ID_LEG    = os.environ.get("CHAT_ID", "")
+INDEX_NAME     = os.environ.get("INDEX_NAME", "NIFTY 100")
+
+NSE_INDICES = {
+    "NIFTY 100":        "NIFTY%20100",
+    "NIFTY 50":         "NIFTY%2050",
+    "NIFTY NEXT 50":    "NIFTY%20NEXT%2050",
+    "NIFTY MIDCAP 100": "NIFTY%20MIDCAP%20100",
+    "NIFTY SMALLCAP 100":"NIFTY%20SMALLCAP%20100",
+    "NIFTY BANK":       "NIFTY%20BANK",
+    "NIFTY IT":         "NIFTY%20IT",
+    "NIFTY PHARMA":     "NIFTY%20PHARMA",
+    "NIFTY AUTO":       "NIFTY%20AUTO",
+    "NIFTY FMCG":       "NIFTY%20FMCG",
+}
 
 def parse_recipients():
     ids = []
@@ -14,39 +27,34 @@ def parse_recipients():
             if isinstance(parsed, list):
                 ids = [str(x).strip() for x in parsed if str(x).strip()]
         except Exception:
-            # fallback: comma separated
             ids = [x.strip() for x in RECIPIENTS_RAW.split(",") if x.strip()]
-    if not ids and CHAT_ID_LEGACY:
-        ids = [CHAT_ID_LEGACY]
+    if not ids and CHAT_ID_LEG:
+        ids = [CHAT_ID_LEG]
     return ids
 
-def get_nse_data():
+def get_nse_data(index_name):
+    enc = NSE_INDICES.get(index_name, "NIFTY%20100")
+    url = f"https://www.nseindia.com/market-data/live-equity-market?symbol={enc}"
+    api = f"https://www.nseindia.com/api/equity-stockIndices?index={enc.replace('%20',' ')}"
     s = requests.Session()
     s.headers.update({
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/123.0.0.0 Safari/537.36",
         "Accept-Language": "en-IN,en;q=0.9",
         "Referer": "https://www.nseindia.com",
     })
-    print("Visiting NSE for cookies...")
-    s.get("https://www.nseindia.com/market-data/live-equity-market?symbol=NIFTY%20100", timeout=20)
+    print(f"Visiting NSE for cookies ({index_name})...")
+    s.get(url, timeout=20)
     time.sleep(4)
-    print("Fetching Nifty 100 data...")
-    r = s.get(
-        "https://www.nseindia.com/api/equity-stockIndices?index=NIFTY%20100",
-        headers={"Accept": "application/json",
-                 "Referer": "https://www.nseindia.com/market-data/live-equity-market?symbol=NIFTY%20100"},
-        timeout=20
-    )
+    print("Fetching data...")
+    r = s.get(api, headers={"Accept":"application/json","Referer":url}, timeout=20)
     r.raise_for_status()
     return r.json()
 
 def to_csv(data):
     rows = data.get("data", [])
-    if not rows:
-        return None
+    if not rows: return None
     stock_rows = [r for r in rows if isinstance(r.get("symbol"), str) and r.get("symbol") not in ("", None)]
-    if not stock_rows:
-        stock_rows = rows
+    if not stock_rows: stock_rows = rows
     all_keys = list(dict.fromkeys(k for row in stock_rows for k in row.keys()))
     out = io.StringIO()
     w = csv.DictWriter(out, fieldnames=all_keys, extrasaction='ignore')
@@ -66,38 +74,32 @@ def send_to(chat_id, csv_bytes, filename, caption):
     return r.ok
 
 def send_msg(chat_id, text):
-    requests.post(
-        f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
-        data={"chat_id": chat_id, "text": text},
-        timeout=15
-    )
+    requests.post(f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+                  data={"chat_id": chat_id, "text": text}, timeout=15)
 
 ist      = pytz.timezone("Asia/Kolkata")
 now      = datetime.now(ist)
 date     = now.strftime("%Y-%m-%d")
 time_str = now.strftime("%d %b %Y, %I:%M %p IST")
 recipients = parse_recipients()
-
-print(f"Recipients: {recipients}")
+print(f"Index: {INDEX_NAME} | Recipients: {recipients}")
 
 try:
-    data     = get_nse_data()
+    data     = get_nse_data(INDEX_NAME)
     csv_text = to_csv(data)
-    if not csv_text:
-        raise Exception("NSE returned empty data")
+    if not csv_text: raise Exception("NSE returned empty data")
     csv_bytes = csv_text.encode("utf-8")
     stocks    = len(csv_text.splitlines()) - 1
-    caption   = f"📊 *Nifty 100 Live Data*\n🕘 {time_str}\n📁 {stocks} stocks"
-    filename  = f"Nifty100_{date}.csv"
+    caption   = f"📊 *{INDEX_NAME} Live Data*\n🕘 {time_str}\n📁 {stocks} stocks"
+    filename  = f"{INDEX_NAME.replace(' ','_')}_{date}.csv"
     ok = 0
     for cid in recipients:
-        if send_to(cid, csv_bytes, filename, caption):
-            ok += 1
+        if send_to(cid, csv_bytes, filename, caption): ok += 1
     print(f"✅ Sent to {ok}/{len(recipients)} recipients")
 except Exception as e:
     print(f"❌ Error: {e}")
     for cid in recipients:
-        try: send_msg(cid, f"⚠️ Nifty100 download failed on {date}\n\nError: {e}")
+        try: send_msg(cid, f"⚠️ {INDEX_NAME} download failed on {date}\n\nError: {e}")
         except: pass
     raise
     
