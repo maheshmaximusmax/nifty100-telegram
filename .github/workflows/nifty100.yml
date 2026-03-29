@@ -1,5 +1,4 @@
 name: Nifty100 Daily Telegram Bot
-
 on:
   schedule:
     - cron: '0 4 * * 1-5'
@@ -9,25 +8,23 @@ on:
         description: 'Trigger reason'
         required: false
         default: 'Manual run from dashboard'
-
+      index_name:
+        description: 'Index to download'
+        required: false
+        default: 'NIFTY 100'
 jobs:
   send-nifty100:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
-      - name: Install packages
-        run: pip install requests pytz
-
-      - name: Run Nifty100 bot
+      - run: pip install requests pytz
+      - name: Run bot
         env:
           BOT_TOKEN:  ${{ secrets.BOT_TOKEN }}
           CHAT_ID:    ${{ secrets.CHAT_ID }}
           RECIPIENTS: ${{ secrets.RECIPIENTS }}
+          INDEX_NAME: ${{ github.event.inputs.index_name || 'NIFTY 100' }}
         run: python nifty100_bot.py
