@@ -1,4 +1,4 @@
-name: Nifty100 Daily Telegram Bot
+name: Nifty Beast Daily Bot
 on:
   schedule:
     - cron: '0 4 * * 1-5'
@@ -7,13 +7,13 @@ on:
       reason:
         description: 'Trigger reason'
         required: false
-        default: 'Manual run from dashboard'
+        default: 'Manual'
       index_name:
         description: 'Index to download'
         required: false
         default: 'NIFTY 100'
 jobs:
-  send-nifty100:
+  send-data:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
