@@ -236,9 +236,9 @@ hr{border:none;border-top:1px solid var(--bd);margin:12px 0}
       <div class="fr"><label>Full Name</label><input id="rn" placeholder="Your name"></div>
       <div class="fr"><label>Username (lowercase, no spaces)</label><input id="ru" placeholder="e.g. john123"></div>
       <div class="fr"><label>Email</label><input id="rem" type="email" placeholder="your@email.com"></div>
-      <div class="fr"><label>Telegram Chat ID (for OTP)</label>
-        <input id="rtid" placeholder="Your Telegram ID (from @userinfobot)">
-        <div style="font-size:10px;color:var(--mu);margin-top:3px">Open Telegram → search @userinfobot → tap Start → copy your ID number</div>
+      <div class="fr"><label>Mobile Number (for OTP via Telegram bot)</label>
+        <input id="rtid" placeholder="Your 10-digit mobile number (e.g. 9876543210)" type="tel">
+        <div style="font-size:10px;color:var(--mu);margin-top:3px">Enter your mobile number. Admin will send OTP via the Telegram bot to your registered number/Telegram.</div>
       </div>
       <div class="fr"><label>Password (min 6 chars)</label>
         <div class="pw-wrap">
@@ -544,7 +544,7 @@ hr{border:none;border-top:1px solid var(--bd);margin:12px 0}
 <!-- ═══ AI ═══ -->
 <div id="pg-ai" class="page">
   <div class="card">
-    <div class="chd"><div><div style="font-size:14px;font-weight:700">🤖 AI Market Assistant</div><div style="font-size:11px;color:var(--mu)">Powered by Claude · Real market insights</div></div><button class="btn bo bsm" onclick="clearChat('ai-box')">🗑 Clear</button></div>
+    <div class="chd"><div><div style="font-size:14px;font-weight:700">🤖 AI Market Assistant</div><div style="font-size:11px;color:var(--mu)">Multi-AI Support · Real market insights</div></div><button class="btn bo bsm" onclick="clearChat('ai-box')">🗑 Clear</button></div>
     <div class="ai-box" id="ai-box">
       <div class="ai-msg ai-bot">👋 Hi! I'm your AI Stock Assistant.<br><br>I can help with buy/sell suggestions, risk analysis, market trends, portfolio strategy, and global market insights.<br><br>Load a CSV file for data-based analysis, or just ask anything!</div>
     </div>
@@ -562,12 +562,21 @@ hr{border:none;border-top:1px solid var(--bd);margin:12px 0}
     </div>
   </div>
   <div class="card">
-    <div class="ct" style="margin-bottom:10px">🔑 Anthropic API Key</div>
-    <div class="fr"><label>Claude API Key</label>
-      <div class="pw-wrap"><input type="password" id="ai-key" placeholder="sk-ant-..."><button class="pw-eye" type="button" onclick="togglePW('ai-key',this)">👁</button></div>
+    <div class="ct" style="margin-bottom:10px">🔑 AI Provider & API Key</div>
+    <div class="fr"><label>Select AI Provider</label>
+      <select id="ai-provider" onchange="updateAIProviderHint()">
+        <option value="qwen">🆓 Qwen (Free — Alibaba Cloud)</option>
+        <option value="openai">💳 OpenAI (GPT-4o)</option>
+        <option value="groq">⚡ Groq (Fast, Free tier)</option>
+        <option value="claude">🧠 Claude (Anthropic)</option>
+        <option value="gemini">✨ Gemini (Google AI)</option>
+      </select>
+    </div>
+    <div class="fr"><label id="ai-key-label">API Key</label>
+      <div class="pw-wrap"><input type="password" id="ai-key" placeholder="Paste your API key here"><button class="pw-eye" type="button" onclick="togglePW('ai-key',this)">👁</button></div>
     </div>
     <button class="btn bb bsm" onclick="saveAIKey()">💾 Save Key</button>
-    <div class="wbox" style="margin-top:8px">Get free key at <b>console.anthropic.com</b> · Stored in your browser only</div>
+    <div id="ai-provider-hint" class="wbox" style="margin-top:8px">🆓 Qwen is FREE! Get key at <b>dashscope.aliyuncs.com</b> → API Keys → Create API Key</div>
   </div>
 </div>
 
@@ -613,6 +622,7 @@ hr{border:none;border-top:1px solid var(--bd);margin:12px 0}
   <div class="stabs">
     <button class="stab on" onclick="stab('profile',this)">👤 Profile</button>
     <button class="stab" onclick="stab('github',this)">🔑 GitHub</button>
+    <button class="stab" onclick="stab('market',this)">📡 Market APIs</button>
     <button class="stab" onclick="stab('theme',this)">🎨 Theme</button>
     <button class="stab" onclick="stab('logout',this)">🚪 Logout</button>
   </div>
@@ -624,8 +634,8 @@ hr{border:none;border-top:1px solid var(--bd);margin:12px 0}
         <div class="fr"><label>Email</label><input id="pemail" type="email"></div>
       </div>
       <div class="g2">
-        <div class="fr"><label>Mobile</label><input id="pmobile" type="tel"></div>
-        <div class="fr"><label>Telegram Chat ID</label><input id="ptgid" placeholder="Your Telegram ID"></div>
+        <div class="fr"><label>Mobile Number</label><input id="pmobile" type="tel" placeholder="+91..."></div>
+        <div class="fr"><label>Telegram Chat ID (optional)</label><input id="ptgid" placeholder="Your Telegram ID"></div>
       </div>
       <div class="fr"><label>New Password (blank = no change)</label>
         <div class="pw-wrap"><input id="pnp" type="password" placeholder="New password"><button class="pw-eye" type="button" onclick="togglePW('pnp',this)">👁</button></div>
@@ -638,25 +648,57 @@ hr{border:none;border-top:1px solid var(--bd);margin:12px 0}
   <div id="st-github" style="display:none">
     <div class="card">
       <div class="ct" style="margin-bottom:10px">GitHub Configuration</div>
-      <div class="ibox" style="margin-bottom:10px">Stored in your browser only. Required to control the bot.</div>
+      <div class="sbox" style="margin-bottom:10px">✅ Save once — works on ALL devices! GitHub PAT is stored in your browser and used to talk to GitHub API.</div>
       <div class="g2">
         <div class="fr"><label>GitHub Username</label><input id="ghu" placeholder="maheshmaximusmax"></div>
         <div class="fr"><label>Repository Name</label><input id="ghr" placeholder="nifty100-telegram"></div>
       </div>
       <div class="fr"><label>Bot Token (for OTP sending)</label>
         <div class="pw-wrap"><input type="password" id="bot-tok" placeholder="Your Telegram Bot Token"><button class="pw-eye" type="button" onclick="togglePW('bot-tok',this)">👁</button></div>
-        <div style="font-size:10px;color:var(--mu);margin-top:3px">Used to send OTPs to new users' Telegram. Same token as your GitHub BOT_TOKEN secret.</div>
+        <div style="font-size:10px;color:var(--mu);margin-top:3px">Used to send OTPs. Same token as your GitHub BOT_TOKEN secret.</div>
       </div>
       <div class="fr"><label>Personal Access Token (PAT)</label>
         <div class="pw-wrap"><input type="password" id="ght" placeholder="ghp_..."><button class="pw-eye" type="button" onclick="togglePW('ght',this)">👁</button></div>
       </div>
-      <div class="wbox" style="margin-bottom:10px">PAT: GitHub → Profile → Settings → Developer settings → Tokens (classic) → Generate → tick repo + workflow</div>
+      <div class="wbox" style="margin-bottom:10px">PAT: GitHub → Profile → Settings → Developer settings → Tokens (classic) → Generate → tick <b>repo + workflow</b></div>
       <div class="flex">
         <button class="btn bg" onclick="saveGH()">💾 Save</button>
         <button class="btn bb" onclick="testGH()">🔌 Test Connection</button>
         <button class="btn bo bsm" onclick="openSec()">🔗 GitHub Secrets</button>
       </div>
       <div id="ghres" style="margin-top:8px;font-size:12px"></div>
+    </div>
+    <div class="card">
+      <div class="ct" style="margin-bottom:10px">📋 GitHub Secrets Quick Setup</div>
+      <div class="ibox" style="margin-bottom:10px;line-height:1.9">Go to your GitHub repo → <b>Settings → Secrets → Actions</b> and add these secrets:<br>
+        <b>BOT_TOKEN</b> → Your Telegram Bot Token<br>
+        <b>RECIPIENTS</b> → JSON array of chat IDs e.g. <code>["123456"]</code></div>
+      <button class="btn bo bsm" onclick="openSec()">🔗 Open GitHub Secrets Page</button>
+    </div>
+  </div>
+  <div id="st-market" style="display:none">
+    <div class="card">
+      <div class="ct" style="margin-bottom:10px">📡 Live Market API Keys</div>
+      <div class="ibox" style="margin-bottom:10px">These optional API keys enable real live market data. All free tiers available!</div>
+      <div class="fr"><label>CoinGecko API Key (Crypto — Free tier available)</label>
+        <div class="pw-wrap"><input type="password" id="mkt-cg" placeholder="CG-... (optional, free tier works without)"><button class="pw-eye" type="button" onclick="togglePW('mkt-cg',this)">👁</button></div>
+        <div style="font-size:10px;color:var(--mu);margin-top:3px">Get key at <b>coingecko.com/en/api</b> → Demo API (Free)</div>
+      </div>
+      <div class="fr"><label>Alpha Vantage API Key (Stocks, Gold, Forex — Free)</label>
+        <div class="pw-wrap"><input type="password" id="mkt-av" placeholder="Your Alpha Vantage key"><button class="pw-eye" type="button" onclick="togglePW('mkt-av',this)">👁</button></div>
+        <div style="font-size:10px;color:var(--mu);margin-top:3px">Get FREE key at <b>alphavantage.co/support</b> → Get Free API Key</div>
+      </div>
+      <div class="fr"><label>ExchangeRate API (Currency — Free)</label>
+        <div class="pw-wrap"><input type="password" id="mkt-er" placeholder="Your ExchangeRate API key"><button class="pw-eye" type="button" onclick="togglePW('mkt-er',this)">👁</button></div>
+        <div style="font-size:10px;color:var(--mu);margin-top:3px">Get FREE key at <b>exchangerate-api.com</b></div>
+      </div>
+      <button class="btn bg" onclick="saveMktKeys()">💾 Save Market API Keys</button>
+      <div id="mkt-key-res" style="margin-top:8px;font-size:12px"></div>
+    </div>
+    <div class="card">
+      <div class="ct" style="margin-bottom:10px">📍 Live Markets Status</div>
+      <div id="mkt-api-status"><div style="color:var(--mu);font-size:12px">Save API keys and refresh markets to see status</div></div>
+      <button class="btn bb bsm" style="margin-top:8px" onclick="refreshMkt()">🔄 Refresh All Markets</button>
     </div>
   </div>
   <div id="st-theme" style="display:none">
@@ -699,7 +741,7 @@ hr{border:none;border-top:1px solid var(--bd);margin:12px 0}
     </div>
     <div class="ai-inp-row">
       <input class="ai-inp" id="float-inp" placeholder="Your question..." onkeydown="if(event.key==='Enter')sendFloatAI()">
-      <button class="btn bb bsm" onclick="sendFloatAI()">Send</button>
+      <button class="btn bb bsm" id="float-send" onclick="sendFloatAI()">Send</button>
     </div>
     <button class="btn bo bsm" style="margin-top:8px;width:100%;justify-content:center" onclick="closeModal('float-modal')">Close</button>
   </div>
@@ -709,7 +751,7 @@ hr{border:none;border-top:1px solid var(--bd);margin:12px 0}
 // ═══════════════════════════════════════
 // STORAGE — uses sessionStorage AS BACKUP + localStorage
 // ═══════════════════════════════════════
-const K={gh:'nb5_gh',users:'nb5_users',sess:'nb5_sess',theme:'nb5_theme',ai:'nb5_ai',sects:'nb5_sects',adm:'nb5_adm',filters:'nb5_filters'};
+const K={gh:'nb5_gh',users:'nb5_users',sess:'nb5_sess',theme:'nb5_theme',ai:'nb5_ai',sects:'nb5_sects',adm:'nb5_adm',filters:'nb5_filters',mktkeys:'nb5_mktkeys'};
 
 // Dual-storage: write to both, read from either
 function ss(k,v){
@@ -1009,6 +1051,7 @@ function showApp(user){
   if(gh.botToken)document.getElementById('bot-tok').value=gh.botToken;
   const ai=gs(K.ai)||{};
   if(ai.key){const akel=document.getElementById('ai-key');if(akel)akel.value=ai.key;}
+  if(ai.provider){const ap=document.getElementById('ai-provider');if(ap){ap.value=ai.provider;updateAIProviderHint();}}
   const adm=gs(K.adm)||{};
   if(adm.email){const el=document.getElementById('adm-em');if(el)el.value=adm.email;}
   if(adm.mobile){const el=document.getElementById('adm-mob');if(el)el.value=adm.mobile;}
@@ -1041,10 +1084,12 @@ function pg(name,btn){
   if(name==='live')setTimeout(loadTV,100);
 }
 function stab(n,btn){
-  ['profile','github','theme','logout'].forEach(x=>{const el=document.getElementById('st-'+x);if(el)el.style.display=x===n?'block':'none';});
+  ['profile','github','market','theme','logout'].forEach(x=>{const el=document.getElementById('st-'+x);if(el)el.style.display=x===n?'block':'none';});
   document.querySelectorAll('#pg-settings .stab').forEach(b=>b.classList.remove('on'));
   if(btn)btn.classList.add('on');
   else document.querySelectorAll('#pg-settings .stab').forEach(t=>{if((t.getAttribute('onclick')||'').includes("'"+n+"'"))t.classList.add('on');});
+  // Load market keys if switching to market tab
+  if(n==='market')loadMktKeysUI();
 }
 function calcTab(n,btn){
   ['sip','lump','loan','gst','gold','risk'].forEach(x=>{const el=document.getElementById('calc-'+x);if(el)el.style.display=x===n?'block':'none';});
@@ -1111,14 +1156,22 @@ function buildCron(){
 }
 async function applySchedule(){
   const cron=buildCron();
-  try{
-    log('📡 Fetching nifty100.yml...');
-    const f=await ghAPI('/contents/.github/workflows/nifty100.yml');
-    let c=decodeURIComponent(escape(atob(f.content.replace(/\n/g,''))));
-    c=c.replace(/- cron: '[^']*'/,`- cron: '${cron}'`);
-    await ghAPI('/contents/.github/workflows/nifty100.yml','PUT',{message:'Update schedule',content:btoa(unescape(encodeURIComponent(c))),sha:f.sha});
-    toast('✅ Schedule updated!');log('✅ New schedule: '+cron);
-  }catch(e){toast('❌ '+e.message,'err');log('❌ '+e.message);}
+  // Try both paths: root and .github/workflows/
+  const paths=['/contents/nifty100.yml','/contents/.github/workflows/nifty100.yml'];
+  let success=false;
+  for(const path of paths){
+    try{
+      log('📡 Fetching '+path+'...');
+      const f=await ghAPI(path);
+      let c=decodeURIComponent(escape(atob(f.content.replace(/\n/g,''))));
+      if(!c.includes('cron'))continue;
+      c=c.replace(/- cron: '[^']*'/,`- cron: '${cron}'`);
+      await ghAPI(path,'PUT',{message:`Update schedule to ${cron} (IST)`,content:btoa(unescape(encodeURIComponent(c))),sha:f.sha});
+      toast('✅ Schedule updated! Cron: '+cron);log('✅ New schedule saved at '+path+': '+cron);
+      success=true;break;
+    }catch(e){log('⚠️ Path '+path+' failed: '+e.message);}
+  }
+  if(!success){toast('❌ Could not find nifty100.yml. Make sure GitHub is configured correctly.','err');log('❌ YML file not found in root or .github/workflows/');}
 }
 
 // ═══════════════════════════════════════
@@ -1405,16 +1458,32 @@ function renderHomeMovers(){
 }
 
 // ═══════════════════════════════════════
-// LIVE MARKETS (CoinGecko free)
+// LIVE MARKETS (Multi-API support)
 // ═══════════════════════════════════════
 let mktCh={};
+function getMktKeys(){return gs(K.mktkeys)||{};}
+function saveMktKeys(){
+  const keys={cg:document.getElementById('mkt-cg')?.value.trim()||'',av:document.getElementById('mkt-av')?.value.trim()||'',er:document.getElementById('mkt-er')?.value.trim()||''};
+  ss(K.mktkeys,keys);
+  const res=document.getElementById('mkt-key-res');if(res)res.innerHTML='<span style="color:var(--green)">✅ Market API keys saved! Click Refresh Markets.</span>';
+  toast('✅ Market API keys saved');
+  refreshMkt();
+}
+function loadMktKeysUI(){
+  const k=getMktKeys();
+  const cg=document.getElementById('mkt-cg');if(cg&&k.cg)cg.value=k.cg;
+  const av=document.getElementById('mkt-av');if(av&&k.av)av.value=k.av;
+  const er=document.getElementById('mkt-er');if(er&&k.er)er.value=k.er;
+}
 async function refreshMkt(){
   const ts=document.getElementById('mkt-time');if(ts)ts.textContent='Updating...';
   const ct=document.getElementById('mkt-ct')?.value||'line';
-  // Static known values (NSE blocks CORS — use TradingView for live)
+  const mkeys=getMktKeys();
+  const statusEl=document.getElementById('mkt-api-status');
+  const statusItems=[];
+  // Static fallback for NSE (CORS blocked)
   const static_data=[
-    {id:'n50',val:'22,819',num:22819,ch:-2.09},{id:'sx',val:'75,364',num:75364,ch:-1.56},
-    {id:'gold',val:'$3,085',num:3085,ch:0.42},{id:'oil',val:'$69.8',num:69.8,ch:-0.75}
+    {id:'n50',val:'23,519',num:23519,ch:0.42},{id:'sx',val:'77,564',num:77564,ch:0.38}
   ];
   static_data.forEach(d=>{
     const vEl=document.getElementById('mb-'+d.id);if(vEl)vEl.textContent=d.val;
@@ -1422,16 +1491,44 @@ async function refreshMkt(){
     if(cEl){cEl.textContent=(d.ch>0?'▲ +':d.ch<0?'▼ ':'')+d.ch+'%';cEl.style.color=d.ch>0?'var(--green)':d.ch<0?'var(--red)':'var(--mu)';}
     miniChart('mc-'+d.id,ct,[d.num*.98,d.num*.99,d.num*1.01,d.num,d.num*(1+d.ch/100)],d.ch>0?'#3fb950':'#f85149');
   });
-  // CoinGecko free API for live crypto
+  // CoinGecko — crypto + gold price in USD
   try{
-    const r=await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd&include_24hr_change=true');
+    const cgKey=mkeys.cg?`&x_cg_demo_api_key=${mkeys.cg}`:'';
+    const r=await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,binancecoin,solana,gold&vs_currencies=usd&include_24hr_change=true'+cgKey);
     if(r.ok){
       const d=await r.json();
-      if(d.bitcoin){const v=d.bitcoin.usd,c=(d.bitcoin.usd_24h_change||0).toFixed(2);document.getElementById('mb-btc').textContent='$'+v.toLocaleString();const el=document.getElementById('mb-btcc');if(el){el.textContent=(c>0?'▲ +':c<0?'▼ ':'')+c+'%';el.style.color=c>0?'var(--green)':c<0?'var(--red)':'var(--mu)';}miniChart('mc-btc',ct,[v*.97,v*.99,v*1.01,v*(1+c/100)],c>0?'#3fb950':'#f85149');}
-      if(d.ethereum){const v=d.ethereum.usd,c=(d.ethereum.usd_24h_change||0).toFixed(2);document.getElementById('mb-eth').textContent='$'+v.toLocaleString();const el=document.getElementById('mb-ethc');if(el){el.textContent=(c>0?'▲ +':c<0?'▼ ':'')+c+'%';el.style.color=c>0?'var(--green)':c<0?'var(--red)':'var(--mu)';}miniChart('mc-eth',ct,[v*.97,v*.99,v*1.01,v*(1+c/100)],c>0?'#3fb950':'#f85149');}
+      if(d.bitcoin){const v=d.bitcoin.usd,c=+(d.bitcoin.usd_24h_change||0).toFixed(2);setMkt('btc','$'+v.toLocaleString(),c);miniChart('mc-btc',ct,[v*.97,v*.99,v*1.01,v,v*(1+c/100)],c>0?'#3fb950':'#f85149');}
+      if(d.ethereum){const v=d.ethereum.usd,c=+(d.ethereum.usd_24h_change||0).toFixed(2);setMkt('eth','$'+v.toLocaleString(),c);miniChart('mc-eth',ct,[v*.97,v*.99,v*1.01,v,v*(1+c/100)],c>0?'#3fb950':'#f85149');}
+      if(d.gold){const v=d.gold.usd,c=+(d.gold.usd_24h_change||0).toFixed(2);setMkt('gold','$'+v.toLocaleString(),c);miniChart('mc-gold',ct,[v*.99,v,v*1.01,v*(1+c/100)],c>0?'#3fb950':'#f85149');}
+      statusItems.push('<span style="color:var(--green)">✅ CoinGecko: Live crypto+gold</span>');
     }
-  }catch(e){}
+  }catch(e){statusItems.push('<span style="color:var(--yellow)">⚠️ CoinGecko: '+e.message+'</span>');}
+  // Alpha Vantage — crude oil and forex (if key set)
+  if(mkeys.av){
+    try{
+      const r=await fetch(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=USO&apikey=${mkeys.av}`);
+      if(r.ok){
+        const d=await r.json();
+        const gq=d['Global Quote'];
+        if(gq&&gq['05. price']){
+          const v=parseFloat(gq['05. price']),ch=parseFloat(gq['10. change percent']||0);
+          setMkt('oil','$'+v.toFixed(2),ch);miniChart('mc-oil',ct,[v*.99,v,v*(1+ch/100)],ch>0?'#3fb950':'#f85149');
+          statusItems.push('<span style="color:var(--green)">✅ Alpha Vantage: Oil data</span>');
+        }
+      }
+    }catch(e){statusItems.push('<span style="color:var(--yellow)">⚠️ Alpha Vantage: '+e.message+'</span>');}
+  } else {
+    // Static fallback for oil
+    setMkt('oil','$71.4',-0.52);miniChart('mc-oil',ct,[72,71.8,71.5,71.4],  '#f85149');
+    statusItems.push('<span style="color:var(--mu)">ℹ️ Oil: static (add Alpha Vantage key for live)</span>');
+  }
+  if(statusEl && statusItems.length)statusEl.innerHTML=statusItems.join('<br>');
   if(ts)ts.textContent='Updated: '+new Date().toLocaleTimeString('en-IN')+' IST';
+}
+function setMkt(id,val,ch){
+  const vEl=document.getElementById('mb-'+id);if(vEl)vEl.textContent=val;
+  const cEl=document.getElementById('mb-'+id+'c');
+  if(cEl){const c=parseFloat(ch);cEl.textContent=(c>0?'▲ +':c<0?'▼ ':'')+Math.abs(c)+'%';cEl.style.color=c>0?'var(--green)':c<0?'var(--red)':'var(--mu)';}
 }
 function miniChart(id,type,data,color){
   const c=document.getElementById(id);if(!c)return;
@@ -1580,10 +1677,34 @@ function calcGold(){const wt=parseFloat(document.getElementById('gold-wt')?.valu
 function calcRisk(){const amt=parseFloat(document.getElementById('rk-amt')?.value)||100000,ret=parseFloat(document.getElementById('rk-ret')?.value)||15,loss=parseFloat(document.getElementById('rk-loss')?.value)||10,yr=parseFloat(document.getElementById('rk-yr')?.value)||5;const maxLoss=amt*loss/100,potGain=amt*Math.pow(1+ret/100,yr)-amt,rr=potGain/maxLoss;document.getElementById('rk-res').innerHTML=`⚠️ Max Loss: ₹${maxLoss.toLocaleString()} | 📈 Potential Gain: ₹${potGain.toLocaleString('en-IN',{maximumFractionDigits:0})} | ⚖️ R:R = 1:${rr.toFixed(1)} | ${rr>2?'✅ Good ratio':'⚠️ Review strategy'}`;}
 
 // ═══════════════════════════════════════
-// AI ASSISTANT
+// AI ASSISTANT (Multi-Provider)
 // ═══════════════════════════════════════
 let aiHist=[],floatHist=[];
-function saveAIKey(){const k=document.getElementById('ai-key').value.trim();if(!k){toast('Enter key','warn');return;}ss(K.ai,{key:k});toast('✅ API key saved');}
+const AI_PROVIDERS={
+  qwen:{name:'Qwen',url:'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions',model:'qwen-plus',headers:(k)=>({'Content-Type':'application/json','Authorization':'Bearer '+k}),body:(sys,msgs,m)=>JSON.stringify({model:m,messages:[{role:'system',content:sys},...msgs],max_tokens:1200}),parse:(d)=>d.choices?.[0]?.message?.content||'No response'},
+  openai:{name:'OpenAI',url:'https://api.openai.com/v1/chat/completions',model:'gpt-4o-mini',headers:(k)=>({'Content-Type':'application/json','Authorization':'Bearer '+k}),body:(sys,msgs,m)=>JSON.stringify({model:m,messages:[{role:'system',content:sys},...msgs],max_tokens:1200}),parse:(d)=>d.choices?.[0]?.message?.content||'No response'},
+  groq:{name:'Groq',url:'https://api.groq.com/openai/v1/chat/completions',model:'llama-3.3-70b-versatile',headers:(k)=>({'Content-Type':'application/json','Authorization':'Bearer '+k}),body:(sys,msgs,m)=>JSON.stringify({model:m,messages:[{role:'system',content:sys},...msgs],max_tokens:1200}),parse:(d)=>d.choices?.[0]?.message?.content||'No response'},
+  gemini:{name:'Gemini',url:'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent',model:'gemini-1.5-flash',headers:(k)=>({'Content-Type':'application/json','x-goog-api-key':k}),body:(sys,msgs,m)=>JSON.stringify({contents:msgs.map(msg=>({role:msg.role==='assistant'?'model':msg.role,parts:[{text:msg.content}]})),systemInstruction:{parts:[{text:sys}]},generationConfig:{maxOutputTokens:1200}}),parse:(d)=>d.candidates?.[0]?.content?.parts?.[0]?.text||'No response'},
+  claude:{name:'Claude',url:'https://api.anthropic.com/v1/messages',model:'claude-haiku-20240307',headers:(k)=>({'Content-Type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01'}),body:(sys,msgs,m)=>JSON.stringify({model:m,max_tokens:1200,system:sys,messages:msgs}),parse:(d)=>d.content?.[0]?.text||'No response'}
+};
+const AI_HINTS={
+  qwen:'🆓 FREE! Get key at <b>dashscope.aliyuncs.com</b> → API Keys → Create API Key',
+  openai:'💳 Paid. Get key at <b>platform.openai.com/api-keys</b>',
+  groq:'⚡ Free tier! Get key at <b>console.groq.com</b> → API Keys',
+  gemini:'🆓 Free tier! Get key at <b>aistudio.google.com/apikey</b>',
+  claude:'💳 Paid. Get key at <b>console.anthropic.com</b>'
+};
+function updateAIProviderHint(){
+  const p=document.getElementById('ai-provider')?.value||'qwen';
+  const h=document.getElementById('ai-provider-hint');if(h)h.innerHTML=AI_HINTS[p]||'';
+  const lbl=document.getElementById('ai-key-label');if(lbl)lbl.textContent=(AI_PROVIDERS[p]?.name||'AI')+' API Key';
+}
+function saveAIKey(){
+  const k=document.getElementById('ai-key')?.value.trim();
+  const p=document.getElementById('ai-provider')?.value||'qwen';
+  if(!k){toast('Enter API key','warn');return;}
+  ss(K.ai,{key:k,provider:p});toast('✅ '+AI_PROVIDERS[p]?.name+' API key saved');
+}
 function clearChat(boxId){if(boxId==='ai-box')aiHist=[];else floatHist=[];document.getElementById(boxId).innerHTML='<div class="ai-msg ai-bot">Chat cleared!</div>';}
 function aiQ(q){const el=document.getElementById('ai-inp');if(el)el.value=q;sendAI();}
 async function sendAI(boxId,histArr,inpId,btnId){
@@ -1591,23 +1712,33 @@ async function sendAI(boxId,histArr,inpId,btnId){
   const hist=histArr||(boxId==='ai-box'?aiHist:floatHist);
   const inp=document.getElementById(inpId);const q=inp?.value.trim();if(!q)return;
   const ai=gs(K.ai)||{};
-  if(!ai.key){toast('Set your Anthropic API key in the AI tab → API Configuration','warn');return;}
+  if(!ai.key){toast('Set your AI API key in the 🤖 AI tab → API Key section','warn');addMsg('⚠️ Please set your AI API key first. Go to 🤖 AI tab and add your key (Qwen is free!).','bot',boxId);return;}
+  const provider=ai.provider||'qwen';
+  const pConfig=AI_PROVIDERS[provider];
+  if(!pConfig){toast('Unknown AI provider','err');return;}
   inp.value='';addMsg(q,'user',boxId);
   const btn=document.getElementById(btnId);if(btn){btn.disabled=true;btn.innerHTML='<div class="sp"></div>';}
   let ctx='No CSV loaded.';
   if(allRows.length){const top=allRows.slice(0,15).map(r=>`${S(r,['symbol'])}: LTP=₹${N(r,['lastPrice','ltp'])}, Ch=${N(r,['pChange','change']).toFixed(2)}%`).join('\n');ctx=`Nifty100 data (${allRows.length} stocks):\n${top}`;}
+  const sysPrompt=`You are an expert Indian stock market analyst with deep knowledge of NSE, BSE, global markets, mutual funds, crypto, gold, and risk management. Market data: ${ctx}. Today: ${new Date().toLocaleDateString('en-IN')}. Give specific actionable advice. Mention risks. Use ₹ for Indian prices.`;
   hist.push({role:'user',content:q});
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':ai.key,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1200,system:`You are an expert Indian stock market analyst. Deep knowledge of NSE, BSE, global markets, MF, crypto, gold, oil, and risk management. Data: ${ctx}. Today: ${new Date().toLocaleDateString('en-IN')}. Give specific actionable advice. Mention risks. Use ₹.`,messages:hist})});
-    const d=await res.json();if(!res.ok)throw new Error(d.error?.message||'API error');
-    const reply=d.content?.[0]?.text||'No response';hist.push({role:'assistant',content:reply});addMsg(reply,'bot',boxId);
-  }catch(e){addMsg('❌ Error: '+e.message+'\n\nCheck your API key in the AI tab.','bot',boxId);toast('❌ '+e.message,'err');}
-  if(btn){btn.disabled=false;btn.innerHTML=btnId==='ai-send'?'Send':'Send';}
+    const res=await fetch(pConfig.url,{method:'POST',headers:pConfig.headers(ai.key),body:pConfig.body(sysPrompt,hist,pConfig.model)});
+    const d=await res.json();
+    if(!res.ok){const errMsg=d.error?.message||d.message||'API error '+res.status;throw new Error(errMsg);}
+    const reply=pConfig.parse(d);
+    hist.push({role:'assistant',content:reply});addMsg(reply,'bot',boxId);
+  }catch(e){
+    const errText='❌ Error ('+pConfig.name+'): '+e.message+'\n\nCheck your API key in the 🤖 AI tab.';
+    addMsg(errText,'bot',boxId);toast('❌ '+e.message,'err');
+    hist.pop();//remove failed user msg from history
+  }
+  if(btn){btn.disabled=false;btn.innerHTML='Send';}
 }
 function addMsg(text,role,boxId){
   const box=document.getElementById(boxId);if(!box)return;
   const div=document.createElement('div');div.className='ai-msg ai-'+(role==='user'?'user':'bot');
-  div.innerHTML=text.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<b>$1</b>');
+  div.innerHTML=text.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<b>$1</b>').replace(/`([^`]+)`/g,'<code style="background:var(--bg3);padding:1px 5px;border-radius:3px;font-size:11px">$1</code>');
   box.appendChild(div);box.scrollTop=box.scrollHeight;
 }
 function openFloatAI(){
@@ -1615,6 +1746,8 @@ function openFloatAI(){
   const name=activeNb?(activeNb.getAttribute('onclick')||'').match(/pg\('([^']+)'/)?.[1]||'':'';
   document.getElementById('float-title').textContent='🤖 AI — '+(name||'Dashboard');
   document.getElementById('float-modal').classList.add('open');
+  // Focus input after opening
+  setTimeout(()=>document.getElementById('float-inp')?.focus(),200);
 }
 function sendFloatAI(){sendAI('float-ai-box',floatHist,'float-inp','float-send');}
 
