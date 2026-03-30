@@ -1,17 +1,19 @@
-name: Nifty Beast Daily Bot
+name: NiftyBeast Daily Bot
+
 on:
   schedule:
-    - cron: '44 5 * * 1-5'
+    - cron: '0 4 * * 1-5'
   workflow_dispatch:
     inputs:
-      reason:
-        description: 'Trigger reason'
-        required: false
-        default: 'Manual'
       index_name:
         description: 'Index to download'
         required: false
         default: 'NIFTY 100'
+      reason:
+        description: 'Trigger reason'
+        required: false
+        default: 'Manual'
+
 jobs:
   send-data:
     runs-on: ubuntu-latest
@@ -21,10 +23,13 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install requests pytz
+
       - name: Run bot
         env:
           BOT_TOKEN:  ${{ secrets.BOT_TOKEN }}
           CHAT_ID:    ${{ secrets.CHAT_ID }}
           RECIPIENTS: ${{ secrets.RECIPIENTS }}
           INDEX_NAME: ${{ github.event.inputs.index_name || 'NIFTY 100' }}
+          GH_TOKEN:   ${{ secrets.GH_PAT }}
+          GH_REPO:    ${{ github.repository }}
         run: python nifty100_bot.py
