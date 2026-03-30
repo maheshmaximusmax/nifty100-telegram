@@ -2,7 +2,7 @@ name: NiftyBeast Daily Bot
 
 on:
   schedule:
-    - cron: '34 20 * * 1-5'
+    - cron: '34 8 * * 1-5'
   workflow_dispatch:
     inputs:
       index_name:
