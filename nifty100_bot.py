@@ -97,4 +97,4 @@ except Exception as e:
         try: send_msg(cid, f"⚠️ {INDEX_NAME} download failed on {date}\n\nError: {e}")
         except: pass
     raise
-                
+    
