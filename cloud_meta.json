@@ -23,6 +23,18 @@
       ],
       "uploadedAt": "2026-04-03T19:51:18.016Z",
       "encryptedSize": 14670102
+    },
+    "mnjbkgur4rg6pfnv": {
+      "name": "complete-dashboard.html",
+      "size": 62007,
+      "type": "text/html",
+      "folder": "/m",
+      "iv": "bdb3deadfa788bd232245812",
+      "chunks": [
+        "BQACAgUAAxkDAAMEadAaRKhKZ4jWrWY5truhNlNBdZ4AAjMcAALMuoBWEbyv2O1GIkM7BA"
+      ],
+      "uploadedAt": "2026-04-03T19:51:32.632Z",
+      "encryptedSize": 62023
     }
   },
   "folders": [
