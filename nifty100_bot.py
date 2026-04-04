@@ -106,11 +106,55 @@ def cleanup_old_csvs_on_github():
     except Exception as e:
         print(f"[Cleanup] Error: {e}")
 
+def upload_csv_to_github(csv_bytes, filename):
+    """Upload CSV file to GitHub repo data/ folder via API."""
+    if not GH_TOKEN or not GH_REPO:
+        print("[Upload] No GH_TOKEN/GH_REPO set, skipping GitHub upload.")
+        return False
+    headers = {
+        "Authorization": f"Bearer {GH_TOKEN}",
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28"
+    }
+    path = f"data/{filename}"
+    content_b64 = base64.b64encode(csv_bytes).decode("utf-8")
+    # Check if file already exists (need sha for update)
+    sha = None
+    try:
+        check_response = requests.get(f"https://api.github.com/repos/{GH_REPO}/contents/{path}", headers=headers, timeout=15)
+        if check_response.ok:
+            sha = check_response.json().get("sha")
+    except Exception:
+        pass
+    payload = {
+        "message": f"Auto-upload CSV: {filename}",
+        "content": content_b64,
+    }
+    if sha:
+        payload["sha"] = sha
+    try:
+        upload_response = requests.put(
+            f"https://api.github.com/repos/{GH_REPO}/contents/{path}",
+            headers=headers,
+            json=payload,
+            timeout=30
+        )
+        if upload_response.ok:
+            print(f"[Upload] ✅ Uploaded {filename} to GitHub data/ folder")
+            return True
+        else:
+            print(f"[Upload] ❌ GitHub upload failed: {upload_response.status_code} — {upload_response.text[:200]}")
+            return False
+    except Exception as e:
+        print(f"[Upload] ❌ Error uploading to GitHub: {e}")
+        return False
+
 # ─── MAIN ───
 ist      = pytz.timezone("Asia/Kolkata")
 now      = datetime.now(ist)
 date     = now.strftime("%Y-%m-%d")
 time_str = now.strftime("%d %b %Y, %I:%M %p IST")
+time_suffix = now.strftime("%H-%M")
 recipients = parse_recipients()
 
 print(f"[BOT] Index: {INDEX_NAME} | Recipients: {recipients}")
@@ -122,17 +166,18 @@ try:
     csv_bytes = csv_text.encode("utf-8")
     stocks    = len(csv_text.splitlines()) - 1
     caption   = f"📊 *{INDEX_NAME} Live Data*\n🕘 {time_str}\n📁 {stocks} stocks"
-    filename  = f"{INDEX_NAME.replace(' ','_')}_{date}.csv"
+    filename  = f"{INDEX_NAME.replace(' ','_')}_{date}_{time_suffix}.csv"
     ok = 0
     for cid in recipients:
         if send_to(cid, csv_bytes, filename, caption): ok += 1
     print(f"[BOT] ✅ Sent to {ok}/{len(recipients)} recipients")
-    # Cleanup old CSVs from GitHub repo
+    # Cleanup old CSVs, then upload new one to GitHub
     cleanup_old_csvs_on_github()
+    upload_csv_to_github(csv_bytes, filename)
 except Exception as e:
     print(f"[BOT] ❌ Error: {e}")
     for cid in recipients:
         try: send_msg(cid, f"⚠️ {INDEX_NAME} download failed on {date}\n\nError: {e}")
         except: pass
     raise
-    
+
