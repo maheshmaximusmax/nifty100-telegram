@@ -263,7 +263,7 @@ hr{border:none;border-top:1px solid var(--bd);margin:12px 0}
 <!-- SIDEBAR -->
 <nav class="sidebar" id="sidebar">
   <div class="sb-hd">
-    <div class="tlogo"><div class="pulse"></div>📊 NiftyBeast <span id="admbadge" class="abadge" style="display:none">ADM</span></div>
+    <div class="tlogo"><div class="pulse"></div>📊 NiftyBeast <span id="admbadge" class="abadge" style="display:none">ADMIN</span></div>
     <button class="sb-toggle" id="sb-toggle" onclick="toggleSidebar()" title="Toggle sidebar">☰</button>
   </div>
   <div class="sb-nav">
@@ -831,7 +831,7 @@ function setTheme(t){
   ['theme-btn','auth-tb'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t==='dark'?'🌙':'☀️';});
   ['dkbtn','ltbtn'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('bb');});
   const b=document.getElementById(t==='dark'?'dkbtn':'ltbtn');if(b)b.classList.add('bb');
-  if(typeof allRows !== 'undefined' && allRows.length)renderCharts();
+  if(allRows.length)renderCharts();
 }
 function toggleTheme(){setTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark');}
 (()=>{setTheme(gs(K.theme)||'dark')})();
