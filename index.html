@@ -29,20 +29,35 @@ body{background:var(--bg);color:var(--tx);font-family:'Segoe UI',system-ui,sans-
 .otp-row{display:flex;gap:7px;justify-content:center;margin:10px 0}
 .otp-row input{width:42px;height:46px;text-align:center;font-size:18px;font-weight:800;background:var(--bg3);border:2px solid var(--bd);color:var(--tx);border-radius:8px;outline:none}
 .otp-row input:focus{border-color:var(--blue)}
-/* APP */
-#app{display:none}
-.topbar{background:var(--bg2);border-bottom:1px solid var(--bd);padding:0 10px;display:flex;align-items:center;gap:6px;position:sticky;top:0;z-index:200;height:46px}
-.tlogo{font-size:13px;font-weight:800;color:var(--green);white-space:nowrap;display:flex;align-items:center;gap:4px;flex-shrink:0}
+/* APP LAYOUT — sidebar + content */
+#app{display:flex;min-height:100vh}
+/* SIDEBAR */
+.sidebar{width:210px;background:var(--bg2);border-right:1px solid var(--bd);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;transition:width .25s ease;overflow:hidden;flex-shrink:0;z-index:200}
+.sidebar.collapsed{width:52px}
+.sb-hd{display:flex;align-items:center;justify-content:space-between;padding:0 10px;height:46px;border-bottom:1px solid var(--bd);flex-shrink:0}
+.sidebar.collapsed .sb-hd{justify-content:center;padding:0}
+.sb-toggle{background:none;border:none;color:var(--mu);cursor:pointer;font-size:17px;padding:5px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sb-toggle:hover{background:var(--bg3);color:var(--tx)}
+.tlogo{font-size:13px;font-weight:800;color:var(--green);white-space:nowrap;display:flex;align-items:center;gap:4px;flex-shrink:0;overflow:hidden;transition:opacity .2s}
+.sidebar.collapsed .tlogo{display:none}
 .pulse{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pu 2s infinite;flex-shrink:0}
 @keyframes pu{0%,100%{opacity:1}50%{opacity:.3}}
-.tnav{display:flex;gap:1px;flex:1;overflow-x:auto;scrollbar-width:none;min-width:0}
-.tnav::-webkit-scrollbar{display:none}
-.nb{background:none;border:none;color:var(--mu);padding:5px 9px;border-radius:6px;cursor:pointer;font-size:11px;white-space:nowrap;font-weight:600}
+.sb-nav{flex:1;overflow-y:auto;overflow-x:hidden;padding:6px 5px;scrollbar-width:none}
+.sb-nav::-webkit-scrollbar{display:none}
+.nb{background:none;border:none;color:var(--mu);padding:8px 10px;border-radius:7px;cursor:pointer;font-size:12px;white-space:nowrap;font-weight:600;display:flex;align-items:center;gap:8px;width:100%;text-align:left;transition:background .15s}
 .nb:hover{background:var(--bg3);color:var(--tx)}.nb.on{background:var(--bg3);color:var(--blue)}
-.tact{display:flex;gap:5px;align-items:center;flex-shrink:0}
-.av{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;cursor:pointer}
+.nb-icon{font-size:15px;flex-shrink:0;width:20px;text-align:center}
+.nb-lbl{overflow:hidden;white-space:nowrap;transition:opacity .2s}
+.sidebar.collapsed .nb-lbl{display:none}
+.sidebar.collapsed .nb{justify-content:center;padding:9px 0}
+.sb-ft{display:flex;align-items:center;gap:6px;padding:8px 10px;border-top:1px solid var(--bd);flex-shrink:0}
+.sidebar.collapsed .sb-ft{justify-content:center;flex-direction:column}
+.sidebar.collapsed .sb-ft .av-lbl{display:none}
+.av{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;cursor:pointer;flex-shrink:0}
 .ib{background:var(--bg3);border:1px solid var(--bd);color:var(--tx);width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center}
 .abadge{background:linear-gradient(90deg,var(--yellow),var(--orange));color:#000;font-size:9px;padding:1px 5px;border-radius:99px;font-weight:800}
+/* MAIN CONTENT */
+#main-wrap{flex:1;min-width:0;overflow-y:auto;height:100vh}
 /* PAGES */
 .page{display:none;padding:12px;max-width:1200px;margin:0 auto}.page.on{display:block}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -50,6 +65,7 @@ body{background:var(--bg);color:var(--tx);font-family:'Segoe UI',system-ui,sans-
 .g4{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
 @media(min-width:640px){.g4{grid-template-columns:repeat(4,1fr)}}
 @media(max-width:580px){.g2,.g3{grid-template-columns:1fr}}
+@media(max-width:640px){.sidebar{width:52px}.sidebar .tlogo,.sidebar .nb-lbl,.sidebar .sb-ft .av-lbl{display:none}.sidebar .nb{justify-content:center;padding:9px 0}.sidebar .sb-hd{justify-content:center;padding:0}.sidebar .sb-ft{flex-direction:column}}
 /* CARDS */
 .card{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:14px;margin-bottom:10px;box-shadow:var(--sh)}
 .chd{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px}
@@ -123,9 +139,11 @@ tbody td{padding:6px 9px;white-space:nowrap}
 .ai-inp-row{display:flex;gap:7px;padding:8px;background:var(--bg3);border-radius:0 0 8px 8px;border:1px solid var(--bd)}
 .ai-inp{flex:1;background:var(--bg2);border:1px solid var(--bd);color:var(--tx);padding:8px 11px;border-radius:7px;font-size:12px;outline:none}
 .ai-inp:focus{border-color:var(--blue)}
-/* FLOATING AI BUTTON */
-.ai-float-btn{position:fixed;bottom:20px;right:16px;width:44px;height:44px;border-radius:50%;background:var(--blue);color:#fff;border:none;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.4);z-index:400;transition:transform .2s}
-.ai-float-btn:hover{transform:scale(1.1)}
+/* FLOATING AI BUTTON + TOOLTIP */
+.ai-float-btn{position:fixed;bottom:20px;right:16px;width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--purple));color:#fff;border:none;cursor:pointer;font-size:22px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(88,166,255,.45);z-index:400;transition:transform .2s,box-shadow .2s}
+.ai-float-btn:hover{transform:scale(1.12);box-shadow:0 6px 28px rgba(88,166,255,.65)}
+.ai-float-btn::before{content:'🤖 Market AI Assistant';position:absolute;bottom:56px;right:0;background:var(--bg2);color:var(--tx);border:1px solid var(--bd);border-radius:8px;padding:6px 10px;font-size:12px;font-weight:700;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s;box-shadow:var(--sh)}
+.ai-float-btn:hover::before{opacity:1}
 /* FLOATING AI PANEL */
 .ai-float-panel{position:fixed;bottom:72px;right:16px;width:320px;max-width:calc(100vw - 32px);background:var(--bg2);border:1px solid var(--bd);border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.5);z-index:399;display:none;flex-direction:column;overflow:hidden}
 .ai-float-panel.open{display:flex}
@@ -194,10 +212,9 @@ hr{border:none;border-top:1px solid var(--bd);margin:12px 0}
     </div>
     <button class="btn bb" style="width:100%;justify-content:center;padding:10px" onclick="doLogin()">Sign In →</button>
     <div class="admin-hint">
-      <b style="color:var(--yellow)">Default Admin Login:</b><br>
-      Username: <b style="color:var(--tx);font-family:monospace">admin</b><br>
-      Password: <b style="color:var(--tx);font-family:monospace">admin123</b><br>
-      <span style="font-size:10px">Change in Settings → Profile after first login</span>
+      <b style="color:var(--yellow)">ℹ️ First time?</b><br>
+      Use the default admin credentials to sign in.<br>
+      <span style="font-size:10px">Change password in Settings → Profile after first login</span>
     </div>
   </div>
 
@@ -242,29 +259,35 @@ hr{border:none;border-top:1px solid var(--bd);margin:12px 0}
 </div>
 
 <!-- ════════ APP ════════ -->
-<div id="app">
-<div class="topbar">
-  <div class="tlogo"><div class="pulse"></div>📊 NiftyBeast <span id="admbadge" class="abadge" style="display:none">ADMIN</span></div>
-  <div class="tnav">
-    <button class="nb on" onclick="pg('home',this)">🌐 Markets</button>
-    <button class="nb" onclick="pg('control',this)">🎛️ Control</button>
-    <button class="nb" onclick="pg('analysis',this)">📈 Analysis</button>
-    <button class="nb" onclick="pg('table',this)">📋 Table</button>
-    <button class="nb" onclick="pg('live',this)">📡 Live Charts</button>
-    <button class="nb" onclick="pg('filter',this)">🔬 Filter</button>
-    <button class="nb" onclick="pg('mf',this)">💼 MF/IPO</button>
-    <button class="nb" onclick="pg('calc',this)">🧮 Calc</button>
-    <button class="nb" onclick="pg('ai',this)">🤖 AI</button>
-    <button class="nb" onclick="pg('apikeys',this)">🔑 API Keys</button>
-    <button class="nb" onclick="pg('recipients',this)">📨 Recipients</button>
-    <button class="nb admin-only" onclick="pg('users',this)" style="display:none">👥 Users</button>
-    <button class="nb" onclick="pg('settings',this)">⚙️ Settings</button>
+<div id="app" style="display:none">
+<!-- SIDEBAR -->
+<nav class="sidebar" id="sidebar">
+  <div class="sb-hd">
+    <div class="tlogo"><div class="pulse"></div>📊 NiftyBeast <span id="admbadge" class="abadge" style="display:none">ADMIN</span></div>
+    <button class="sb-toggle" id="sb-toggle" onclick="toggleSidebar()" title="Toggle sidebar">☰</button>
   </div>
-  <div class="tact">
+  <div class="sb-nav">
+    <button class="nb on" onclick="pg('home',this)"><span class="nb-icon">🌐</span><span class="nb-lbl">Markets</span></button>
+    <button class="nb" onclick="pg('control',this)"><span class="nb-icon">🎛️</span><span class="nb-lbl">Control</span></button>
+    <button class="nb" onclick="pg('analysis',this)"><span class="nb-icon">📈</span><span class="nb-lbl">Analysis</span></button>
+    <button class="nb" onclick="pg('table',this)"><span class="nb-icon">📋</span><span class="nb-lbl">Table</span></button>
+    <button class="nb" onclick="pg('live',this)"><span class="nb-icon">📡</span><span class="nb-lbl">Live Charts</span></button>
+    <button class="nb" onclick="pg('filter',this)"><span class="nb-icon">🔬</span><span class="nb-lbl">Filter</span></button>
+    <button class="nb" onclick="pg('mf',this)"><span class="nb-icon">💼</span><span class="nb-lbl">MF/IPO</span></button>
+    <button class="nb" onclick="pg('calc',this)"><span class="nb-icon">🧮</span><span class="nb-lbl">Calc</span></button>
+    <button class="nb" onclick="pg('ai',this)"><span class="nb-icon">🤖</span><span class="nb-lbl">AI</span></button>
+    <button class="nb" onclick="pg('apikeys',this)"><span class="nb-icon">🔑</span><span class="nb-lbl">API Keys</span></button>
+    <button class="nb" onclick="pg('recipients',this)"><span class="nb-icon">📨</span><span class="nb-lbl">Recipients</span></button>
+    <button class="nb admin-only" onclick="pg('users',this)" style="display:none"><span class="nb-icon">👥</span><span class="nb-lbl">Users</span></button>
+    <button class="nb" onclick="pg('settings',this)"><span class="nb-icon">⚙️</span><span class="nb-lbl">Settings</span></button>
+  </div>
+  <div class="sb-ft">
     <button class="ib" onclick="toggleTheme()" id="theme-btn">🌙</button>
     <div class="av" id="uav" onclick="pg('settings',null)">A</div>
   </div>
-</div>
+</nav>
+<!-- MAIN CONTENT AREA -->
+<div id="main-wrap">
 <div id="toast"></div>
 
 <!-- FLOATING AI BUTTON -->
@@ -750,6 +773,7 @@ hr{border:none;border-top:1px solid var(--bd);margin:12px 0}
     </div>
   </div>
 </div>
+</div><!-- /main-wrap -->
 </div><!-- /app -->
 
 <!-- MODALS -->
@@ -776,6 +800,18 @@ const getGH=()=>gs(K.gh)||{};
 const getAIKeys=()=>gs(K.aikeys)||{};
 const DSECTS={control:true,analysis:true,table:true,live:true,filter:true,mf:true,calc:true,ai:true,apikeys:false,recipients:false};
 const SLABELS={control:'🎛️ Control',analysis:'📈 Analysis',table:'📋 Table',live:'📡 Live Charts',filter:'🔬 Filter',mf:'💼 MF/IPO',calc:'🧮 Calculator',ai:'🤖 AI',apikeys:'🔑 API Keys',recipients:'📨 Recipients'};
+
+// ─── CSV / Chart state (declared early to avoid TDZ errors) ───
+let allRows=[],allCols=[],charts={};
+let mktCh={};
+let mainHist=[],floatHist=[];
+let savedFilters=[];  // loaded from storage after gs() available below
+let recs=[];
+let sidebarCollapsed=false;
+const N=(r,ks)=>{for(const k of ks){if(r&&r[k]!=null&&r[k]!==''){const v=parseFloat(String(r[k]).replace(/,/g,''));if(!isNaN(v))return v;}}return 0;};
+const S=(r,ks)=>{for(const k of ks){if(r&&r[k]!=null&&r[k]!=='')return String(r[k]);}return '';};
+const KC=id=>{if(charts[id]){charts[id].destroy();delete charts[id];}};
+function gc(){const d=document.documentElement.getAttribute('data-theme')==='dark';return{text:d?'#8b949e':'#636c76',grid:d?'rgba(255,255,255,.05)':'rgba(0,0,0,.06)'}}
 
 // ─── Admin always exists ───
 function ensureAdmin(){
@@ -931,7 +967,7 @@ function doLogout(){
 // ══════════════════════════════════════════════
 function showApp(user){
   document.getElementById('auth').style.display='none';
-  document.getElementById('app').style.display='block';
+  document.getElementById('app').style.display='flex';
   document.getElementById('uav').textContent=(user.name||user.username)[0].toUpperCase();
   document.getElementById('loggedas').textContent=user.username+(user.role==='admin'?' (Admin)':'');
   document.getElementById('loggedas2').textContent=user.username;
@@ -967,6 +1003,17 @@ const _es=getSess();
 if(_es){const still=getUsers().find(u=>u.username===_es.username);if(still)showApp(still);else doLogout();}
 
 // ══════════════════════════════════════════════
+// SIDEBAR TOGGLE
+// ══════════════════════════════════════════════
+function toggleSidebar(){
+  sidebarCollapsed=!sidebarCollapsed;
+  const sb=document.getElementById('sidebar');
+  if(sb){if(sidebarCollapsed)sb.classList.add('collapsed');else sb.classList.remove('collapsed');}
+  const btn=document.getElementById('sb-toggle');
+  if(btn)btn.title=sidebarCollapsed?'Expand sidebar':'Collapse sidebar';
+}
+
+// ══════════════════════════════════════════════
 // NAV
 // ══════════════════════════════════════════════
 function pg(name,btn){
@@ -979,7 +1026,7 @@ function pg(name,btn){
   if(name==='live')setTimeout(loadTV,100);
   // Update float AI context label
   const lbl=document.getElementById('float-ctx-lbl');
-  if(lbl){const nb=document.querySelector('.nb.on');lbl.textContent='🤖 AI — '+(nb?nb.textContent.trim().slice(0,12):'');}
+  if(lbl){const nb=document.querySelector('.nb.on');const nlbl=nb?.querySelector('.nb-lbl');lbl.textContent='🤖 AI — '+(nlbl?nlbl.textContent.trim().slice(0,12):nb?nb.textContent.trim().slice(0,12):'');}
 }
 function stab(n,btn){
   ['profile','github','theme','logout'].forEach(x=>{const el=document.getElementById('st-'+x);if(el)el.style.display=x===n?'block':'none';});
@@ -1181,7 +1228,6 @@ function saveAdmRec(){ss(K.adm,{email:document.getElementById('adm-em').value.tr
 // ══════════════════════════════════════════════
 // RECIPIENTS
 // ══════════════════════════════════════════════
-let recs=[];
 function renderTags(){const w=document.getElementById('tagwrap'),inp=document.getElementById('taginp');if(!w||!inp)return;w.innerHTML='';recs.forEach((id,i)=>{const t=document.createElement('div');t.className='rtag';t.innerHTML=`<span>${id}</span><span class="rm" onclick="recs.splice(${i},1);renderTags()">×</span>`;w.appendChild(t);});w.appendChild(inp);}
 function addTag(e){if(e.key==='Enter'||e.key===','){e.preventDefault();const v=e.target.value.trim().replace(/,$/,'');if(v&&!recs.includes(v)){recs.push(v);renderTags();}e.target.value='';}}
 function saveRec(){if(!recs.length){toast('Add at least one recipient','warn');return;}const val=JSON.stringify(recs);document.getElementById('recst').innerHTML=`<div class="sbox"><b>✅ Paste this into GitHub Secrets as RECIPIENTS:</b><br><code style="word-break:break-all;display:block;padding:8px;background:var(--bg3);border-radius:6px;margin-top:6px;font-size:12px">${val}</code><br>Settings → GitHub tab → "GitHub Secrets" button → create/update RECIPIENTS</div>`;toast('✅ Copy value and paste in GitHub Secrets');}
@@ -1189,7 +1235,6 @@ function saveRec(){if(!recs.length){toast('Add at least one recipient','warn');r
 // ══════════════════════════════════════════════
 // CSV LOADING — FIXED, FileReader based
 // ══════════════════════════════════════════════
-let allRows=[],allCols=[],charts={};
 
 // Single function that triggers the file picker from anywhere
 function triggerCSVPick(){document.getElementById('csvf').click();}
@@ -1228,10 +1273,6 @@ function loadCSV(evt){
   reader.readAsText(f,'UTF-8');
 }
 
-const N=(r,ks)=>{for(const k of ks){if(r&&r[k]!=null&&r[k]!==''){const v=parseFloat(String(r[k]).replace(/,/g,''));if(!isNaN(v))return v;}}return 0;};
-const S=(r,ks)=>{for(const k of ks){if(r&&r[k]!=null&&r[k]!=='')return String(r[k]);}return '';};
-const KC=id=>{if(charts[id]){charts[id].destroy();delete charts[id];}};
-function gc(){const d=document.documentElement.getAttribute('data-theme')==='dark';return{text:d?'#8b949e':'#636c76',grid:d?'rgba(255,255,255,.05)':'rgba(0,0,0,.06)'}}
 function CO(){const c=gc();return{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:c.text,font:{size:10}},grid:{color:c.grid}},y:{ticks:{color:c.text},grid:{color:c.grid}}}};}
 
 function renderStats(){
@@ -1287,7 +1328,6 @@ function renderHomeMovers(){
 // ══════════════════════════════════════════════
 // LIVE MARKETS
 // ══════════════════════════════════════════════
-let mktCh={};
 async function refreshMkt(){
   const ts=document.getElementById('mkt-time');if(ts)ts.textContent='Updating...';
   const ct=document.getElementById('mkt-ct')?.value||'line';
@@ -1332,7 +1372,6 @@ function loadCustomTV(){const sym=document.getElementById('tv-custom').value.tri
 // ══════════════════════════════════════════════
 // CONDITION BUILDER
 // ══════════════════════════════════════════════
-let savedFilters=gs(K.filters)||[];
 function buildCondCols(){}
 function addCond(){const id='c'+Date.now();const cols=allCols.length?allCols:['symbol','lastPrice','pChange','totalTradedVolume','dayHigh','dayLow'];const div=document.createElement('div');div.className='cond-row';div.id=id;div.innerHTML=`<select id="${id}-c">${cols.map(c=>`<option value="${c}">${c}</option>`).join('')}</select><select id="${id}-o"><option value="gt">&gt;</option><option value="lt">&lt;</option><option value="eq">=</option><option value="gte">≥</option><option value="lte">≤</option><option value="contains">contains</option></select><input id="${id}-v" placeholder="value"><button class="btn br bsm" onclick="this.closest('.cond-row').remove()">✕</button>`;document.getElementById('cond-list').appendChild(div);}
 function clearConds(){document.getElementById('cond-list').innerHTML='';document.getElementById('cond-result').innerHTML='';}
@@ -1348,7 +1387,7 @@ function runConds(){
 function saveFilter(){const name=document.getElementById('fname').value.trim();if(!name){toast('Enter filter name','warn');return;}const conds=Array.from(document.querySelectorAll('.cond-row')).map(row=>{const id=row.id;return{col:document.getElementById(id+'-c')?.value,op:document.getElementById(id+'-o')?.value,val:document.getElementById(id+'-v')?.value};});savedFilters.push({name,conds,created:new Date().toISOString()});ss(K.filters,savedFilters);renderSaved();toast('✅ Filter saved');}
 function renderSaved(){const c=document.getElementById('saved-filters');if(!c)return;if(!savedFilters.length){c.textContent='No saved filters';return;}c.innerHTML=savedFilters.map((f,i)=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--bd)"><div><div style="font-size:12px;font-weight:700">${f.name}</div><div style="font-size:10px;color:var(--mu)">${f.conds?.length||0} conditions</div></div><div class="flex"><button class="btn bb bsm" onclick="loadFilter(${i})">Load</button><button class="btn br bsm" onclick="savedFilters.splice(${i},1);ss(K.filters,savedFilters);renderSaved()">Del</button></div></div>`).join('');}
 function loadFilter(i){const f=savedFilters[i];if(!f)return;clearConds();f.conds?.forEach(c=>{addCond();const last=document.querySelectorAll('.cond-row');const row=last[last.length-1];if(!row)return;const id=row.id;const cs=document.getElementById(id+'-c');if(cs&&c.col){for(const o of cs.options){if(o.value===c.col){cs.value=c.col;break;}}}const op=document.getElementById(id+'-o');if(op)op.value=c.op;const vi=document.getElementById(id+'-v');if(vi)vi.value=c.val;});toast('✅ Loaded — tap Run Filter');}
-renderSaved();
+savedFilters=gs(K.filters)||[];renderSaved();
 
 // ══════════════════════════════════════════════
 // RISK ANALYSIS
@@ -1400,7 +1439,6 @@ function cRisk(){const a=+document.getElementById('rk-a')?.value||100000,r=+docu
 // ══════════════════════════════════════════════
 // AI — MULTI-PROVIDER
 // ══════════════════════════════════════════════
-let mainHist=[],floatHist=[];
 
 function getAIContext(){
   if(!allRows.length)return'No CSV data loaded.';
