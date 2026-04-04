@@ -2,37 +2,41 @@ name: Nifty 100 Auto Download
 
 on:
   schedule:
-    - cron: '0 9 * * 1-5'  # 9:30 AM IST (adjust if needed)
+    - cron: '0 4 * * 1-5'  # 9:30 AM IST (UTC+5:30 → UTC 4:00); change via dashboard Control tab
   workflow_dispatch:
+    inputs:
+      index_name:
+        description: 'NSE Index to download'
+        required: false
+        default: 'NIFTY 100'
+      reason:
+        description: 'Reason for manual trigger'
+        required: false
+        default: 'Manual'
 
 jobs:
   download:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - uses: actions/checkout@v3
-    
+    - uses: actions/checkout@v4
+
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.11'
-    
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install requests python-telegram-bot pandas
-    
-    - name: Download CSV
-      run: python scripts/download_nifty.py
+        pip install requests pytz
+
+    - name: Run bot (download, send, upload CSV to data/)
+      run: python nifty100_bot.py
       env:
         BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
         CHAT_ID: ${{ secrets.CHAT_ID }}
         RECIPIENTS: ${{ secrets.RECIPIENTS }}
-    
-    - name: Commit and push
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add data/nifty100.csv
-        git commit -m "Auto-update CSV $(date)" || echo "No changes"
-        git push
+        INDEX_NAME: ${{ github.event.inputs.index_name || 'NIFTY 100' }}
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        GH_REPO: ${{ github.repository }}

@@ -102,8 +102,41 @@ tbody td{padding:6px 9px;white-space:nowrap}
 .mblock-val{font-size:17px;font-weight:800;margin:5px 0 2px}
 .mblock-ch{font-size:12px;font-weight:700}
 .mblock-mini{height:44px;width:100%}
-/* TV */
-.tv-container{border-radius:8px;overflow:hidden;border:1px solid var(--bd)}
+/* SIDEBAR */
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:220px;background:var(--bg2);border-right:1px solid var(--bd);z-index:300;display:flex;flex-direction:column;transition:width .25s ease;overflow:hidden}
+.sidebar.collapsed{width:52px}
+.sb-top{display:flex;align-items:center;justify-content:space-between;padding:10px 8px;border-bottom:1px solid var(--bd);height:46px;flex-shrink:0}
+.sb-logo{font-size:13px;font-weight:800;color:var(--green);white-space:nowrap;overflow:hidden;display:flex;align-items:center;gap:6px}
+.sb-logo .pulse{flex-shrink:0}
+.sb-logo-t{transition:opacity .2s;overflow:hidden;white-space:nowrap}
+.sidebar.collapsed .sb-logo-t{opacity:0;width:0}
+.sb-toggle{background:none;border:none;color:var(--mu);cursor:pointer;font-size:16px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:5px;flex-shrink:0}
+.sb-toggle:hover{background:var(--bg3);color:var(--tx)}
+.sb-nav{flex:1;overflow-y:auto;overflow-x:hidden;padding:6px 4px;scrollbar-width:thin}
+.sb-nav::-webkit-scrollbar{width:4px}.sb-nav::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
+.sb-btn{display:flex;align-items:center;gap:9px;width:100%;padding:8px 9px;border:none;background:none;color:var(--mu);font-size:12px;font-weight:600;border-radius:7px;cursor:pointer;text-align:left;white-space:nowrap;overflow:hidden;transition:background .15s,color .15s}
+.sb-btn:hover{background:var(--bg3);color:var(--tx)}
+.sb-btn.on{background:rgba(88,166,255,.12);color:var(--blue)}
+.sb-btn .sb-icon{font-size:16px;flex-shrink:0;width:20px;text-align:center}
+.sb-btn .sb-lbl{overflow:hidden;white-space:nowrap;transition:opacity .2s,width .2s;opacity:1}
+.sidebar.collapsed .sb-lbl{opacity:0;width:0;pointer-events:none}
+.sb-sect{font-size:9px;color:var(--mu);text-transform:uppercase;letter-spacing:.8px;font-weight:700;padding:6px 9px 2px;white-space:nowrap;overflow:hidden;transition:opacity .2s}
+.sidebar.collapsed .sb-sect{opacity:0}
+.sb-foot{padding:8px 4px;border-top:1px solid var(--bd);flex-shrink:0}
+/* MAIN CONTENT SHIFT */
+#app-body{margin-left:220px;transition:margin-left .25s ease;min-height:100vh;display:flex;flex-direction:column}
+#app-body.sb-collapsed{margin-left:52px}
+/* Topbar adjusted */
+.topbar{display:none}
+/* Mobile responsive */
+@media(max-width:640px){
+  .sidebar{width:52px}
+  .sidebar.mob-open{width:220px}
+  #app-body{margin-left:52px}
+  #app-body.sb-collapsed{margin-left:52px}
+  .sb-mob-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:299;display:none}
+  .sidebar.mob-open+#app-body .sb-mob-overlay,.sidebar.mob-open~.sb-mob-overlay{display:block}
+}
 /* COND */
 .cond-row{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:6px;align-items:center;margin-bottom:7px}
 .cond-row select,.cond-row input{background:var(--bg3);border:1px solid var(--bd);color:var(--tx);padding:6px 8px;border-radius:6px;font-size:11px;outline:none;width:100%}
@@ -126,6 +159,8 @@ tbody td{padding:6px 9px;white-space:nowrap}
 /* FLOATING AI BUTTON */
 .ai-float-btn{position:fixed;bottom:20px;right:16px;width:44px;height:44px;border-radius:50%;background:var(--blue);color:#fff;border:none;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.4);z-index:400;transition:transform .2s}
 .ai-float-btn:hover{transform:scale(1.1)}
+.ai-float-btn .ai-tooltip{position:absolute;right:52px;bottom:50%;transform:translateY(50%);background:var(--bg2);border:1px solid var(--bd);color:var(--tx);font-size:11px;font-weight:700;padding:5px 10px;border-radius:7px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .2s;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.ai-float-btn:hover .ai-tooltip{opacity:1}
 /* FLOATING AI PANEL */
 .ai-float-panel{position:fixed;bottom:72px;right:16px;width:320px;max-width:calc(100vw - 32px);background:var(--bg2);border:1px solid var(--bd);border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.5);z-index:399;display:none;flex-direction:column;overflow:hidden}
 .ai-float-panel.open{display:flex}
@@ -193,12 +228,6 @@ hr{border:none;border-top:1px solid var(--bd);margin:12px 0}
       <button class="pw-eye" type="button" onclick="togglePW('lp',this)">👁</button></div>
     </div>
     <button class="btn bb" style="width:100%;justify-content:center;padding:10px" onclick="doLogin()">Sign In →</button>
-    <div class="admin-hint">
-      <b style="color:var(--yellow)">Default Admin Login:</b><br>
-      Username: <b style="color:var(--tx);font-family:monospace">admin</b><br>
-      Password: <b style="color:var(--tx);font-family:monospace">admin123</b><br>
-      <span style="font-size:10px">Change in Settings → Profile after first login</span>
-    </div>
   </div>
 
   <!-- REGISTER -->
@@ -210,7 +239,7 @@ hr{border:none;border-top:1px solid var(--bd);margin:12px 0}
       <div class="fr"><label>Email</label><input id="rem" type="email" placeholder="your@email.com"></div>
       <div class="fr"><label>Mobile Number</label>
         <input id="rmob" type="tel" placeholder="+91 9876543210">
-        <div style="font-size:10px;color:var(--mu);margin-top:3px">OTP will be sent to your Telegram (bot must have your number or you can message the bot first)</div>
+        <div style="font-size:10px;color:var(--mu);margin-top:3px">Used for account identification</div>
       </div>
       <div class="fr"><label>Password (min 6 chars)</label>
         <div class="pw-wrap"><input id="rp" type="password" placeholder="choose password">
@@ -220,8 +249,8 @@ hr{border:none;border-top:1px solid var(--bd);margin:12px 0}
       <button class="btn bg" style="width:100%;justify-content:center;padding:10px" onclick="regS1()">Send OTP →</button>
     </div>
     <div id="reg-s2" style="display:none">
-      <div style="text-align:center;font-size:13px;color:var(--mu);margin-bottom:10px;line-height:1.6">OTP sent! Check your Telegram messages from the bot.<br><span style="font-size:11px;color:var(--yellow)">If Telegram not configured, OTP is shown below:</span></div>
-      <div id="otp-fallback" class="sbox" style="display:none;text-align:center;font-size:22px;font-weight:800;letter-spacing:6px;margin-bottom:10px"></div>
+      <div style="text-align:center;font-size:13px;color:var(--mu);margin-bottom:10px;line-height:1.6">Your OTP is shown below. Enter it in the boxes to create your account.</div>
+      <div id="otp-fallback" class="sbox" style="text-align:center;font-size:28px;font-weight:800;letter-spacing:8px;margin-bottom:12px;padding:14px;user-select:all">——————</div>
       <div class="otp-row" id="otp-inputs"></div>
       <button class="btn bg" style="width:100%;justify-content:center;padding:10px;margin-top:8px" onclick="verifyOTP()">Verify & Create Account ✓</button>
       <button class="btn bo bsm" style="width:100%;justify-content:center;margin-top:6px" onclick="backReg()">← Back</button>
@@ -242,33 +271,48 @@ hr{border:none;border-top:1px solid var(--bd);margin:12px 0}
 </div>
 
 <!-- ════════ APP ════════ -->
-<div id="app">
-<div class="topbar">
-  <div class="tlogo"><div class="pulse"></div>📊 NiftyBeast <span id="admbadge" class="abadge" style="display:none">ADMIN</span></div>
-  <div class="tnav">
-    <button class="nb on" onclick="pg('home',this)">🌐 Markets</button>
-    <button class="nb" onclick="pg('control',this)">🎛️ Control</button>
-    <button class="nb" onclick="pg('analysis',this)">📈 Analysis</button>
-    <button class="nb" onclick="pg('table',this)">📋 Table</button>
-    <button class="nb" onclick="pg('live',this)">📡 Live Charts</button>
-    <button class="nb" onclick="pg('filter',this)">🔬 Filter</button>
-    <button class="nb" onclick="pg('mf',this)">💼 MF/IPO</button>
-    <button class="nb" onclick="pg('calc',this)">🧮 Calc</button>
-    <button class="nb" onclick="pg('ai',this)">🤖 AI</button>
-    <button class="nb" onclick="pg('apikeys',this)">🔑 API Keys</button>
-    <button class="nb" onclick="pg('recipients',this)">📨 Recipients</button>
-    <button class="nb admin-only" onclick="pg('users',this)" style="display:none">👥 Users</button>
-    <button class="nb" onclick="pg('settings',this)">⚙️ Settings</button>
+<div id="app" style="display:none">
+<!-- LEFT SIDEBAR -->
+<nav class="sidebar" id="sidebar">
+  <div class="sb-top">
+    <div class="sb-logo"><div class="pulse"></div><span class="sb-logo-t">NiftyBeast <span id="admbadge" class="abadge" style="display:none">ADMIN</span></span></div>
+    <button class="sb-toggle" id="sb-toggle-btn" onclick="toggleSidebar()" title="Toggle sidebar">☰</button>
   </div>
-  <div class="tact">
-    <button class="ib" onclick="toggleTheme()" id="theme-btn">🌙</button>
-    <div class="av" id="uav" onclick="pg('settings',null)">A</div>
+  <div class="sb-nav">
+    <div class="sb-sect">Markets</div>
+    <button class="sb-btn on" id="sbn-home" onclick="pg('home',this)"><span class="sb-icon">🌐</span><span class="sb-lbl">Markets</span></button>
+    <button class="sb-btn" id="sbn-live" onclick="pg('live',this)"><span class="sb-icon">📡</span><span class="sb-lbl">Live Charts</span></button>
+    <div class="sb-sect">Data</div>
+    <button class="sb-btn" id="sbn-control" onclick="pg('control',this)"><span class="sb-icon">🎛️</span><span class="sb-lbl">Control</span></button>
+    <button class="sb-btn" id="sbn-analysis" onclick="pg('analysis',this)"><span class="sb-icon">📈</span><span class="sb-lbl">Analysis</span></button>
+    <button class="sb-btn" id="sbn-table" onclick="pg('table',this)"><span class="sb-icon">📋</span><span class="sb-lbl">Table</span></button>
+    <button class="sb-btn" id="sbn-filter" onclick="pg('filter',this)"><span class="sb-icon">🔬</span><span class="sb-lbl">Filter</span></button>
+    <div class="sb-sect">Tools</div>
+    <button class="sb-btn" id="sbn-mf" onclick="pg('mf',this)"><span class="sb-icon">💼</span><span class="sb-lbl">MF/IPO</span></button>
+    <button class="sb-btn" id="sbn-calc" onclick="pg('calc',this)"><span class="sb-icon">🧮</span><span class="sb-lbl">Calculator</span></button>
+    <button class="sb-btn" id="sbn-ai" onclick="pg('ai',this)"><span class="sb-icon">🤖</span><span class="sb-lbl">AI Assistant</span></button>
+    <div class="sb-sect">Config</div>
+    <button class="sb-btn" id="sbn-apikeys" onclick="pg('apikeys',this)"><span class="sb-icon">🔑</span><span class="sb-lbl">API Keys</span></button>
+    <button class="sb-btn" id="sbn-recipients" onclick="pg('recipients',this)"><span class="sb-icon">📨</span><span class="sb-lbl">Recipients</span></button>
+    <button class="sb-btn admin-only" id="sbn-users" onclick="pg('users',this)" style="display:none"><span class="sb-icon">👥</span><span class="sb-lbl">Users</span></button>
+    <button class="sb-btn" id="sbn-settings" onclick="pg('settings',this)"><span class="sb-icon">⚙️</span><span class="sb-lbl">Settings</span></button>
   </div>
-</div>
+  <div class="sb-foot">
+    <div style="display:flex;align-items:center;gap:7px;padding:4px 5px">
+      <div class="av" id="uav" onclick="pg('settings',null)" style="flex-shrink:0">A</div>
+      <div class="sb-lbl" style="font-size:11px;color:var(--mu);overflow:hidden;white-space:nowrap;text-overflow:ellipsis" id="sb-username">—</div>
+      <button class="ib sb-lbl" onclick="toggleTheme()" id="theme-btn" style="flex-shrink:0;margin-left:auto">🌙</button>
+    </div>
+  </div>
+</nav>
+<!-- MOBILE OVERLAY -->
+<div class="sb-mob-overlay" id="sb-mob-overlay" onclick="closeMobileSidebar()"></div>
+<!-- APP BODY -->
+<div id="app-body">
 <div id="toast"></div>
 
 <!-- FLOATING AI BUTTON -->
-<button class="ai-float-btn" id="ai-float-btn" onclick="toggleFloatAI()">🤖</button>
+<button class="ai-float-btn" id="ai-float-btn" onclick="toggleFloatAI()">🤖<span class="ai-tooltip">AI Market Assistant</span></button>
 <!-- FLOATING AI PANEL -->
 <div class="ai-float-panel" id="ai-float-panel">
   <div class="ai-float-hd">
@@ -675,7 +719,7 @@ hr{border:none;border-top:1px solid var(--bd);margin:12px 0}
   <div class="card">
     <div class="chd"><div class="ct">👥 All Registered Users</div><div class="flex"><span id="ucnt" class="badge bblue">0</span><button class="btn bo bsm" onclick="renderUsers()">🔄 Refresh</button></div></div>
     <div class="tw">
-      <table><thead><tr><th>#</th><th>Username</th><th>Name</th><th>Email</th><th>Mobile</th><th>Role</th><th>Status</th><th>Password</th><th>Joined</th><th>Action</th></tr></thead>
+      <table><thead><tr><th>#</th><th>Username</th><th>Name</th><th>Email</th><th>Mobile</th><th>Role</th><th>Status</th><th>Joined</th><th>Action</th></tr></thead>
       <tbody id="utb"></tbody></table>
     </div>
   </div>
@@ -749,7 +793,8 @@ hr{border:none;border-top:1px solid var(--bd);margin:12px 0}
       <button class="btn br bsm" onclick="doLogout()">🚪 Sign Out</button>
     </div>
   </div>
-</div>
+</div><!-- /settings -->
+</div><!-- /app-body -->
 </div><!-- /app -->
 
 <!-- MODALS -->
@@ -867,22 +912,11 @@ async function regS1(){
   buildOTPBoxes();
   document.getElementById('reg-s1').style.display='none';
   document.getElementById('reg-s2').style.display='block';
-  // Send OTP via Telegram bot
-  const gh=getGH();
-  const botTok=document.getElementById('bot-tok')?.value||gh.botToken||'';
-  // We use mobile number as Telegram username search — but actually need chat ID.
-  // Best UX: show OTP on screen AND try to send via bot if bot token exists.
-  // For mobile-based OTP we'd need Twilio/etc (paid). Best free option = show on screen.
+  // Always show OTP on screen — no Telegram chat ID needed
   const fallback=document.getElementById('otp-fallback');
-  if(fallback){fallback.style.display='block';fallback.textContent=_otp;}
-  amsg('ro','OTP generated. Check above — enter in the boxes below.','ok');
-  if(botTok){
-    // If user has added their Telegram Chat ID in profile or registration, try sending
-    try{
-      // Try to send to the user's mobile number as Telegram username (not always possible)
-      // Show on screen is the reliable fallback
-    }catch(e){}
-  }
+  if(fallback){fallback.textContent=_otp;}
+  amsg('ro','✅ Your OTP is shown above in the green box. Enter it below.','ok');
+  document.getElementById('otp-inputs')?.children[0]?.focus();
 }
 function backReg(){document.getElementById('reg-s2').style.display='none';document.getElementById('reg-s1').style.display='block';amsg('re','');amsg('ro','');}
 function verifyOTP(){
@@ -933,6 +967,7 @@ function showApp(user){
   document.getElementById('auth').style.display='none';
   document.getElementById('app').style.display='block';
   document.getElementById('uav').textContent=(user.name||user.username)[0].toUpperCase();
+  const sbu=document.getElementById('sb-username');if(sbu)sbu.textContent=user.username+(user.role==='admin'?' (Admin)':'');
   document.getElementById('loggedas').textContent=user.username+(user.role==='admin'?' (Admin)':'');
   document.getElementById('loggedas2').textContent=user.username;
   document.getElementById('pname').value=user.name||'';
@@ -943,7 +978,7 @@ function showApp(user){
   document.getElementById('admbadge').style.display=isAdmin?'':'none';
   if(!isAdmin){
     const sects=gs(K.sects)||DSECTS;
-    document.querySelectorAll('.nb').forEach(btn=>{
+    document.querySelectorAll('.sb-btn').forEach(btn=>{
       const m=(btn.getAttribute('onclick')||'').match(/pg\('([^']+)'/);
       if(m&&sects[m[1]]===false)btn.style.display='none';
     });
@@ -967,19 +1002,45 @@ const _es=getSess();
 if(_es){const still=getUsers().find(u=>u.username===_es.username);if(still)showApp(still);else doLogout();}
 
 // ══════════════════════════════════════════════
+// SIDEBAR
+// ══════════════════════════════════════════════
+let _sbCollapsed=false;
+function toggleSidebar(){
+  _sbCollapsed=!_sbCollapsed;
+  document.getElementById('sidebar').classList.toggle('collapsed',_sbCollapsed);
+  document.getElementById('app-body').classList.toggle('sb-collapsed',_sbCollapsed);
+  try{localStorage.setItem('nb6_sb',_sbCollapsed?'1':'0');}catch(e){}
+}
+function closeMobileSidebar(){
+  if(window.innerWidth<=640){
+    document.getElementById('sidebar').classList.remove('mob-open');
+    document.getElementById('sb-mob-overlay').style.display='none';
+  }
+}
+// Restore sidebar state
+(()=>{
+  try{const s=localStorage.getItem('nb6_sb');if(s==='1'){_sbCollapsed=true;document.getElementById('sidebar').classList.add('collapsed');document.getElementById('app-body').classList.add('sb-collapsed');}}catch(e){}
+  // On mobile, start collapsed
+  if(window.innerWidth<=640){_sbCollapsed=true;document.getElementById('sidebar').classList.add('collapsed');document.getElementById('app-body').classList.add('sb-collapsed');}
+})();
+
+// ══════════════════════════════════════════════
 // NAV
 // ══════════════════════════════════════════════
 function pg(name,btn){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
-  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.sb-btn').forEach(b=>b.classList.remove('on'));
   const el=document.getElementById('pg-'+name);if(el)el.classList.add('on');
-  if(btn)btn.classList.add('on');
-  else{const nb=document.querySelector(`.nb[onclick*="'${name}'"]`);if(nb)nb.classList.add('on');}
+  // Highlight sidebar button
+  const sbn=document.getElementById('sbn-'+name);if(sbn)sbn.classList.add('on');
+  else if(btn&&btn.classList.contains('sb-btn'))btn.classList.add('on');
   if(name==='users')renderUsers();
   if(name==='live')setTimeout(loadTV,100);
   // Update float AI context label
   const lbl=document.getElementById('float-ctx-lbl');
-  if(lbl){const nb=document.querySelector('.nb.on');lbl.textContent='🤖 AI — '+(nb?nb.textContent.trim().slice(0,12):'');}
+  if(lbl){const nb=document.querySelector('.sb-btn.on .sb-lbl');lbl.textContent='🤖 AI — '+(nb?nb.textContent.trim().slice(0,12):'');}
+  // On mobile, close sidebar after navigation
+  if(window.innerWidth<=640){closeMobileSidebar();}
 }
 function stab(n,btn){
   ['profile','github','theme','logout'].forEach(x=>{const el=document.getElementById('st-'+x);if(el)el.style.display=x===n?'block':'none';});
@@ -1164,7 +1225,6 @@ function renderUsers(){
       <td style="font-size:10px">${u.mobile||'—'}</td>
       <td><span class="badge ${u.role==='admin'?'byellow':'bblue'}">${u.role}</span></td>
       <td><span class="badge ${u.status==='suspended'?'bred':'bgreen'}">${u.status||'active'}</span></td>
-      <td><code style="font-size:10px;color:var(--yellow)">${atob(u.password||btoa(''))}</code></td>
       <td style="font-size:10px;color:var(--mu)">${u.joined?new Date(u.joined).toLocaleDateString('en-IN'):'—'}</td>
       <td>${!isMe?`<button class="btn bo bsm" onclick="openEdit('${u.username}')">Edit</button>`:'—'}</td>
     </tr>`;
@@ -1175,7 +1235,7 @@ function saveEdit(){if(!_et)return;let users=getUsers();const idx=users.findInde
 function delUser(){if(!_et)return;if(_et==='admin'){toast('Cannot delete admin','warn');return;}if(!confirm('Delete '+_et+'?'))return;saveUsers(getUsers().filter(u=>u.username!==_et));closeModal('edit-modal');renderUsers();toast('✅ Deleted');_et=null;}
 function closeModal(id){document.getElementById(id)?.classList.remove('open');_et=null;}
 function renderSecList(){const sects=gs(K.sects)||DSECTS;const c=document.getElementById('sec-list');if(!c)return;c.innerHTML=Object.entries(SLABELS).map(([k,l])=>`<div class="sec-row"><div><div style="font-size:12px;font-weight:700">${l}</div><div style="font-size:11px;color:var(--mu)">Visible to regular users</div></div><label class="tog"><input type="checkbox" id="sec-${k}" ${sects[k]!==false?'checked':''}><span class="togsl"></span></label></div>`).join('');}
-function saveSecAccess(){const s={};Object.keys(SLABELS).forEach(k=>{const el=document.getElementById('sec-'+k);if(el)s[k]=el.checked;});ss(K.sects,s);toast('✅ Access saved');}
+function saveSecAccess(){const s={};Object.keys(SLABELS).forEach(k=>{const el=document.getElementById('sec-'+k);if(el)s[k]=el.checked;});ss(K.sects,s);const sess=getSess();if(sess&&sess.role!=='admin'){document.querySelectorAll('.sb-btn').forEach(btn=>{const m=(btn.getAttribute('onclick')||'').match(/pg\('([^']+)'/);if(m&&s[m[1]]===false)btn.style.display='none';else if(m)btn.style.display='';});}toast('✅ Access saved');}
 function saveAdmRec(){ss(K.adm,{email:document.getElementById('adm-em').value.trim(),mobile:document.getElementById('adm-mob').value.trim()});toast('✅ Saved');}
 
 // ══════════════════════════════════════════════
