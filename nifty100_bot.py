@@ -10,6 +10,12 @@ GH_REPO        = os.environ.get("GH_REPO", "")  # format: username/reponame
 
 MAX_CSV_FILES  = 5   # Auto-delete oldest when more than this many exist
 
+GH_HEADERS = {
+    "Authorization": f"Bearer {GH_TOKEN}",
+    "Accept": "application/vnd.github+json",
+    "X-GitHub-Api-Version": "2022-11-28"
+}
+
 NSE_INDICES = {
     "NIFTY 100":"NIFTY 100","NIFTY 50":"NIFTY 50","NIFTY NEXT 50":"NIFTY NEXT 50",
     "NIFTY MIDCAP 100":"NIFTY MIDCAP 100","NIFTY SMALLCAP 100":"NIFTY SMALLCAP 100",
@@ -75,18 +81,37 @@ def send_msg(chat_id, text):
     requests.post(f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
                   data={"chat_id": chat_id, "text": text}, timeout=15)
 
+def upload_csv_to_github(csv_text, filename):
+    """Upload CSV file to GitHub repo data/ folder via API."""
+    if not GH_TOKEN or not GH_REPO:
+        print("[Upload] No GH_TOKEN/GH_REPO set, skipping GitHub upload.")
+        return False
+    path = f"data/{filename}"
+    url = f"https://api.github.com/repos/{GH_REPO}/contents/{path}"
+    content = base64.b64encode(csv_text.encode("utf-8")).decode("ascii")
+    # Check if file already exists to get its SHA (needed for update)
+    sha = None
+    r = requests.get(url, headers=GH_HEADERS, timeout=15)
+    if r.ok:
+        sha = r.json().get("sha")
+        print(f"[Upload] File {filename} already exists, will update.")
+    body = {"message": f"Auto-upload CSV: {filename}", "content": content}
+    if sha:
+        body["sha"] = sha
+    r = requests.put(url, headers=GH_HEADERS, json=body, timeout=30)
+    if r.ok:
+        print(f"[Upload] ✅ Uploaded {filename} to GitHub ({path})")
+        return True
+    print(f"[Upload] ❌ Upload failed: {r.status_code} {r.text[:200]}")
+    return False
+
 def cleanup_old_csvs_on_github():
     """Keep only MAX_CSV_FILES CSVs in the repo data/ folder. Delete oldest."""
     if not GH_TOKEN or not GH_REPO:
         print("[Cleanup] No GH_TOKEN/GH_REPO set, skipping GitHub cleanup.")
         return
-    headers = {
-        "Authorization": f"Bearer {GH_TOKEN}",
-        "Accept": "application/vnd.github+json",
-        "X-GitHub-Api-Version": "2022-11-28"
-    }
     try:
-        r = requests.get(f"https://api.github.com/repos/{GH_REPO}/contents/data", headers=headers, timeout=15)
+        r = requests.get(f"https://api.github.com/repos/{GH_REPO}/contents/data", headers=GH_HEADERS, timeout=15)
         if r.status_code == 404:
             return  # data folder doesn't exist yet
         if not r.ok:
@@ -94,15 +119,16 @@ def cleanup_old_csvs_on_github():
             return
         files = [f for f in r.json() if f["name"].endswith(".csv")]
         files.sort(key=lambda x: x["name"])  # oldest first (by filename date)
+        print(f"[Cleanup] Found {len(files)} CSV(s) in data/. Max allowed: {MAX_CSV_FILES}")
         while len(files) > MAX_CSV_FILES:
             oldest = files.pop(0)
             dr = requests.delete(
                 f"https://api.github.com/repos/{GH_REPO}/contents/data/{oldest['name']}",
-                headers=headers,
+                headers=GH_HEADERS,
                 json={"message": f"Auto-delete old CSV: {oldest['name']}", "sha": oldest["sha"]},
                 timeout=15
             )
-            print(f"[Cleanup] Deleted {oldest['name']}: {dr.status_code}")
+            print(f"[Cleanup] Deleted {oldest['name']}: HTTP {dr.status_code}")
     except Exception as e:
         print(f"[Cleanup] Error: {e}")
 
@@ -127,7 +153,9 @@ try:
     for cid in recipients:
         if send_to(cid, csv_bytes, filename, caption): ok += 1
     print(f"[BOT] ✅ Sent to {ok}/{len(recipients)} recipients")
-    # Cleanup old CSVs from GitHub repo
+    # Upload CSV to GitHub data/ folder
+    upload_csv_to_github(csv_text, filename)
+    # Cleanup old CSVs from GitHub repo (keep only MAX_CSV_FILES)
     cleanup_old_csvs_on_github()
 except Exception as e:
     print(f"[BOT] ❌ Error: {e}")
