@@ -250,7 +250,7 @@ hr{border:none;border-top:1px solid var(--bd);margin:12px 0}
     </div>
     <div id="reg-s2" style="display:none">
       <div style="text-align:center;font-size:13px;color:var(--mu);margin-bottom:10px;line-height:1.6">Your OTP is shown below. Enter it in the boxes to create your account.</div>
-      <div id="otp-fallback" class="sbox" style="text-align:center;font-size:28px;font-weight:800;letter-spacing:8px;margin-bottom:12px;padding:14px;user-select:all">——————</div>
+      <div id="otp-fallback" class="sbox" style="text-align:center;font-size:28px;font-weight:800;letter-spacing:8px;margin-bottom:12px;padding:14px;user-select:all">——</div>
       <div class="otp-row" id="otp-inputs"></div>
       <button class="btn bg" style="width:100%;justify-content:center;padding:10px;margin-top:8px" onclick="verifyOTP()">Verify & Create Account ✓</button>
       <button class="btn bo bsm" style="width:100%;justify-content:center;margin-top:6px" onclick="backReg()">← Back</button>
@@ -914,7 +914,7 @@ async function regS1(){
   document.getElementById('reg-s2').style.display='block';
   // Always show OTP on screen — no Telegram chat ID needed
   const fallback=document.getElementById('otp-fallback');
-  if(fallback){fallback.textContent=_otp;}
+  if(fallback&&_otp){fallback.textContent=_otp;}
   amsg('ro','✅ Your OTP is shown above in the green box. Enter it below.','ok');
   document.getElementById('otp-inputs')?.children[0]?.focus();
 }

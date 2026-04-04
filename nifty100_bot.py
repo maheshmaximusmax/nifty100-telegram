@@ -76,7 +76,12 @@ def send_msg(chat_id, text):
                   data={"chat_id": chat_id, "text": text}, timeout=15)
 
 def upload_csv_to_github(csv_text, filename):
-    """Upload the generated CSV to the repo's data/ folder."""
+    """Upload the generated CSV to the repo's data/ folder.
+
+    Args:
+        csv_text (str): CSV content to upload.
+        filename (str): Filename to use inside the data/ folder (e.g. NIFTY_100_2026-04-04.csv).
+    """
     if not GH_TOKEN or not GH_REPO:
         print("[Upload] No GH_TOKEN/GH_REPO set, skipping GitHub upload.")
         return False
