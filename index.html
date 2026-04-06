@@ -1102,6 +1102,10 @@ function bCron(){
 }
 async function applySchedule(){
   const cron=bCron();
+  const h=parseInt(document.getElementById('sh')?.value)||9;
+  const m=parseInt(document.getElementById('sm')?.value)||30;
+  const ap=document.getElementById('sap')?.value||'AM';
+  const days=document.getElementById('sdays')?.value||'1-5';
   try{
     log('📡 Fetching workflow file...');
     const f=await ghAPI('/contents/.github/workflows/nifty100.yml');
@@ -1110,6 +1114,17 @@ async function applySchedule(){
     const newC=c.replace(/- cron: '[^']*'/,`- cron: '${cron}'`);
     if(newC===c){toast('⚠️ Could not find cron line in workflow file. Check file content.','warn');return;}
     await ghAPI('/contents/.github/workflows/nifty100.yml','PUT',{message:`Update schedule to: ${cron}`,content:btoa(unescape(encodeURIComponent(newC))),sha:f.sha});
+    // Also persist schedule to schedule.json for reference
+    try{
+      let schSha=null;
+      try{const sf=await ghAPI('/contents/schedule.json');schSha=sf.sha;}catch(_){}
+      const pad=n=>n<10?'0'+n:''+n;
+      const schData={cron,hour:h,minute:m,ampm:ap,days,description:`${pad(h)}:${pad(m)} ${ap} IST → UTC cron: ${cron}`};
+      const body={message:`Update schedule: ${cron}`,content:btoa(unescape(encodeURIComponent(JSON.stringify(schData,null,2))))};
+      if(schSha)body.sha=schSha;
+      await ghAPI('/contents/schedule.json','PUT',body);
+      log('✅ schedule.json updated');
+    }catch(e2){log('⚠️ Could not save schedule.json: '+e2.message);}
     toast('✅ Schedule updated! Next run: '+document.getElementById('schdisp').textContent+' '+document.getElementById('schdays').textContent);
     log('✅ Schedule updated: '+cron);
   }catch(e){toast('❌ '+e.message,'err');log('❌ '+e.message);}

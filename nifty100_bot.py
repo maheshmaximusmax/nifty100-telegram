@@ -75,6 +75,38 @@ def send_msg(chat_id, text):
     requests.post(f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
                   data={"chat_id": chat_id, "text": text}, timeout=15)
 
+def validate_github_token():
+    """Validate that GH_TOKEN is set and has access to GH_REPO."""
+    if not GH_TOKEN:
+        print("[Upload] ❌ GH_TOKEN secret is not set — skipping GitHub upload.")
+        return False
+    if not GH_REPO:
+        print("[Upload] ❌ GH_REPO is not set — skipping GitHub upload.")
+        return False
+    headers = {
+        "Authorization": f"Bearer {GH_TOKEN}",
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+    }
+    try:
+        r = requests.get(f"https://api.github.com/repos/{GH_REPO}", headers=headers, timeout=10)
+        if r.status_code == 401:
+            print("[Upload] ❌ GH_TOKEN is invalid or expired (HTTP 401).")
+            return False
+        if r.status_code == 403:
+            print(f"[Upload] ❌ GH_TOKEN lacks permissions for {GH_REPO} (HTTP 403).")
+            return False
+        if r.status_code == 404:
+            print(f"[Upload] ❌ Repository '{GH_REPO}' not found (HTTP 404).")
+            return False
+        if not r.ok:
+            print(f"[Upload] ❌ GitHub API error while validating token: HTTP {r.status_code}")
+            return False
+        return True
+    except Exception as e:
+        print(f"[Upload] ❌ Could not validate GitHub token: {e}")
+        return False
+
 def upload_csv_to_github(csv_text, filename):
     """Upload the generated CSV to the repo's data/ folder.
 
@@ -82,13 +114,12 @@ def upload_csv_to_github(csv_text, filename):
         csv_text (str): CSV content to upload.
         filename (str): Filename to use inside the data/ folder (e.g. NIFTY_100_2026-04-04.csv).
     """
-    if not GH_TOKEN or not GH_REPO:
-        print("[Upload] No GH_TOKEN/GH_REPO set, skipping GitHub upload.")
+    if not validate_github_token():
         return False
     headers = {
         "Authorization": f"Bearer {GH_TOKEN}",
         "Accept": "application/vnd.github+json",
-        "X-GitHub-Api-Version": "2022-11-28"
+        "X-GitHub-Api-Version": "2022-11-28",
     }
     path = f"data/{filename}"
     api_url = f"https://api.github.com/repos/{GH_REPO}/contents/{path}"
@@ -98,6 +129,10 @@ def upload_csv_to_github(csv_text, filename):
         r = requests.get(api_url, headers=headers, timeout=15)
         if r.ok:
             sha = r.json().get("sha")
+        elif r.status_code == 404:
+            print(f"[Upload] File does not exist yet, will create: {path}")
+        else:
+            print(f"[Upload] Warning: unexpected status checking existing file: HTTP {r.status_code}")
     except Exception as e:
         print(f"[Upload] Could not check existing file: {e}")
     content_b64 = base64.b64encode(csv_text.encode("utf-8")).decode("ascii")
@@ -107,17 +142,27 @@ def upload_csv_to_github(csv_text, filename):
     }
     if sha:
         payload["sha"] = sha
-    try:
-        r = requests.put(api_url, headers=headers, json=payload, timeout=30)
-        if r.ok:
-            print(f"[Upload] ✅ Uploaded {path} to GitHub")
-            return True
-        else:
-            print(f"[Upload] ❌ GitHub upload failed: {r.status_code} {r.text[:200]}")
-            return False
-    except Exception as e:
-        print(f"[Upload] ❌ Exception: {e}")
-        return False
+    RETRY_STATUSES = {500, 502, 503, 504}
+    max_retries = 5
+    for attempt in range(1, max_retries + 1):
+        try:
+            r = requests.put(api_url, headers=headers, json=payload, timeout=30)
+            if r.ok:
+                print(f"[Upload] ✅ Uploaded {path} to GitHub")
+                return True
+            elif r.status_code in RETRY_STATUSES:
+                print(f"[Upload] ⚠️ Server error HTTP {r.status_code} on attempt {attempt}/{max_retries}, retrying...")
+                if attempt < max_retries:
+                    time.sleep(2 ** attempt)
+            else:
+                print(f"[Upload] ❌ GitHub upload failed: HTTP {r.status_code} — {r.text[:300]}")
+                return False
+        except Exception as e:
+            print(f"[Upload] ❌ Exception on attempt {attempt}/{max_retries}: {e}")
+            if attempt < max_retries:
+                time.sleep(2 ** attempt)
+    print(f"[Upload] ❌ Upload failed after {max_retries} attempts.")
+    return False
 
 def cleanup_old_csvs_on_github():
     """Keep only MAX_CSV_FILES CSVs in the repo data/ folder. Delete oldest."""
