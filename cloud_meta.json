@@ -1,392 +1,250 @@
-{
-  "files": {
-    "mnjbjlfq5hs3znaf": {
-      "name": "MAHESH 14-03-2026 TO 29-03-2026.xlsx",
-      "size": 13884,
-      "type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      "folder": "/m",
-      "iv": "9d8288817c0be442e1974fb0",
-      "chunks": [
-        "BQACAgUAAxkDAAMCadAaHAAB08A_c8eN_mJ858Od5VByAAIxHAACzLqAVgHMORCgG93OOwQ"
-      ],
-      "uploadedAt": "2026-04-03T19:50:53.220Z",
-      "encryptedSize": 13900
-    },
-    "mnjbjz9xr4v21lse": {
-      "name": "Phase-1.rar",
-      "size": 14670086,
-      "type": "application/x-compressed",
-      "folder": "/m",
-      "iv": "fc71208dbd7996bfc0d75099",
-      "chunks": [
-        "BQACAgUAAxkDAAMDadAaNaE6rH2jPj5nVIM05QVPv2YAAjIcAALMuoBWZD6AzvqzvzY7BA"
-      ],
-      "uploadedAt": "2026-04-03T19:51:18.016Z",
-      "encryptedSize": 14670102
-    },
-    "mnjbkgur4rg6pfnv": {
-      "name": "complete-dashboard.html",
-      "size": 62007,
-      "type": "text/html",
-      "folder": "/m",
-      "iv": "bdb3deadfa788bd232245812",
-      "chunks": [
-        "BQACAgUAAxkDAAMEadAaRKhKZ4jWrWY5truhNlNBdZ4AAjMcAALMuoBWEbyv2O1GIkM7BA"
-      ],
-      "uploadedAt": "2026-04-03T19:51:32.632Z",
-      "encryptedSize": 62023
-    },
-    "mnjc0q54k5xvang4": {
-      "name": "mmmm.csv",
-      "size": 2273,
-      "type": "text/csv",
-      "folder": "/m",
-      "iv": "0b01787e7104e2f8832566ea",
-      "chunks": [
-        "BQACAgUAAxkDAAMFadAdPNeeB0QmcIS4U7BJp8ylszEAAjQcAALMuoBWgWE5BPLrSFQ7BA"
-      ],
-      "uploadedAt": "2026-04-03T20:04:12.593Z",
-      "encryptedSize": 2289
-    },
-    "mnjc0q57nbp06f6f": {
-      "name": "Athal (2) (2).csv",
-      "size": 2273,
-      "type": "text/csv",
-      "folder": "/m",
-      "iv": "191e3f8390fc7ff7b5c7a8cc",
-      "chunks": [
-        "BQACAgUAAxkDAAMGadAdPCzx3SrBKzxGUpdo8fYQyKAAAjUcAALMuoBWqguyfFVUPv87BA"
-      ],
-      "uploadedAt": "2026-04-03T20:04:12.838Z",
-      "encryptedSize": 2289
-    },
-    "mnjc0q573zzkjan4": {
-      "name": "Athal (2) (2).ccwmod",
-      "size": 18877,
-      "type": "application/octet-stream",
-      "folder": "/m",
-      "iv": "886a2a50adc091c0c83e3811",
-      "chunks": [
-        "BQACAgUAAxkDAAMHadAdPI7EYHUMtmkacQ1A7fmSwD0AAjYcAALMuoBWM6UDOJDZk8w7BA"
-      ],
-      "uploadedAt": "2026-04-03T20:04:13.391Z",
-      "encryptedSize": 18893
-    },
-    "mnjc0q5b3e7vfo0b": {
-      "name": "Athal (2).csv",
-      "size": 2273,
-      "type": "text/csv",
-      "folder": "/m",
-      "iv": "23bf6ab5ac28b127d93aaa59",
-      "chunks": [
-        "BQACAgUAAxkDAAMIadAdPJGz6_nbOPwc26SJlFFgTe8AAjccAALMuoBWwGUgXV10urA7BA"
-      ],
-      "uploadedAt": "2026-04-03T20:04:13.396Z",
-      "encryptedSize": 2289
-    },
-    "mnjc0q5ap7oa7bw3": {
-      "name": "mm.ccwmod",
-      "size": 5986,
-      "type": "application/octet-stream",
-      "folder": "/m",
-      "iv": "1499e5f3296f52e5a9ca714a",
-      "chunks": [
-        "BQACAgUAAxkDAAMJadAdPFym7QqjyVRukbuLQmco9lsAAjgcAALMuoBWCnvLxkFdRD07BA"
-      ],
-      "uploadedAt": "2026-04-03T20:04:13.399Z",
-      "encryptedSize": 6002
-    },
-    "mnjc0q58lvv88myy": {
-      "name": "Athal (3) (1).csv",
-      "size": 139,
-      "type": "text/csv",
-      "folder": "/m",
-      "iv": "303ccc611410c1281665d31c",
-      "chunks": [
-        "BQACAgUAAxkDAAMKadAdPKtdgf7McC7rZN_ikBUipuIAAjkcAALMuoBWF1EHUV9emZI7BA"
-      ],
-      "uploadedAt": "2026-04-03T20:04:13.403Z",
-      "encryptedSize": 155
-    },
-    "mnjc0q597czfiao5": {
-      "name": "Athal (3).csv",
-      "size": 117,
-      "type": "text/csv",
-      "folder": "/m",
-      "iv": "bc7599c5d3f5b8e4ca413ed5",
-      "chunks": [
-        "BQACAgUAAxkDAAMLadAdPFAQULx5-7ta4pczCeryMlIAAjocAALMuoBWKCHGtPbbWdI7BA"
-      ],
-      "uploadedAt": "2026-04-03T20:04:13.405Z",
-      "encryptedSize": 133
-    },
-    "mnjc0q591lnskiy0": {
-      "name": "Athal (3).ccwmod",
-      "size": 1170,
-      "type": "application/octet-stream",
-      "folder": "/m",
-      "iv": "30f3e33b5f3670028f27c982",
-      "chunks": [
-        "BQACAgUAAxkDAAMMadAdPOpvU1r9_R3G0w7uqKNGg90AAjscAALMuoBWqOZu9fGjyz47BA"
-      ],
-      "uploadedAt": "2026-04-03T20:04:13.407Z",
-      "encryptedSize": 1186
-    },
-    "mnjc0q58z3ampy49": {
-      "name": "Athal (2) (1).csv",
-      "size": 6740,
-      "type": "text/csv",
-      "folder": "/m",
-      "iv": "6bf6bc2567ea1af67f5054c4",
-      "chunks": [
-        "BQACAgUAAxkDAAMNadAdPGJW_4DzTQNRIi3gdEJhPX4AAjwcAALMuoBWLR-7AYdICwI7BA"
-      ],
-      "uploadedAt": "2026-04-03T20:04:13.411Z",
-      "encryptedSize": 6756
-    },
-    "mnjc0q57a2k20b8t": {
-      "name": "Athal (3) (1).ccwmod",
-      "size": 1194,
-      "type": "application/octet-stream",
-      "folder": "/m",
-      "iv": "ebc75362349baccfb30d57ab",
-      "chunks": [
-        "BQACAgUAAxkDAAMOadAdPGnbkKaFRFNSrq-1MUM-yTIAAj0cAALMuoBWB_Qq0mKkTgg7BA"
-      ],
-      "uploadedAt": "2026-04-03T20:04:13.414Z",
-      "encryptedSize": 1210
-    },
-    "mnjc0q57tk977xup": {
-      "name": "index.html",
-      "size": 34289,
-      "type": "text/html",
-      "folder": "/m",
-      "iv": "e0a114f9864255ad6ed3388b",
-      "chunks": [
-        "BQACAgUAAxkDAAMPadAdPGE4Qya3LcRWMZr3hbBaDnkAAj4cAALMuoBWOwKjKel92ro7BA"
-      ],
-      "uploadedAt": "2026-04-03T20:04:13.478Z",
-      "encryptedSize": 34305
-    },
-    "mnjc0q5awmz99zlu": {
-      "name": "Modbus_Converter (1).html",
-      "size": 15506,
-      "type": "text/html",
-      "folder": "/m",
-      "iv": "6342a003d87fed8348f8b2a2",
-      "chunks": [
-        "BQACAgUAAxkDAAMQadAdPIw1976un4VYyKLnO8Yl9JEAAj8cAALMuoBWfQyY7dsxDHc7BA"
-      ],
-      "uploadedAt": "2026-04-03T20:04:13.509Z",
-      "encryptedSize": 15522
-    },
-    "mnjc0q5517rtx1sc": {
-      "name": "mmmm.ccwmod",
-      "size": 18276,
-      "type": "application/octet-stream",
-      "folder": "/m",
-      "iv": "f8ca12849e51b42ecec89fdc",
-      "chunks": [
-        "BQACAgUAAxkDAAMRadAdPQpZ4gsP_0AUYAdrJhiZgQ4AAkAcAALMuoBWTbmp1TvaVOU7BA"
-      ],
-      "uploadedAt": "2026-04-03T20:04:13.551Z",
-      "encryptedSize": 18292
-    },
-    "mnjc0q5ap14jw7dj": {
-      "name": "Athal (2).ccwmod",
-      "size": 18877,
-      "type": "application/octet-stream",
-      "folder": "/m",
-      "iv": "278ac72455bf57f49edc4a2e",
-      "chunks": [
-        "BQACAgUAAxkDAAMSadAdPUo7HKcwmqiszuWbaUtKFHkAAkEcAALMuoBWl7mjOOTIl7E7BA"
-      ],
-      "uploadedAt": "2026-04-03T20:04:13.580Z",
-      "encryptedSize": 18893
-    },
-    "mnjc0q5b14g2b29h": {
-      "name": "Mahesh Expance  till 28 feb 2026.xlsx",
-      "size": 22857,
-      "type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      "folder": "/m",
-      "iv": "baa5fff963257de75d0acd91",
-      "chunks": [
-        "BQACAgUAAxkDAAMTadAdPQoKGwdA3utpRMXANQooTH8AAkIcAALMuoBWqcAT7x1Um5s7BA"
-      ],
-      "uploadedAt": "2026-04-03T20:04:13.629Z",
-      "encryptedSize": 22873
-    },
-    "mnjc0q5b38un5ijq": {
-      "name": "IoT wireguard.docx",
-      "size": 2591328,
-      "type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      "folder": "/m",
-      "iv": "8dc9c3df905d9594848e9957",
-      "chunks": [
-        "BQACAgUAAxkDAAMUadAdQ6OSxG7rctk7hXrbUk1ZBGUAAkMcAALMuoBW0N5En7zsQv87BA"
-      ],
-      "uploadedAt": "2026-04-03T20:04:20.465Z",
-      "encryptedSize": 2591344
-    },
-    "mnjc0q5cyrseekqr": {
-      "name": "17-03-2026 PLC Programe.rar",
-      "size": 5161829,
-      "type": "application/x-compressed",
-      "folder": "/m",
-      "iv": "7b9d900c2f3d344b2c5484e9",
-      "chunks": [
-        "BQACAgUAAxkDAAMVadAdRWXcjJrbtDq7jdhbz3-glsIAAkQcAALMuoBWhnuW37giOdU7BA"
-      ],
-      "uploadedAt": "2026-04-03T20:04:22.054Z",
-      "encryptedSize": 5161845
-    },
-    "mnjc0q5b2yku68yc": {
-      "name": "WD-2 & 3.rar",
-      "size": 31178186,
-      "type": "application/x-compressed",
-      "folder": "/m",
-      "iv": "8bc6a478daaff4f2f4dc66ca",
-      "chunks": [
-        "BQACAgUAAxkDAAMWadAdUXBd1rXCVaanM4tBrVF4AtIAAkUcAALMuoBWqlK87irAT2A7BA",
-        "BQACAgUAAxkDAAMYadAdVw5tfWX7QPQprLQvq6mnnnAAAkccAALMuoBWTuj-LXDWuHQ7BA"
-      ],
-      "uploadedAt": "2026-04-03T20:04:39.749Z",
-      "encryptedSize": 31178202
-    },
-    "mnjc0q5bxwvwd5w6": {
-      "name": "SRP Brochure NEW1.pdf",
-      "size": 40030497,
-      "type": "application/pdf",
-      "folder": "/m",
-      "iv": "be010add16d498c5a8622bde",
-      "chunks": [
-        "BQACAgUAAxkDAAMXadAdUl4e0EJUdg7sK8pb_w6S99cAAkYcAALMuoBWD__tDvL89IY7BA",
-        "BQACAgUAAxkDAAMZadAdXgibZFFlGGxpqxu-udiIak8AAkgcAALMuoBWTX5IkTGrGGY7BA",
-        "BQACAgUAAxkDAAMaadAdX5yhIIjIcQuAq7Q2fzKUQBwAAkkcAALMuoBWv2MBmBCkPqE7BA"
-      ],
-      "uploadedAt": "2026-04-03T20:04:48.076Z",
-      "encryptedSize": 40030513
-    },
-    "mnjc9vl4lrktbn7j": {
-      "name": "22.00.00-CCW-INT-Std-DVD.part1.exe",
-      "size": 2097162504,
-      "type": "application/x-msdownload",
-      "folder": "/m",
-      "iv": "62fecba5edfab9b691af933c",
-      "chunks": [
-        "BQACAgUAAxkDAAMbadAfDctzBx1NNBqe8l8C7GowYsoAAkocAALMuoBWxyqg_1XCJJM7BA",
-        "BQACAgUAAxkDAAMcadAfFyIb_Fw7EdUHfFrl9vQFbkcAAkscAALMuoBWbJpXWN2KhZw7BA",
-        "BQACAgUAAxkDAAMdadAfIGOmVfU1kxnXGj8Xd0sM_8MAAkwcAALMuoBWOKnA0jKxBgABOwQ",
-        "BQACAgUAAxkDAAMeadAfKXwAAYJmTirJI8URNk9UmeJWAAJNHAACzLqAVvhlSpxAlG0jOwQ",
-        "BQACAgUAAxkDAAMfadAfMilkyekRrhg3cFOMnmRbU3kAAk4cAALMuoBWJMaFGtZodiE7BA",
-        "BQACAgUAAxkDAAMgadAfO7WcMyCtSs60U5tDjA5phjkAAk8cAALMuoBWyBm_s0q9hv07BA",
-        "BQACAgUAAxkDAAMhadAfRCCfoosQ96tw9uwpUKOAW5UAAlAcAALMuoBWdutJNM18ld87BA",
-        "BQACAgUAAxkDAAMiadAfTcHcJ8oSl_Zfb4aBrVv5Gd0AAlEcAALMuoBWfBSOEL9on2Q7BA",
-        "BQACAgUAAxkDAAMjadAfVyc452a3Yk08oavjFyOW81UAAlIcAALMuoBW7ynGKoWqmAE7BA",
-        "BQACAgUAAxkDAAMkadAfYr6cN1Vds8UBnIsK1220qcYAAlMcAALMuoBW3JzPphgNyg07BA",
-        "BQACAgUAAxkDAAMladAfbK2UUIDusq--fGMaN6rr0y0AAlQcAALMuoBW9WWKpLj2O8Q7BA",
-        "BQACAgUAAxkDAAMmadAfdvTT3MKQtrDzH3lpxYhW2psAAlUcAALMuoBWsrPRe6Gj-0A7BA",
-        "BQACAgUAAxkDAAMnadAff3pxs5_a51hCGyxzPiwZO60AAlYcAALMuoBWpWqsg851NgU7BA",
-        "BQACAgUAAxkDAAMoadAfh83ioYIQOU7kdh9NPUjf6a8AAlccAALMuoBWFjuW57xMK3s7BA",
-        "BQACAgUAAxkDAAMpadAfkIlpyIGUQz-hwwkS2gFM6LAAAlgcAALMuoBWHBaZYforXQc7BA",
-        "BQACAgUAAxkDAAMqadAfmZwu7wpn1LVIRwbPlVYiQuEAAlkcAALMuoBWQdVQNkFNPaI7BA",
-        "BQACAgUAAxkDAAMradAfojurtDZQCPKoaGVWw4czr7UAAlocAALMuoBWHgmhAbjwX3o7BA",
-        "BQACAgUAAxkDAAMsadAfq4zSz9JXYlLT0EwEyPyuTdgAAlscAALMuoBWB_auGHyWSzA7BA",
-        "BQACAgUAAxkDAAMtadAftergw2ixMLT23QJdhu6VTcYAAlwcAALMuoBW73Bw08AlTKs7BA",
-        "BQACAgUAAxkDAAMuadAfvjtswxN0ipr0HQc3IonmP_MAAl0cAALMuoBW3F6BrHiP0xs7BA",
-        "BQACAgUAAxkDAAMvadAfyM85aU69Y55UadPQXBis-nMAAl4cAALMuoBWfm3EcUbFcQk7BA",
-        "BQACAgUAAxkDAAMwadAf1FbglU4S39wOUiOrgrBHg0YAAl8cAALMuoBWxgUZsDfAQdI7BA",
-        "BQACAgUAAxkDAAMxadAf46vw2yQOo3qeFiKAfK31K30AAmAcAALMuoBWoFgavnnnt9c7BA",
-        "BQACAgUAAxkDAAMyadAf9QMpwfzYDuLV37G2bLrS2xoAAmEcAALMuoBW4b7T2tQqt4g7BA",
-        "BQACAgUAAxkDAAMzadAgAAGsztSONkwbcU55232XCF_eAAJiHAACzLqAViqd1Nc0JqP6OwQ",
-        "BQACAgUAAxkDAAM0adAgCl9iYl4hrwPAqvWgysCIa-QAAmMcAALMuoBW8eJEaXRPu2c7BA",
-        "BQACAgUAAxkDAAM1adAgFSPoZ1ymJEUrQfE4NosCqg0AAmQcAALMuoBWpkOt-LQIhA07BA",
-        "BQACAgUAAxkDAAM2adAgIPwkT11ef-aXk6HR4WEPMI4AAmUcAALMuoBW9n2ri1p4cpk7BA",
-        "BQACAgUAAxkDAAM3adAgKyNqWCpTiwN2DoCXIgABG38YAAJmHAACzLqAVuBzzwWjG-iCOwQ",
-        "BQACAgUAAxkDAAM4adAgOcWmJMoRJn_vrUL_LbUFxyUAAmccAALMuoBWk8NndoAnnbo7BA",
-        "BQACAgUAAxkDAAM5adAgRdzqgH2kAwcZPWJOtjVDqwMAAmgcAALMuoBWnpkc5X3qhyw7BA",
-        "BQACAgUAAxkDAAM6adAgTxLdkg88J79v7u7FR6N8SBkAAmkcAALMuoBWOl4y9Dq2sM07BA",
-        "BQACAgUAAxkDAAM7adAgWjn3TSXGOXHKVIAI6LBgZhoAAmocAALMuoBW9dt3XBJoQUk7BA",
-        "BQACAgUAAxkDAAM8adAgZSBO_PaEL0b7uPoAAZ6csp0DAAJrHAACzLqAVp8E13R4yjurOwQ",
-        "BQACAgUAAxkDAAM9adAgcEqGpIpVGIRImQueAAGmTrAJAAJsHAACzLqAVtOqBHMncawOOwQ",
-        "BQACAgUAAxkDAAM-adAge2bNr29HSyNQudlUJd0lXTUAAm0cAALMuoBWBsWvDvzy74w7BA",
-        "BQACAgUAAxkDAAM_adAghkI6GD0iLERu6IqmgvbEMG4AAm4cAALMuoBWW6EDL97FWas7BA",
-        "BQACAgUAAxkDAANAadAgkhnn6W6_7ys7bj_54bjCsiQAAm8cAALMuoBWWH1m15khc4k7BA",
-        "BQACAgUAAxkDAANBadAgnJJBKBQ4RiPLmtz51M4Dx9IAAnAcAALMuoBWmdydR4Xu13o7BA",
-        "BQACAgUAAxkDAANCadAgp0pRI3aDmcnrGJZY6xFaUKMAAnEcAALMuoBW_6W-5LjyVDI7BA",
-        "BQACAgUAAxkDAANDadAgstSHjeZ1gnyV3hZlbwWsSH4AAnIcAALMuoBWcxxYCCKGO0I7BA",
-        "BQACAgUAAxkDAANEadAgvEcXLL6P-OfQaEQGcqJcZmEAAnMcAALMuoBWLAWOTO6k0jg7BA",
-        "BQACAgUAAxkDAANFadAgx2x57XNxH5CfQzKxYkt3OHgAAnQcAALMuoBW1itobt11duc7BA",
-        "BQACAgUAAxkDAANGadAg18S5Nxc-XYEoH3swY_B5QAoAAnUcAALMuoBWC8by93vRKZw7BA",
-        "BQACAgUAAxkDAANHadAg4YpWpyJ0wuGYK7BcCfRwa98AAnYcAALMuoBWzKgUe2biIbk7BA",
-        "BQACAgUAAxkDAANIadAg6XTEvc7jv4xEk153K-kTaBEAAnccAALMuoBW5c8Vqx_Ro_E7BA",
-        "BQACAgUAAxkDAANJadAg8ngEnVFtgwwFCAeAuI-Gt6sAAngcAALMuoBWvd1SEnHoyuo7BA",
-        "BQACAgUAAxkDAANKadAg_l81fZst7IN4QqVBPVMnFUQAAnkcAALMuoBWuhpyVOWUKcU7BA",
-        "BQACAgUAAxkDAANLadAhCSR6gwW8wRijXLCtKUABERkAAnocAALMuoBWL2nXmgPEUVI7BA",
-        "BQACAgUAAxkDAANMadAhElTyiuwrEjE9EAOE0MHceZsAAnscAALMuoBWFgu4PCmU_oI7BA",
-        "BQACAgUAAxkDAANNadAhG8t5gBZZJOjmuK1qCSkzxIUAAnwcAALMuoBWH62OuvXM2bY7BA",
-        "BQACAgUAAxkDAANOadAhIyaIak03uxBHpliXnT7NZSwAAn0cAALMuoBWjAABdPtjsL2kOwQ",
-        "BQACAgUAAxkDAANPadAhK77UJ7yhHg4id-Hw5PAFxOgAAn4cAALMuoBWn9-BPfJqsVg7BA",
-        "BQACAgUAAxkDAANQadAhMwcQECOvExZ0ha2hC9x6mF0AAn8cAALMuoBWZqZa41waF9A7BA",
-        "BQACAgUAAxkDAANRadAhPW5-GLvp11vRH-dLYFOQ8MkAAoAcAALMuoBW4NeaXxn_41w7BA",
-        "BQACAgUAAxkDAANSadAhRUmkTuUzHv6nIojtnZrFuvkAAoEcAALMuoBW53PReAVtxE07BA",
-        "BQACAgUAAxkDAANTadAhTa54NHlyoiUGb025lm2otrcAAoIcAALMuoBWRpVsoqGK7wc7BA",
-        "BQACAgUAAxkDAANUadAhVnPZIq4_ZwG7Cjyzp9Vu7lcAAoMcAALMuoBWsSlx5n_RO0g7BA",
-        "BQACAgUAAxkDAANVadAhXmdYSjZG3JUoIfnV068_RPMAAoQcAALMuoBWTjHxE5-A6Ok7BA",
-        "BQACAgUAAxkDAANWadAhZ4VsPhrNYy_gnMp3cSIP5-oAAoUcAALMuoBW8dxVU6IBEZ87BA",
-        "BQACAgUAAxkDAANXadAhcK-2l1SX4jWopX6Mr7cwO7UAAoYcAALMuoBW_UwAAQknS0b_OwQ",
-        "BQACAgUAAxkDAANYadAhedrK9V6TEHiwMMxYq7bx1WMAAoccAALMuoBWTCsrhERg9mw7BA",
-        "BQACAgUAAxkDAANZadAhgagaHzoCGwa0Ydg-2rM_LPYAAogcAALMuoBW8ZeyNOCHhJU7BA",
-        "BQACAgUAAxkDAANaadAhifeNXdUgdCpxg5u1y58QVTAAAokcAALMuoBWzTrGf-92Avg7BA",
-        "BQACAgUAAxkDAANbadAhkslE0MVFj0XkMhdkpRg3PVIAAoocAALMuoBWiU9JtMUsqP07BA",
-        "BQACAgUAAxkDAANcadAhmkS01axW8kK_IFPN1ILsnw8AAoscAALMuoBW-3QwB4dt2rg7BA",
-        "BQACAgUAAxkDAANdadAho3RroB6wqEUvFKGgEBvXWYcAAowcAALMuoBWwdZJ9IGZh2I7BA",
-        "BQACAgUAAxkDAANeadAhrXlW9UC6tnkRxQ_01m9FKq8AAo0cAALMuoBWV-oqp6gZAms7BA",
-        "BQACAgUAAxkDAANfadAhtfCY7TYiY3P-uj4BTKVW_ssAAo4cAALMuoBWfcXwuEejYKA7BA",
-        "BQACAgUAAxkDAANgadAhvu2_7mr_4kK-jYsKwUnGwwwAAo8cAALMuoBWjHsIBtrEDms7BA",
-        "BQACAgUAAxkDAANhadAhxgXJH46KChcCsq9DVtw54W4AApAcAALMuoBWOFadYQ1TAAGvOwQ",
-        "BQACAgUAAxkDAANiadAhz0qxUuURde85pruW9l03krYAApEcAALMuoBWBuOpacwoU947BA",
-        "BQACAgUAAxkDAANjadAh1_IiM2bOp3QV__XHZ6aIMo8AApIcAALMuoBWi9x4_OCHzFI7BA",
-        "BQACAgUAAxkDAANkadAh4AoNm-y_sg6MopeHdz71N1gAApMcAALMuoBW7LwqsUqXf2k7BA",
-        "BQACAgUAAxkDAANladAh6K7U1-4-3EIlExpOW3uwix8AApQcAALMuoBWLYmMz3nozyI7BA",
-        "BQACAgUAAxkDAANmadAh8ANV8GzIfAyynA1Tp7Z0ZOQAApUcAALMuoBWo_pzjt4Kh307BA",
-        "BQACAgUAAxkDAANnadAh-f-lcZZkwQY79teXN0B4-IQAApYcAALMuoBWvEkjFm3_mlo7BA",
-        "BQACAgUAAxkDAANoadAiAh9xJGIH1RooNHlQxOWWo8gAApccAALMuoBW_VmBkrEnqTo7BA",
-        "BQACAgUAAxkDAANpadAiC0YBy08ZBuj-jqnks1vBGLMAApgcAALMuoBWF66_wTX-HrM7BA",
-        "BQACAgUAAxkDAANqadAiExkJ5DP5Vkc8SogIGe3M-68AApkcAALMuoBWapwXDmXuUWE7BA",
-        "BQACAgUAAxkDAANradAiG6BuhDoUkcXDovRnWGYb26UAApocAALMuoBWoHGeTKIrjIY7BA",
-        "BQACAgUAAxkDAANsadAiIwZjTJfV65kd4DRhgKWEgZ4AApscAALMuoBWF4ERi1uHEQs7BA",
-        "BQACAgUAAxkDAANtadAiLGwvMW3ykMZDm3XJoLlQexAAApwcAALMuoBWuR0LLhLzDZI7BA",
-        "BQACAgUAAxkDAANuadAiNApn9rcvAse5IOTEpVjK1hkAAp0cAALMuoBW_maHpObQIWs7BA",
-        "BQACAgUAAxkDAANvadAiPMJlLfQ5tpq-DxBT9BNcwUcAAp4cAALMuoBWTu1qD2mN77o7BA",
-        "BQACAgUAAxkDAANwadAiRB4STesoPnDl19nwUZO6v54AAp8cAALMuoBWUx0duPNckls7BA",
-        "BQACAgUAAxkDAANxadAiTTEJt-r2bUIBTwpFWzXq1jUAAqAcAALMuoBW2DlSNn8D_YU7BA",
-        "BQACAgUAAxkDAANyadAiVna5Oz4oS1ZpBb1v5Xgxi5cAAqEcAALMuoBW3yZkJHTut8E7BA",
-        "BQACAgUAAxkDAANzadAiXuZ_CKgXD7o1B6IbRrUfTJoAAqIcAALMuoBWg383gNxCV1A7BA",
-        "BQACAgUAAxkDAAN0adAiaIfP0a45A9qyhlYhULA0VTMAAqMcAALMuoBWLydgRJLn7D87BA",
-        "BQACAgUAAxkDAAN1adAicBTX1MiI24B7H4XgB19b-HsAAqQcAALMuoBW8EEyhMyr0nM7BA",
-        "BQACAgUAAxkDAAN2adAieTHaioBVluhhsL-AbQhsv8sAAqUcAALMuoBWe6WT8M6XgyM7BA",
-        "BQACAgUAAxkDAAN3adAigscqsgEzDSaziUAeSv1B8dkAAqYcAALMuoBWyzZIpd7QI1w7BA",
-        "BQACAgUAAxkDAAN4adAiiyFzF6c08IgYl_qEjWhs0bgAAqccAALMuoBWIwesKdDTudQ7BA",
-        "BQACAgUAAxkDAAN5adAikwcHZak28Nda_WJaHuRphF4AAqgcAALMuoBWHRAgxEf7dwY7BA",
-        "BQACAgUAAxkDAAN6adAim_bcg0eJkkSOXpxgZq1XR94AAqkcAALMuoBWFRJki_i_2dA7BA",
-        "BQACAgUAAxkDAAN7adAipc18GtDtb1EqLpNKY_L5MVUAAqocAALMuoBWp8hlWUewIEg7BA",
-        "BQACAgUAAxkDAAN8adAisSeocaydiMJKc3bDGXvXrRQAAqscAALMuoBWBxk8OSOVQbg7BA",
-        "BQACAgUAAxkDAAN9adAivQABFCk_3MN6TgRnHsVs4naBAAKsHAACzLqAVv09e1sButJ4OwQ",
-        "BQACAgUAAxkDAAN-adAiyX-ePRHKMSRszV2EFzgBHvsAAq0cAALMuoBWH69af_ERSCI7BA",
-        "BQACAgUAAxkDAAN_adAi2TcU8k2WkMAWTFaKYMZC7u4AAq4cAALMuoBWbV_fTSVcenM7BA",
-        "BQACAgUAAxkDAAOAadAi5wZ-VY7Jix2hauEhv8_HD-wAAq8cAALMuoBWnZpjrWRpX0Y7BA",
-        "BQACAgUAAxkDAAOBadAi88vXyn9WFXvN-4bEGuigFXIAArAcAALMuoBW-f5q-5-niUw7BA",
-        "BQACAgUAAxkDAAOCadAi_QYSj7-vA2XxbhQ_qRxPRr8AArEcAALMuoBWUWJ6YQ30MAc7BA",
-        "BQACAgUAAxkDAAODadAjBVp9J9NCerQIx96BwwKSEIEAArIcAALMuoBWm5qmuQj2Rg87BA",
-        "BQACAgUAAxkDAAOEadAjCYiNwuglc5_TFWbtxnbolP0AArMcAALMuoBW2ViVlzJhJGk7BA"
-      ],
-      "uploadedAt": "2026-04-03T20:28:57.744Z",
-      "encryptedSize": 2097162520
+// ══════════════════════════════════════════════
+// FIX 1: CSV UPLOAD — triggerCSVPick + loadCSV
+// ══════════════════════════════════════════════
+
+// REPLACE your existing triggerCSVPick() function with this:
+function triggerCSVPick() {
+  const inp = document.getElementById('csvf');
+  if (!inp) return;
+  // Reset value so same file can be picked again
+  inp.value = '';
+  inp.click();
+}
+
+// REPLACE your existing loadCSV() function with this:
+function loadCSV(event) {
+  const file = event && event.target && event.target.files && event.target.files[0];
+  if (!file) {
+    toast('❌ No file selected', 'red');
+    return;
+  }
+  if (!file.name.endsWith('.csv')) {
+    toast('❌ Please select a .csv file', 'red');
+    return;
+  }
+
+  // Show loading state
+  const filelbl = document.getElementById('filelbl');
+  if (filelbl) filelbl.textContent = 'Loading ' + file.name + '...';
+  toast('📂 Loading CSV...', 'blue');
+
+  const reader = new FileReader();
+
+  reader.onload = function(e) {
+    try {
+      const text = e.target.result;
+      if (!text || !text.trim()) {
+        toast('❌ File is empty', 'red');
+        if (filelbl) filelbl.textContent = 'File is empty';
+        return;
+      }
+
+      // Use PapaParse to parse the CSV
+      Papa.parse(text, {
+        header: true,
+        skipEmptyLines: true,
+        complete: function(results) {
+          if (!results.data || results.data.length === 0) {
+            toast('❌ CSV has no data rows', 'red');
+            if (filelbl) filelbl.textContent = 'No data found in file';
+            return;
+          }
+
+          allRows = results.data;
+          allCols = results.meta.fields || Object.keys(allRows[0] || {});
+
+          // Update file label
+          if (filelbl) filelbl.textContent = file.name + ' (' + allRows.length + ' stocks)';
+          toast('✅ Loaded ' + allRows.length + ' stocks from ' + file.name, 'green');
+
+          // Show analysis section
+          const nodata = document.getElementById('nodata');
+          const adata = document.getElementById('adata');
+          if (nodata) nodata.style.display = 'none';
+          if (adata) adata.style.display = 'block';
+
+          // Render everything
+          renderStats();
+          renderCharts();
+          renderTable(allRows);
+          renderRiskSel();
+          renderMovers();
+          renderSavedFilters();
+        },
+        error: function(err) {
+          toast('❌ CSV parse error: ' + (err.message || err), 'red');
+          if (filelbl) filelbl.textContent = 'Parse error — check file format';
+        }
+      });
+    } catch (err) {
+      toast('❌ Error reading file: ' + err.message, 'red');
+      if (filelbl) filelbl.textContent = 'Read error';
     }
-  },
-  "folders": [
-    "/",
-    "/m"
-  ]
+  };
+
+  reader.onerror = function() {
+    toast('❌ Failed to read file. Try again.', 'red');
+    if (filelbl) filelbl.textContent = 'File read failed';
+  };
+
+  reader.readAsText(file);
+}
+
+
+// ══════════════════════════════════════════════
+// FIX 2: AUTO-SCHEDULE — applySchedule()
+// Updates the cron line inside the workflow .yml file on GitHub
+// ══════════════════════════════════════════════
+
+// REPLACE your existing applySchedule() function with this:
+async function applySchedule() {
+  const gh = getGH();
+  if (!gh.user || !gh.repo || !gh.token) {
+    toast('⚠️ Configure GitHub settings first', 'yellow');
+    pg('settings', null);
+    setTimeout(() => stab('github', null), 100);
+    return;
+  }
+
+  // Build the cron string
+  const cron = document.getElementById('cron-val').textContent.replace(/\\/g, '');
+  if (!cron || cron === '—') {
+    toast('❌ Invalid cron value. Set schedule first.', 'red');
+    return;
+  }
+
+  const log = document.getElementById('actlog');
+  if (log) log.textContent = '⏳ Applying schedule "' + cron + '" to workflow file...';
+
+  const headers = {
+    'Authorization': 'token ' + gh.token,
+    'Accept': 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28',
+    'Content-Type': 'application/json'
+  };
+
+  const filePath = '.github/workflows/nifty100.yml';
+  const apiUrl = 'https://api.github.com/repos/' + gh.user + '/' + gh.repo + '/contents/' + filePath;
+
+  try {
+    // Step 1: Get current file + sha
+    const getResp = await fetch(apiUrl, { headers });
+    if (!getResp.ok) {
+      const err = await getResp.json();
+      toast('❌ Cannot read workflow file: ' + (err.message || getResp.status), 'red');
+      if (log) log.textContent = '❌ Error: ' + (err.message || getResp.status);
+      return;
+    }
+    const fileData = await getResp.json();
+    const sha = fileData.sha;
+    const currentContent = atob(fileData.content.replace(/\n/g, ''));
+
+    // Step 2: Replace only the cron line
+    const cronRegex = /- cron:\s*'[^']*'/;
+    if (!cronRegex.test(currentContent)) {
+      toast('❌ Could not find cron line in workflow file', 'red');
+      if (log) log.textContent = '❌ Workflow file missing cron line. Re-upload the fixed nifty100.yml first.';
+      return;
+    }
+
+    const newContent = currentContent.replace(cronRegex, "- cron: '" + cron + "'");
+
+    // Step 3: Push updated file
+    const body = {
+      message: 'Update schedule to: ' + cron + ' (IST ' + document.getElementById('schdisp').textContent + ')',
+      content: btoa(unescape(encodeURIComponent(newContent))),
+      sha: sha
+    };
+
+    const putResp = await fetch(apiUrl, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify(body)
+    });
+
+    if (putResp.ok) {
+      toast('✅ Schedule updated! Next run: ' + document.getElementById('schdisp').textContent + ' IST', 'green');
+      if (log) log.textContent = '✅ Schedule applied: ' + cron + ' UTC\n   = ' + document.getElementById('schdisp').textContent + ' IST on ' + document.getElementById('schdays').textContent + '\n\n⚠️ Note: GitHub may delay first run by up to 15 minutes.';
+    } else {
+      const err = await putResp.json();
+      toast('❌ Failed to update: ' + (err.message || putResp.status), 'red');
+      if (log) log.textContent = '❌ GitHub error: ' + JSON.stringify(err);
+    }
+  } catch (e) {
+    toast('❌ Network error: ' + e.message, 'red');
+    if (log) log.textContent = '❌ Exception: ' + e.message;
+  }
+}
+
+
+// ══════════════════════════════════════════════
+// FIX 3: ENABLE WORKFLOW after GitHub pause
+// This re-enables the workflow if it was auto-disabled
+// ══════════════════════════════════════════════
+
+// REPLACE your existing triggerWF() function with this:
+async function triggerWF() {
+  const gh = getGH();
+  if (!gh.user || !gh.repo || !gh.token) {
+    toast('⚠️ Configure GitHub settings first', 'yellow');
+    pg('settings', null);
+    return;
+  }
+
+  const btn = document.getElementById('runbtn');
+  const st = document.getElementById('runst');
+  const log = document.getElementById('actlog');
+  const idx = document.getElementById('idx-sel').value;
+
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="sp"></span> Sending...'; }
+  if (st) st.textContent = 'Triggering workflow...';
+  if (log) log.textContent = '▶ Triggering: ' + idx + '...';
+
+  const headers = {
+    'Authorization': 'token ' + gh.token,
+    'Accept': 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28',
+    'Content-Type': 'application/json'
+  };
+
+  // Step 1: Enable workflow first (in case GitHub auto-disabled it)
+  try {
+    await fetch(
+      'https://api.github.com/repos/' + gh.user + '/' + gh.repo + '/actions/workflows/nifty100.yml/enable',
+      { method: 'PUT', headers }
+    );
+  } catch(e) { /* ignore, might already be enabled */ }
+
+  // Step 2: Dispatch workflow_dispatch event
+  try {
+    const r = await fetch(
+      'https://api.github.com/repos/' + gh.user + '/' + gh.repo + '/actions/workflows/nifty100.yml/dispatches',
+      {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          ref: 'main',
+          inputs: { index_name: idx }
+        })
+      }
+    );
+
+    if (r.status === 204 || r.ok) {
+      toast('✅ Sent! Check Telegram in ~30 seconds', 'green');
+      if (st) st.textContent = '✅ Triggered at ' + new Date().toLocaleTimeString();
+      if (log) log.textContent = '✅ Workflow triggered for: ' + idx + '\n\nExpect Telegram message in ~30 seconds.\n\nIf no message arrives:\n1. Check Actions tab on GitHub\n2. Check BOT_TOKEN and RECIPIENTS secrets\n3. Verify your Telegram bot is active';
+      setTimeout(fetchRuns, 8000);
+    } else {
+      let msg = r.status;
+      try { const j = await r.json(); msg = j.message || msg; } catch(e) {}
+      toast('❌ Failed: ' + msg, 'red');
+      if (st) st.textContent = '❌ Error: ' + msg;
+      if (log) log.textContent = '❌ Trigger failed: HTTP ' + r.status + '\n' + msg + '\n\nCheck:\n- PAT token has "workflow" scope\n- Workflow file exists in .github/workflows/';
+    }
+  } catch(e) {
+    toast('❌ Network error: ' + e.message, 'red');
+    if (log) log.textContent = '❌ Exception: ' + e.message;
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = '▶ Send to Telegram Now'; }
+  }
 }
