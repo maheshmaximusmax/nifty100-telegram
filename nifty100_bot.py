@@ -75,6 +75,50 @@ def send_msg(chat_id, text):
     requests.post(f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
                   data={"chat_id": chat_id, "text": text}, timeout=15)
 
+def upload_csv_to_github(csv_text, filename):
+    """Upload the generated CSV to the repo's data/ folder.
+
+    Args:
+        csv_text (str): CSV content to upload.
+        filename (str): Filename to use inside the data/ folder (e.g. NIFTY_100_2026-04-04.csv).
+    """
+    if not GH_TOKEN or not GH_REPO:
+        print("[Upload] No GH_TOKEN/GH_REPO set, skipping GitHub upload.")
+        return False
+    headers = {
+        "Authorization": f"Bearer {GH_TOKEN}",
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28"
+    }
+    path = f"data/{filename}"
+    api_url = f"https://api.github.com/repos/{GH_REPO}/contents/{path}"
+    # Check if file already exists (get its sha for update)
+    sha = None
+    try:
+        r = requests.get(api_url, headers=headers, timeout=15)
+        if r.ok:
+            sha = r.json().get("sha")
+    except Exception as e:
+        print(f"[Upload] Could not check existing file: {e}")
+    content_b64 = base64.b64encode(csv_text.encode("utf-8")).decode("ascii")
+    payload = {
+        "message": f"Auto-upload {filename}",
+        "content": content_b64,
+    }
+    if sha:
+        payload["sha"] = sha
+    try:
+        r = requests.put(api_url, headers=headers, json=payload, timeout=30)
+        if r.ok:
+            print(f"[Upload] ✅ Uploaded {path} to GitHub")
+            return True
+        else:
+            print(f"[Upload] ❌ GitHub upload failed: {r.status_code} {r.text[:200]}")
+            return False
+    except Exception as e:
+        print(f"[Upload] ❌ Exception: {e}")
+        return False
+
 def cleanup_old_csvs_on_github():
     """Keep only MAX_CSV_FILES CSVs in the repo data/ folder. Delete oldest."""
     if not GH_TOKEN or not GH_REPO:
@@ -127,7 +171,9 @@ try:
     for cid in recipients:
         if send_to(cid, csv_bytes, filename, caption): ok += 1
     print(f"[BOT] ✅ Sent to {ok}/{len(recipients)} recipients")
-    # Cleanup old CSVs from GitHub repo
+    # Upload CSV to GitHub data/ folder
+    upload_csv_to_github(csv_text, filename)
+    # Cleanup old CSVs from GitHub repo (keep only MAX_CSV_FILES)
     cleanup_old_csvs_on_github()
 except Exception as e:
     print(f"[BOT] ❌ Error: {e}")
