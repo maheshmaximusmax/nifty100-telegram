@@ -789,6 +789,11 @@ const getGH=()=>gs(K.gh)||{};
 const getAIKeys=()=>gs(K.aikeys)||{};
 const DSECTS={control:true,analysis:true,table:true,live:true,filter:true,mf:true,calc:true,ai:true,apikeys:false,recipients:false};
 const SLABELS={control:'🎛️ Control',analysis:'📈 Analysis',table:'📋 Table',live:'📡 Live Charts',filter:'🔬 Filter',mf:'💼 MF/IPO',calc:'🧮 Calculator',ai:'🤖 AI',apikeys:'🔑 API Keys',recipients:'📨 Recipients'};
+// Global state — declared early to avoid temporal dead zone errors
+let _ti=null;
+let allRows=[], allCols=[];
+let currentAIProvider='anthropic';
+let tags=[];
 
 function ensureAdmin(){
   let u=getUsers();
@@ -810,7 +815,7 @@ function setTheme(t){
   if(allRows.length)renderCharts();
 }
 function toggleTheme(){setTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark');}
-(()=>{setTheme(gs(K.theme)||'dark')})();
+try{(()=>{setTheme(gs(K.theme)||'dark')})();}catch(e){}
 function togglePW(id,btn){const el=document.getElementById(id);if(!el)return;el.type=el.type==='password'?'text':'password';btn.textContent=el.type==='password'?'👁':'🙈';}
 
 // ══════════════════════════════════════════════
@@ -1000,7 +1005,6 @@ function closeModal(id){document.getElementById(id)?.classList.remove('open');}
 // ══════════════════════════════════════════════
 // TOAST
 // ══════════════════════════════════════════════
-let _ti=null;
 function toast(msg,type='green'){
   const t=document.getElementById('toast');if(!t)return;
   t.textContent=msg;
@@ -1062,8 +1066,9 @@ async function triggerWF(){
     if(r.status===204||r.ok){
       toast('✅ Sent! Check Telegram in ~30 seconds','green');
       if(st)st.textContent='✅ Triggered at '+new Date().toLocaleTimeString();
-      if(log)log.textContent='✅ Workflow triggered for: '+idx+'\n\nExpect Telegram message in ~30 seconds.\n\nIf no message:\n• Check Actions tab on GitHub\n• Verify BOT_TOKEN and RECIPIENTS secrets\n• Check your Telegram bot is active';
+      if(log)log.textContent='✅ Workflow triggered for: '+idx+'\n\nExpect Telegram message in ~30 seconds.\n\nIf no message:\n• Check Actions tab on GitHub\n• Verify BOT_TOKEN and RECIPIENTS secrets\n• Check your Telegram bot is active\n\n⏳ Will auto-load CSV from GitHub in ~45 seconds...';
       setTimeout(fetchRuns,8000);
+      setTimeout(fetchLatestCSV,45000);
     }else{
       let msg=r.status;try{const j=await r.json();msg=j.message||msg;}catch(e){}
       toast('❌ Failed: '+msg,'red');
@@ -1171,9 +1176,72 @@ async function fetchRuns(){
 }
 
 // ══════════════════════════════════════════════
+// AUTO-FETCH LATEST CSV FROM GITHUB DATA FOLDER
+// ══════════════════════════════════════════════
+async function fetchLatestCSV(){
+  const gh=getGH();
+  if(!gh.user||!gh.repo||!gh.token)return;
+  const log=document.getElementById('actlog');
+  try{
+    if(log)log.textContent=(log.textContent||'')+'\n⏳ Fetching latest CSV from GitHub...';
+    const listResp=await fetch('https://api.github.com/repos/'+gh.user+'/'+gh.repo+'/contents/data',{
+      headers:{'Authorization':'token '+gh.token,'Accept':'application/vnd.github+json'}
+    });
+    if(!listResp.ok){
+      if(log)log.textContent=(log.textContent||'')+'\n⚠️ No CSV data folder found yet (run the bot first).';
+      return;
+    }
+    const files=await listResp.json();
+    const csvFiles=(Array.isArray(files)?files:[]).filter(f=>f.name&&f.name.endsWith('.csv'));
+    if(!csvFiles.length){
+      if(log)log.textContent=(log.textContent||'')+'\n⚠️ No CSV files found in data/ folder yet.';
+      return;
+    }
+    csvFiles.sort((a,b)=>b.name.localeCompare(a.name));
+    const latest=csvFiles[0];
+    const fileResp=await fetch(latest.download_url);
+    if(!fileResp.ok){
+      if(log)log.textContent=(log.textContent||'')+'\n❌ Failed to download '+latest.name;
+      return;
+    }
+    const text=await fileResp.text();
+    if(!text||!text.trim()){
+      if(log)log.textContent=(log.textContent||'')+'\n❌ Downloaded CSV is empty.';
+      return;
+    }
+    Papa.parse(text,{
+      header:true,
+      skipEmptyLines:true,
+      complete:function(results){
+        if(!results.data||!results.data.length){
+          if(log)log.textContent=(log.textContent||'')+'\n❌ CSV has no data rows.';
+          return;
+        }
+        allRows=results.data;
+        allCols=results.meta.fields||Object.keys(allRows[0]||{});
+        const filelbl=document.getElementById('filelbl');
+        if(filelbl)filelbl.textContent=latest.name+' ('+allRows.length+' stocks) — auto-loaded from GitHub';
+        const nodata=document.getElementById('nodata');
+        const adata=document.getElementById('adata');
+        if(nodata)nodata.style.display='none';
+        if(adata)adata.style.display='block';
+        renderStats();renderCharts();renderTable(allRows);renderRiskSel();renderMovers();
+        updateAIModeBadge();
+        toast('✅ Auto-loaded '+latest.name+' ('+allRows.length+' stocks)','green');
+        if(log)log.textContent=(log.textContent||'')+'\n✅ CSV auto-loaded: '+latest.name+' ('+allRows.length+' stocks)';
+      },
+      error:function(err){
+        if(log)log.textContent=(log.textContent||'')+'\n❌ CSV parse error: '+(err.message||err);
+      }
+    });
+  }catch(e){
+    if(log)log.textContent=(log.textContent||'')+'\n❌ Auto-fetch error: '+e.message;
+  }
+}
+
+// ══════════════════════════════════════════════
 // CSV LOAD — FIX: proper FileReader + PapaParse
 // ══════════════════════════════════════════════
-let allRows=[], allCols=[];
 
 function triggerCSVPick(){
   const inp=document.getElementById('csvf');
@@ -1339,9 +1407,19 @@ function filterTbl(){
   }));
 }
 function dlCSV(){
-  if(!filteredRows.length)return;
-  const csv=Papa.unparse(filteredRows);
-  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='nifty_export.csv';a.click();
+  try{
+    if(!filteredRows.length){toast('No data to download. Load a CSV first.','yellow');return;}
+    const csv=Papa.unparse(filteredRows);
+    const blob=new Blob([csv],{type:'text/csv'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download='nifty_export.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+  }catch(err){toast('❌ Download failed: '+err.message,'red');}
 }
 
 // ══════════════════════════════════════════════
@@ -1639,7 +1717,6 @@ function cRisk(){
 // ══════════════════════════════════════════════
 // AI ASSISTANT — NEW: works WITHOUT CSV
 // ══════════════════════════════════════════════
-let currentAIProvider='anthropic';
 let mainChatHistory=[];
 
 function updateAIProvider(){
@@ -1858,7 +1935,6 @@ function loadSavedKeys(){
 // ══════════════════════════════════════════════
 // RECIPIENTS / TAGS
 // ══════════════════════════════════════════════
-let tags=[];
 function addTag(e){
   if(e.key!=='Enter')return;
   const inp=document.getElementById('taginp');

@@ -1,7 +1,9 @@
 import requests, time, csv, io, os, pytz, json, base64
 from datetime import datetime
 
-BOT_TOKEN       = os.environ["BOT_TOKEN"]
+BOT_TOKEN       = os.environ.get("BOT_TOKEN", "")
+if not BOT_TOKEN:
+    raise SystemExit("[BOT] ERROR: BOT_TOKEN environment variable is not set. Add it to GitHub Secrets.")
 RECIPIENTS_RAW  = os.environ.get("RECIPIENTS", "")
 CHAT_ID_LEG     = os.environ.get("CHAT_ID", "")
 INDEX_NAME      = os.environ.get("INDEX_NAME", "NIFTY 100")
