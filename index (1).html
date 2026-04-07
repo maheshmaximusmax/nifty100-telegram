@@ -1,0 +1,1968 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NiftyBeast Pro</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+[data-theme="dark"]{--bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--bd:#30363d;--tx:#e6edf3;--mu:#8b949e;--green:#3fb950;--red:#f85149;--blue:#58a6ff;--yellow:#d29922;--purple:#bc8cff;--orange:#ffa657;--sh:0 4px 20px rgba(0,0,0,.5)}
+[data-theme="light"]{--bg:#f0f2f5;--bg2:#fff;--bg3:#f6f8fa;--bd:#d0d7de;--tx:#1f2328;--mu:#636c76;--green:#1a7f37;--red:#cf222e;--blue:#0969da;--yellow:#9a6700;--purple:#8250df;--orange:#bc4c00;--sh:0 2px 10px rgba(0,0,0,.08)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--tx);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
+#auth{position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;overflow-y:auto}
+.ac{background:var(--bg2);border:1px solid var(--bd);border-radius:18px;padding:28px 24px;width:100%;max-width:420px;box-shadow:var(--sh)}
+.alogo{text-align:center;margin-bottom:20px}
+.alogo-i{font-size:42px;display:block}
+.alogo-t{font-size:20px;font-weight:800;color:var(--green)}
+.alogo-s{font-size:11px;color:var(--mu);margin-top:2px}
+.atabs{display:flex;background:var(--bg3);border-radius:8px;padding:3px;gap:2px;margin-bottom:16px}
+.atab{flex:1;padding:7px 4px;border:none;background:none;color:var(--mu);font-size:11px;font-weight:700;border-radius:6px;cursor:pointer}
+.atab.on{background:var(--bg2);color:var(--tx);box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.aform{display:none}.aform.on{display:block}
+.aerr{background:rgba(248,81,73,.12);border:1px solid rgba(248,81,73,.3);color:var(--red);padding:9px 12px;border-radius:7px;font-size:12px;margin-bottom:10px;display:none;line-height:1.6}
+.aok{background:rgba(63,185,80,.12);border:1px solid rgba(63,185,80,.3);color:var(--green);padding:9px 12px;border-radius:7px;font-size:12px;margin-bottom:10px;display:none;line-height:1.6;word-break:break-all}
+.otp-row{display:flex;gap:7px;justify-content:center;margin:10px 0}
+.otp-row input{width:42px;height:46px;text-align:center;font-size:18px;font-weight:800;background:var(--bg3);border:2px solid var(--bd);color:var(--tx);border-radius:8px;outline:none}
+.otp-row input:focus{border-color:var(--blue)}
+#app{display:none}
+.pulse{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pu 2s infinite;flex-shrink:0}
+@keyframes pu{0%,100%{opacity:1}50%{opacity:.3}}
+.av{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;cursor:pointer}
+.ib{background:var(--bg3);border:1px solid var(--bd);color:var(--tx);width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center}
+.abadge{background:linear-gradient(90deg,var(--yellow),var(--orange));color:#000;font-size:9px;padding:1px 5px;border-radius:99px;font-weight:800}
+.page{display:none;padding:12px;max-width:1200px;margin:0 auto}.page.on{display:block}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.g4{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+@media(min-width:640px){.g4{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:580px){.g2,.g3{grid-template-columns:1fr}}
+.card{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:14px;margin-bottom:10px;box-shadow:var(--sh)}
+.chd{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px}
+.ct{font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:.8px;font-weight:700}
+.sn{font-size:24px;font-weight:800;line-height:1}.ss{font-size:11px;color:var(--mu);margin-top:3px}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:7px;border:none;cursor:pointer;font-size:12px;font-weight:700;transition:all .15s;white-space:nowrap}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.bg{background:var(--green);color:#fff}.bg:hover:not(:disabled){filter:brightness(1.1)}
+.bb{background:var(--blue);color:#fff}.bb:hover:not(:disabled){filter:brightness(1.1)}
+.br{background:var(--red);color:#fff}.bp{background:var(--purple);color:#fff}
+.bo{background:transparent;border:1px solid var(--bd);color:var(--tx)}.bo:hover{background:var(--bg3)}
+.bsm{padding:5px 9px;font-size:11px;border-radius:6px}
+.fr{margin-bottom:11px}
+.fr label{display:block;font-size:10px;color:var(--mu);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;font-weight:700}
+.fr input,.fr select,.fr textarea{width:100%;background:var(--bg3);border:1px solid var(--bd);color:var(--tx);padding:8px 10px;border-radius:7px;font-size:13px;outline:none}
+.fr input:focus,.fr select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(88,166,255,.1)}
+.pw-wrap{position:relative}.pw-wrap input{padding-right:36px}
+.pw-eye{position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--mu);font-size:15px;background:none;border:none;padding:0}
+.tw{overflow-x:auto;border-radius:7px;border:1px solid var(--bd)}
+table{width:100%;border-collapse:collapse;font-size:11px}
+thead th{background:var(--bg3);padding:7px 9px;text-align:left;color:var(--mu);font-weight:700;font-size:10px;text-transform:uppercase;white-space:nowrap;border-bottom:1px solid var(--bd)}
+tbody tr{border-bottom:1px solid var(--bd)}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--bg3)}
+tbody td{padding:6px 9px;white-space:nowrap}
+.si{width:100%;background:var(--bg3);border:1px solid var(--bd);color:var(--tx);padding:8px 11px;border-radius:7px;font-size:12px;outline:none;margin-bottom:9px}
+.si:focus{border-color:var(--blue)}
+.badge{display:inline-block;padding:2px 6px;border-radius:99px;font-size:10px;font-weight:700}
+.bgreen{background:rgba(63,185,80,.15);color:var(--green)}.bred{background:rgba(248,81,73,.15);color:var(--red)}
+.bblue{background:rgba(88,166,255,.15);color:var(--blue)}.byellow{background:rgba(210,153,34,.15);color:var(--yellow)}
+.bpurple{background:rgba(188,140,255,.15);color:var(--purple)}.borange{background:rgba(255,166,87,.15);color:var(--orange)}
+#toast{position:fixed;bottom:18px;right:14px;padding:9px 14px;border-radius:8px;font-size:12px;font-weight:700;z-index:9999;display:none;max-width:300px;box-shadow:0 4px 16px rgba(0,0,0,.3)}
+.sp{display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,.25);border-top-color:currentColor;border-radius:50%;animation:spi .7s linear infinite}
+@keyframes spi{to{transform:rotate(360deg)}}
+.logbox{background:#010409;border:1px solid var(--bd);border-radius:7px;padding:9px;font-family:monospace;font-size:11px;color:#7ee787;min-height:60px;max-height:160px;overflow-y:auto;white-space:pre-wrap;word-break:break-all}
+.ibox{background:rgba(88,166,255,.07);border:1px solid rgba(88,166,255,.22);border-radius:7px;padding:10px 12px;font-size:12px;color:#a0c4f7;line-height:1.7}
+.wbox{background:rgba(210,153,34,.07);border:1px solid rgba(210,153,34,.22);border-radius:7px;padding:10px 12px;font-size:12px;color:#e3b847;line-height:1.7}
+.sbox{background:rgba(63,185,80,.07);border:1px solid rgba(63,185,80,.22);border-radius:7px;padding:10px 12px;font-size:12px;color:#7ee787;line-height:1.7}
+.ch{position:relative;height:230px}.chsm{position:relative;height:190px}
+.cpills{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:9px}
+.cpill{padding:3px 9px;border-radius:99px;border:1px solid var(--bd);background:var(--bg3);color:var(--mu);font-size:11px;cursor:pointer;font-weight:600}
+.cpill.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.mblock{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:12px;cursor:pointer;transition:border-color .2s}
+.mblock:hover{border-color:var(--blue)}
+.mblock-val{font-size:17px;font-weight:800;margin:5px 0 2px}
+.mblock-ch{font-size:12px;font-weight:700}
+.mblock-mini{height:44px;width:100%}
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:220px;background:var(--bg2);border-right:1px solid var(--bd);z-index:300;display:flex;flex-direction:column;transition:width .25s ease;overflow:hidden}
+.sidebar.collapsed{width:52px}
+.sb-top{display:flex;align-items:center;justify-content:space-between;padding:10px 8px;border-bottom:1px solid var(--bd);height:46px;flex-shrink:0}
+.sb-logo{font-size:13px;font-weight:800;color:var(--green);white-space:nowrap;overflow:hidden;display:flex;align-items:center;gap:6px}
+.sb-logo .pulse{flex-shrink:0}
+.sb-logo-t{transition:opacity .2s;overflow:hidden;white-space:nowrap}
+.sidebar.collapsed .sb-logo-t{opacity:0;width:0}
+.sb-toggle{background:none;border:none;color:var(--mu);cursor:pointer;font-size:16px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:5px;flex-shrink:0}
+.sb-toggle:hover{background:var(--bg3);color:var(--tx)}
+.sb-nav{flex:1;overflow-y:auto;overflow-x:hidden;padding:6px 4px;scrollbar-width:thin}
+.sb-nav::-webkit-scrollbar{width:4px}.sb-nav::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
+.sb-btn{display:flex;align-items:center;gap:9px;width:100%;padding:8px 9px;border:none;background:none;color:var(--mu);font-size:12px;font-weight:600;border-radius:7px;cursor:pointer;text-align:left;white-space:nowrap;overflow:hidden;transition:background .15s,color .15s}
+.sb-btn:hover{background:var(--bg3);color:var(--tx)}
+.sb-btn.on{background:rgba(88,166,255,.12);color:var(--blue)}
+.sb-btn .sb-icon{font-size:16px;flex-shrink:0;width:20px;text-align:center}
+.sb-btn .sb-lbl{overflow:hidden;white-space:nowrap;transition:opacity .2s,width .2s;opacity:1}
+.sidebar.collapsed .sb-lbl{opacity:0;width:0;pointer-events:none}
+.sb-sect{font-size:9px;color:var(--mu);text-transform:uppercase;letter-spacing:.8px;font-weight:700;padding:6px 9px 2px;white-space:nowrap;overflow:hidden;transition:opacity .2s}
+.sidebar.collapsed .sb-sect{opacity:0}
+.sb-foot{padding:8px 4px;border-top:1px solid var(--bd);flex-shrink:0}
+#app-body{margin-left:220px;transition:margin-left .25s ease;min-height:100vh;display:flex;flex-direction:column}
+#app-body.sb-collapsed{margin-left:52px}
+.topbar{display:none}
+@media(max-width:640px){
+.sidebar{width:52px}.sidebar.mob-open{width:220px}
+#app-body{margin-left:52px}#app-body.sb-collapsed{margin-left:52px}
+.sb-mob-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:299;display:none}
+}
+.cond-row{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:6px;align-items:center;margin-bottom:7px}
+.cond-row select,.cond-row input{background:var(--bg3);border:1px solid var(--bd);color:var(--tx);padding:6px 8px;border-radius:6px;font-size:11px;outline:none;width:100%}
+.tog{position:relative;width:34px;height:18px;flex-shrink:0}
+.tog input{opacity:0;width:0;height:0;position:absolute}
+.togsl{position:absolute;inset:0;background:var(--bd);border-radius:9px;cursor:pointer;transition:.2s}
+.togsl:before{content:'';position:absolute;width:13px;height:13px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+.tog input:checked+.togsl{background:var(--green)}
+.tog input:checked+.togsl:before{transform:translateX(15px)}
+.ai-wrap{display:flex;flex-direction:column;height:400px}
+.ai-msgs{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;background:var(--bg3);border-radius:8px 8px 0 0;border:1px solid var(--bd);border-bottom:none}
+.ai-msg{padding:9px 12px;border-radius:9px;margin-bottom:7px;font-size:12px;line-height:1.7;max-width:92%;word-break:break-word}
+.ai-user{background:var(--blue);color:#fff;margin-left:auto;border-bottom-right-radius:2px}
+.ai-bot{background:var(--bg2);border:1px solid var(--bd);color:var(--tx);border-bottom-left-radius:2px}
+.ai-bot pre{background:var(--bg3);border-radius:6px;padding:8px;font-family:monospace;font-size:11px;overflow-x:auto;margin-top:6px}
+.ai-inp-row{display:flex;gap:7px;padding:8px;background:var(--bg3);border-radius:0 0 8px 8px;border:1px solid var(--bd)}
+.ai-inp{flex:1;background:var(--bg2);border:1px solid var(--bd);color:var(--tx);padding:8px 11px;border-radius:7px;font-size:12px;outline:none}
+.ai-inp:focus{border-color:var(--blue)}
+.ai-float-btn{position:fixed;bottom:20px;right:16px;width:44px;height:44px;border-radius:50%;background:var(--blue);color:#fff;border:none;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.4);z-index:400;transition:transform .2s}
+.ai-float-btn:hover{transform:scale(1.1)}
+.ai-float-btn .ai-tooltip{position:absolute;right:52px;bottom:50%;transform:translateY(50%);background:var(--bg2);border:1px solid var(--bd);color:var(--tx);font-size:11px;font-weight:700;padding:5px 10px;border-radius:7px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .2s;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.ai-float-btn:hover .ai-tooltip{opacity:1}
+.ai-float-panel{position:fixed;bottom:72px;right:16px;width:340px;max-width:calc(100vw - 32px);background:var(--bg2);border:1px solid var(--bd);border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.5);z-index:399;display:none;flex-direction:column;overflow:hidden}
+.ai-float-panel.open{display:flex}
+.ai-float-hd{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--blue);color:#fff}
+.ai-float-hd span{font-size:13px;font-weight:700}
+.ai-float-hd button{background:none;border:none;color:#fff;cursor:pointer;font-size:16px;padding:0;width:24px;height:24px;display:flex;align-items:center;justify-content:center}
+.ai-float-msgs{height:260px;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:6px}
+.ai-float-inp-row{display:flex;gap:6px;padding:8px;border-top:1px solid var(--bd)}
+.ai-float-inp{flex:1;background:var(--bg3);border:1px solid var(--bd);color:var(--tx);padding:7px 10px;border-radius:7px;font-size:12px;outline:none}
+.mbg{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;display:none;align-items:center;justify-content:center;padding:16px}
+.mbg.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--bd);border-radius:12px;padding:20px;width:100%;max-width:480px;box-shadow:var(--sh);max-height:90vh;overflow-y:auto}
+.mtitle{font-size:14px;font-weight:800;margin-bottom:12px}
+.stabs{display:flex;overflow-x:auto;gap:3px;margin-bottom:14px;scrollbar-width:none}
+.stabs::-webkit-scrollbar{display:none}
+.stab{padding:6px 12px;border-radius:6px;border:1px solid var(--bd);background:none;color:var(--mu);font-size:12px;cursor:pointer;white-space:nowrap;font-weight:600}
+.stab.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.rmeter{height:8px;border-radius:4px;background:var(--bg3);overflow:hidden;margin-top:4px}
+.rfill{height:100%;border-radius:4px;transition:width .5s}
+.mf-card{background:var(--bg2);border:1px solid var(--bd);border-radius:9px;padding:12px;margin-bottom:8px}
+.mf-name{font-size:13px;font-weight:700;margin-bottom:5px}
+.mf-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:5px}
+.mf-kv{font-size:11px;color:var(--mu)}.mf-kv b{color:var(--tx)}
+.sec-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--bd)}
+.sec-row:last-child{border-bottom:none}
+.taginp-wrap{background:var(--bg3);border:1px solid var(--bd);border-radius:7px;padding:6px;display:flex;flex-wrap:wrap;gap:5px;min-height:40px;cursor:text}
+.taginp-wrap:focus-within{border-color:var(--blue)}
+.rtag{background:var(--bg2);border:1px solid var(--bd);border-radius:5px;padding:2px 8px;font-size:11px;display:flex;align-items:center;gap:5px;color:var(--tx)}
+.rtag .rm{cursor:pointer;color:var(--mu);font-size:13px}.rtag .rm:hover{color:var(--red)}
+.taginp-wrap input{background:none;border:none;outline:none;color:var(--tx);font-size:12px;flex:1;min-width:120px;padding:2px}
+.api-key-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--bd)}
+.api-key-row:last-child{border-bottom:none}
+.api-key-lbl{font-size:12px;font-weight:700;flex:0 0 100px}
+.api-key-inp{flex:1;background:var(--bg3);border:1px solid var(--bd);color:var(--tx);padding:6px 8px;border-radius:6px;font-size:12px;outline:none}
+.api-key-inp:focus{border-color:var(--blue)}
+hr{border:none;border-top:1px solid var(--bd);margin:12px 0}
+.flex{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.up{color:var(--green)}.dn{color:var(--red)}.ne{color:var(--yellow)}
+/* AI Mode badges */
+.ai-mode-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:99px;font-size:10px;font-weight:700}
+.ai-mode-csv{background:rgba(63,185,80,.15);color:var(--green);border:1px solid rgba(63,185,80,.3)}
+.ai-mode-live{background:rgba(88,166,255,.15);color:var(--blue);border:1px solid rgba(88,166,255,.3)}
+.ai-mode-general{background:rgba(188,140,255,.15);color:var(--purple);border:1px solid rgba(188,140,255,.3)}
+/* Typing indicator */
+.typing-dots span{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--mu);margin:0 2px;animation:td .8s infinite}
+.typing-dots span:nth-child(2){animation-delay:.2s}
+.typing-dots span:nth-child(3){animation-delay:.4s}
+@keyframes td{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div id="auth">
+<div class="ac">
+<div class="alogo">
+<span class="alogo-i">📊</span>
+<div class="alogo-t">NiftyBeast Pro</div>
+<div class="alogo-s">Complete Market Intelligence Platform</div>
+</div>
+<div class="atabs">
+<button class="atab on" onclick="aTab('login',this)">Sign In</button>
+<button class="atab" onclick="aTab('reg',this)">Register</button>
+<button class="atab" onclick="aTab('forgot',this)">Reset Password</button>
+</div>
+<div id="af-login" class="aform on">
+<div id="le" class="aerr"></div><div id="lo" class="aok"></div>
+<div class="fr"><label>Username</label><input id="lu" placeholder="your username" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()"></div>
+<div class="fr"><label>Password</label>
+<div class="pw-wrap"><input id="lp" type="password" placeholder="your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+<button class="pw-eye" type="button" onclick="togglePW('lp',this)">👁</button></div></div>
+<button class="btn bb" style="width:100%;justify-content:center;padding:10px" onclick="doLogin()">Sign In →</button>
+</div>
+<div id="af-reg" class="aform">
+<div id="re" class="aerr"></div><div id="ro" class="aok"></div>
+<div id="reg-s1">
+<div class="fr"><label>Full Name</label><input id="rn" placeholder="Your full name"></div>
+<div class="fr"><label>Username (lowercase only)</label><input id="ru" placeholder="e.g. john123"></div>
+<div class="fr"><label>Email</label><input id="rem" type="email" placeholder="your@email.com"></div>
+<div class="fr"><label>Mobile Number</label><input id="rmob" type="tel" placeholder="+91 9876543210"></div>
+<div class="fr"><label>Password (min 6 chars)</label>
+<div class="pw-wrap"><input id="rp" type="password" placeholder="choose password">
+<button class="pw-eye" type="button" onclick="togglePW('rp',this)">👁</button></div></div>
+<div class="fr"><label>Confirm Password</label><input id="rp2" type="password" placeholder="repeat password" onkeydown="if(event.key==='Enter')regS1()"></div>
+<button class="btn bg" style="width:100%;justify-content:center;padding:10px" onclick="regS1()">Send OTP →</button>
+</div>
+<div id="reg-s2" style="display:none">
+<div style="text-align:center;font-size:13px;color:var(--mu);margin-bottom:10px;line-height:1.6">Your OTP is shown below. Enter it to create your account.</div>
+<div id="otp-fallback" class="sbox" style="text-align:center;font-size:28px;font-weight:800;letter-spacing:8px;margin-bottom:12px;padding:14px;user-select:all">——</div>
+<div class="otp-row" id="otp-inputs"></div>
+<button class="btn bg" style="width:100%;justify-content:center;padding:10px;margin-top:8px" onclick="verifyOTP()">Verify & Create Account ✓</button>
+<button class="btn bo bsm" style="width:100%;justify-content:center;margin-top:6px" onclick="backReg()">← Back</button>
+</div>
+</div>
+<div id="af-forgot" class="aform">
+<div id="fpe" class="aerr"></div><div id="fpo" class="aok"></div>
+<div style="font-size:12px;color:var(--mu);margin-bottom:12px;line-height:1.6">Enter your username and email. Your new temporary password will be shown here.</div>
+<div class="fr"><label>Username</label><input id="fpu" placeholder="Your username"></div>
+<div class="fr"><label>Registered Email</label><input id="fpem" type="email" placeholder="your@email.com" onkeydown="if(event.key==='Enter')doForgot()"></div>
+<button class="btn bp" style="width:100%;justify-content:center;padding:10px" onclick="doForgot()">Reset Password</button>
+</div>
+</div>
+<div style="margin-top:12px;font-size:11px;color:var(--mu);text-align:center">🔒 Secured · GitHub Hosted · Free Forever</div>
+<button class="ib" style="position:absolute;top:12px;right:12px" onclick="toggleTheme()" id="auth-tb">🌙</button>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none">
+<nav class="sidebar" id="sidebar">
+<div class="sb-top">
+<div class="sb-logo"><div class="pulse"></div><span class="sb-logo-t">NiftyBeast <span id="admbadge" class="abadge" style="display:none">ADMIN</span></span></div>
+<button class="sb-toggle" id="sb-toggle-btn" onclick="toggleSidebar()" title="Toggle sidebar">☰</button>
+</div>
+<div class="sb-nav">
+<div class="sb-sect">Markets</div>
+<button class="sb-btn on" id="sbn-home" onclick="pg('home',this)"><span class="sb-icon">🌐</span><span class="sb-lbl">Markets</span></button>
+<button class="sb-btn" id="sbn-live" onclick="pg('live',this)"><span class="sb-icon">📡</span><span class="sb-lbl">Live Charts</span></button>
+<div class="sb-sect">Data</div>
+<button class="sb-btn" id="sbn-control" onclick="pg('control',this)"><span class="sb-icon">🎛️</span><span class="sb-lbl">Control</span></button>
+<button class="sb-btn" id="sbn-analysis" onclick="pg('analysis',this)"><span class="sb-icon">📈</span><span class="sb-lbl">Analysis</span></button>
+<button class="sb-btn" id="sbn-table" onclick="pg('table',this)"><span class="sb-icon">📋</span><span class="sb-lbl">Table</span></button>
+<button class="sb-btn" id="sbn-filter" onclick="pg('filter',this)"><span class="sb-icon">🔬</span><span class="sb-lbl">Filter</span></button>
+<div class="sb-sect">Tools</div>
+<button class="sb-btn" id="sbn-mf" onclick="pg('mf',this)"><span class="sb-icon">💼</span><span class="sb-lbl">MF/IPO</span></button>
+<button class="sb-btn" id="sbn-calc" onclick="pg('calc',this)"><span class="sb-icon">🧮</span><span class="sb-lbl">Calculator</span></button>
+<button class="sb-btn" id="sbn-ai" onclick="pg('ai',this)"><span class="sb-icon">🤖</span><span class="sb-lbl">AI Assistant</span></button>
+<div class="sb-sect">Config</div>
+<button class="sb-btn" id="sbn-apikeys" onclick="pg('apikeys',this)"><span class="sb-icon">🔑</span><span class="sb-lbl">API Keys</span></button>
+<button class="sb-btn" id="sbn-recipients" onclick="pg('recipients',this)"><span class="sb-icon">📨</span><span class="sb-lbl">Recipients</span></button>
+<button class="sb-btn admin-only" id="sbn-users" onclick="pg('users',this)" style="display:none"><span class="sb-icon">👥</span><span class="sb-lbl">Users</span></button>
+<button class="sb-btn" id="sbn-settings" onclick="pg('settings',this)"><span class="sb-icon">⚙️</span><span class="sb-lbl">Settings</span></button>
+</div>
+<div class="sb-foot">
+<div style="display:flex;align-items:center;gap:7px;padding:4px 5px">
+<div class="av" id="uav" onclick="pg('settings',null)" style="flex-shrink:0">A</div>
+<div class="sb-lbl" style="font-size:11px;color:var(--mu);overflow:hidden;white-space:nowrap;text-overflow:ellipsis" id="sb-username">—</div>
+<button class="ib sb-lbl" onclick="toggleTheme()" id="theme-btn" style="flex-shrink:0;margin-left:auto">🌙</button>
+</div>
+</div>
+</nav>
+<div class="sb-mob-overlay" id="sb-mob-overlay" onclick="closeMobileSidebar()"></div>
+<div id="app-body">
+<div id="toast"></div>
+
+<!-- FLOATING AI -->
+<button class="ai-float-btn" id="ai-float-btn" onclick="toggleFloatAI()">🤖<span class="ai-tooltip">AI Assistant</span></button>
+<div class="ai-float-panel" id="ai-float-panel">
+<div class="ai-float-hd">
+<span>🤖 AI Assistant</span>
+<button onclick="toggleFloatAI()">✕</button>
+</div>
+<div class="ai-float-msgs" id="float-msgs">
+<div class="ai-msg ai-bot">Hi! Ask me anything about stocks, markets, or the data on this page. No CSV needed — I can answer general market questions too!</div>
+</div>
+<div class="ai-float-inp-row">
+<input class="ai-float-inp" id="float-inp" placeholder="Ask anything..." onkeydown="if(event.key==='Enter')sendFloat()">
+<button class="btn bb bsm" onclick="sendFloat()" id="float-send-btn">Send</button>
+</div>
+</div>
+
+<!-- HOME -->
+<div id="pg-home" class="page on">
+<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+<div><div style="font-size:15px;font-weight:800">🌐 Live Markets</div><div id="mkt-time" style="font-size:11px;color:var(--mu)">Loading...</div></div>
+<div class="flex">
+<button class="btn bo bsm" onclick="refreshMkt()">🔄 Refresh</button>
+<select id="mkt-ct" onchange="refreshMkt()" style="background:var(--bg3);border:1px solid var(--bd);color:var(--tx);padding:5px 8px;border-radius:6px;font-size:11px;outline:none">
+<option value="line">Line Chart</option><option value="bar">Bar Chart</option><option value="doughnut">Donut Chart</option>
+</select>
+</div>
+</div>
+<div class="g3" id="mkt-blocks">
+<div class="mblock" onclick="goLive('NSE:NIFTY')">
+<div style="display:flex;justify-content:space-between"><span style="font-size:12px;font-weight:700">🇮🇳 NIFTY 50</span><span class="badge bblue">NSE</span></div>
+<div class="mblock-val" id="mb-n50">—</div><div class="mblock-ch" id="mb-n50c">—</div><canvas id="mc-n50" class="mblock-mini"></canvas>
+</div>
+<div class="mblock" onclick="goLive('BINANCE:BTCUSDT')">
+<div style="display:flex;justify-content:space-between"><span style="font-size:12px;font-weight:700">₿ Bitcoin</span><span class="badge bpurple">Crypto</span></div>
+<div class="mblock-val" id="mb-btc">—</div><div class="mblock-ch" id="mb-btcc">—</div><canvas id="mc-btc" class="mblock-mini"></canvas>
+</div>
+<div class="mblock" onclick="goLive('BINANCE:ETHUSDT')">
+<div style="display:flex;justify-content:space-between"><span style="font-size:12px;font-weight:700">Ξ Ethereum</span><span class="badge bpurple">Crypto</span></div>
+<div class="mblock-val" id="mb-eth">—</div><div class="mblock-ch" id="mb-ethc">—</div><canvas id="mc-eth" class="mblock-mini"></canvas>
+</div>
+<div class="mblock" onclick="goLive('FOREXCOM:XAUUSD')">
+<div style="display:flex;justify-content:space-between"><span style="font-size:12px;font-weight:700">🥇 Gold</span><span class="badge byellow">Commodity</span></div>
+<div class="mblock-val" id="mb-gold">—</div><div class="mblock-ch" id="mb-goldc">—</div><canvas id="mc-gold" class="mblock-mini"></canvas>
+</div>
+<div class="mblock" onclick="goLive('TVC:USOIL')">
+<div style="display:flex;justify-content:space-between"><span style="font-size:12px;font-weight:700">🛢️ Crude Oil</span><span class="badge borange">Commodity</span></div>
+<div class="mblock-val" id="mb-oil">—</div><div class="mblock-ch" id="mb-oilc">—</div><canvas id="mc-oil" class="mblock-mini"></canvas>
+</div>
+<div class="mblock" onclick="goLive('BSE:SENSEX')">
+<div style="display:flex;justify-content:space-between"><span style="font-size:12px;font-weight:700">🇮🇳 SENSEX</span><span class="badge bblue">BSE</span></div>
+<div class="mblock-val" id="mb-sx">—</div><div class="mblock-ch" id="mb-sxc">—</div><canvas id="mc-sx" class="mblock-mini"></canvas>
+</div>
+</div>
+<div class="card" style="margin-top:10px">
+<div class="chd"><div class="ct">📊 Today's Top Movers (from CSV)</div><button class="btn bo bsm" onclick="triggerCSVPick()">📂 Load CSV</button></div>
+<div id="home-movers"><div style="color:var(--mu);font-size:12px;text-align:center;padding:14px">Load a CSV file to see movers</div></div>
+</div>
+</div>
+
+<!-- CONTROL -->
+<div id="pg-control" class="page">
+<div id="nocfg" class="card" style="border-color:rgba(210,153,34,.4);display:none">
+<div class="flex"><span>⚠️</span><div><b style="color:var(--yellow)">GitHub not configured</b><div style="font-size:11px;color:var(--mu)">Go to ⚙️ Settings → GitHub tab</div></div><button class="btn bo bsm" style="margin-left:auto" onclick="pg('settings',null);setTimeout(()=>stab('github',null),50)">Open →</button></div>
+</div>
+<div class="g2">
+<div class="card" style="border-color:rgba(63,185,80,.3)">
+<div class="ct" style="margin-bottom:10px">⚡ Download & Send Now</div>
+<div class="fr"><label>Select Index</label>
+<select id="idx-sel">
+<option>NIFTY 100</option><option>NIFTY 50</option><option>NIFTY NEXT 50</option>
+<option>NIFTY MIDCAP 100</option><option>NIFTY SMALLCAP 100</option>
+<option>NIFTY BANK</option><option>NIFTY IT</option><option>NIFTY PHARMA</option>
+<option>NIFTY AUTO</option><option>NIFTY FMCG</option><option>NIFTY METAL</option>
+</select>
+</div>
+<button class="btn bg" id="runbtn" onclick="triggerWF()">▶ Send to Telegram Now</button>
+<div id="runst" style="margin-top:7px;font-size:11px;color:var(--mu)"></div>
+</div>
+<div class="card">
+<div class="ct" style="margin-bottom:8px">⏰ Custom Schedule</div>
+<div style="font-size:22px;font-weight:800;color:var(--blue)" id="schdisp">9:30 AM</div>
+<div style="font-size:11px;color:var(--mu);margin-bottom:10px" id="schdays">Mon–Fri</div>
+<div class="g2" style="gap:6px;margin-bottom:7px">
+<div class="fr" style="margin:0"><label>Hour (1-12)</label><input type="number" id="sh" min="1" max="12" value="9" oninput="bCron()"></div>
+<div class="fr" style="margin:0"><label>Minute (0-59)</label><input type="number" id="sm" min="0" max="59" value="30" oninput="bCron()"></div>
+</div>
+<div class="g2" style="gap:6px;margin-bottom:7px">
+<div class="fr" style="margin:0"><label>AM / PM</label><select id="sap" onchange="bCron()"><option>AM</option><option>PM</option></select></div>
+<div class="fr" style="margin:0"><label>Days</label>
+<select id="sdays" onchange="bCron()">
+<option value="1-5">Mon–Fri (weekdays)</option><option value="1-6">Mon–Sat</option>
+<option value="*">Every day</option><option value="1,3,5">Mon, Wed, Fri</option>
+<option value="2,4">Tue, Thu</option><option value="6">Saturday only</option><option value="0">Sunday only</option>
+</select>
+</div>
+</div>
+<div style="font-size:10px;color:var(--mu);margin-bottom:8px">UTC Cron: <code id="cron-val" style="color:var(--yellow)">0 4 * * 1-5</code></div>
+<button class="btn bb bsm" style="width:100%;justify-content:center" onclick="applySchedule()">💾 Apply Schedule</button>
+</div>
+</div>
+<div class="card"><div class="chd"><div class="ct">📋 Log</div><button class="btn bo bsm" onclick="fetchRuns()">🔄 Refresh</button></div><div class="logbox" id="actlog">Ready. Configure GitHub in Settings.</div></div>
+<div class="card"><div class="chd"><div class="ct">🕐 Recent Runs</div><span id="rrh" style="font-size:10px;color:var(--mu)"></span></div><div id="runswrap"><div style="color:var(--mu);font-size:12px;padding:12px;text-align:center">Configure GitHub in Settings</div></div></div>
+</div>
+
+<!-- ANALYSIS -->
+<div id="pg-analysis" class="page">
+<div class="card">
+<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+<div><div style="font-size:14px;font-weight:700">📈 Market Analysis</div><div id="filelbl" style="font-size:11px;color:var(--mu)">No file loaded</div></div>
+<button class="btn bo bsm" onclick="triggerCSVPick()">📂 Load CSV</button>
+</div>
+<input type="file" id="csvf" accept=".csv" style="display:none" onchange="loadCSV(event)">
+</div>
+<div id="nodata" style="text-align:center;padding:40px">
+<div style="font-size:40px;margin-bottom:8px">📂</div>
+<div style="font-size:14px;font-weight:700;margin-bottom:5px">Load your CSV file to see analysis</div>
+<div style="color:var(--mu);font-size:12px;margin-bottom:14px">Download CSV from Telegram bot then upload it here</div>
+<button class="btn bb" onclick="triggerCSVPick()">Upload CSV File</button>
+</div>
+<div id="adata" style="display:none">
+<div class="g4" style="margin-bottom:10px">
+<div class="card"><div class="ct">Total</div><div class="sn" id="s1">—</div><div class="ss">stocks</div></div>
+<div class="card"><div class="ct">Gainers</div><div class="sn up" id="s2">—</div><div class="ss">▲ up today</div></div>
+<div class="card"><div class="ct">Losers</div><div class="sn dn" id="s3">—</div><div class="ss">▼ down today</div></div>
+<div class="card"><div class="ct">Flat</div><div class="sn ne" id="s4">—</div><div class="ss">— unchanged</div></div>
+</div>
+<div class="card"><div class="ct" style="margin-bottom:8px">Select Charts to Display</div>
+<div class="cpills">
+<div class="cpill on" data-ch="pie" onclick="toggleCh(this)">🥧 Gainers/Losers</div>
+<div class="cpill on" data-ch="gain" onclick="toggleCh(this)">📈 Top Gainers</div>
+<div class="cpill on" data-ch="loss" onclick="toggleCh(this)">📉 Top Losers</div>
+<div class="cpill on" data-ch="vol" onclick="toggleCh(this)">📦 Volume</div>
+<div class="cpill on" data-ch="price" onclick="toggleCh(this)">💰 Price</div>
+<div class="cpill" data-ch="wk52" onclick="toggleCh(this)">📊 52W H/L</div>
+<div class="cpill" data-ch="series" onclick="toggleCh(this)">🏭 Series</div>
+</div>
+</div>
+<div class="g2">
+<div id="ch-pie" class="card"><div class="ct">Gainers vs Losers</div><div class="chsm"><canvas id="cPie"></canvas></div></div>
+<div id="ch-gain" class="card"><div class="ct">Top 10 Gainers (%)</div><div class="chsm"><canvas id="cGain"></canvas></div></div>
+</div>
+<div class="g2">
+<div id="ch-loss" class="card"><div class="ct">Top 10 Losers (%)</div><div class="chsm"><canvas id="cLoss"></canvas></div></div>
+<div id="ch-vol" class="card"><div class="ct">Top 10 Volume</div><div class="chsm"><canvas id="cVol"></canvas></div></div>
+</div>
+<div id="ch-price" class="card"><div class="ct">Top 15 by Price (₹)</div><div class="ch"><canvas id="cPrice"></canvas></div></div>
+<div id="ch-wk52" class="card" style="display:none"><div class="ct">52W High vs Low</div><div class="ch"><canvas id="cWk52"></canvas></div></div>
+<div id="ch-series" class="card" style="display:none"><div class="ct">Series Distribution</div><div class="chsm"><canvas id="cSeries"></canvas></div></div>
+</div>
+</div>
+
+<!-- TABLE -->
+<div id="pg-table" class="page">
+<div class="card">
+<div class="chd">
+<div style="font-weight:700;font-size:14px">All Stocks <span id="tblcnt" style="font-size:11px;color:var(--mu)"></span></div>
+<div class="flex">
+<button class="btn bo bsm" onclick="triggerCSVPick()">📂 Load CSV</button>
+<button class="btn bo bsm" id="dlbtn" onclick="dlCSV()" style="display:none">⬇ Export</button>
+</div>
+</div>
+<input class="si" id="srch" placeholder="🔍 Search symbol, company name..." oninput="filterTbl()">
+<div class="tw"><table><thead id="th"></thead><tbody id="tb"></tbody></table></div>
+<div id="tempty" style="text-align:center;padding:30px;color:var(--mu)">Load a CSV file from Analysis tab first</div>
+</div>
+</div>
+
+<!-- LIVE CHARTS -->
+<div id="pg-live" class="page">
+<div class="card">
+<div class="chd"><div style="font-size:14px;font-weight:700">📡 Live TradingView Charts</div></div>
+<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">
+<select id="tv-sym" onchange="loadTV()" style="background:var(--bg3);border:1px solid var(--bd);color:var(--tx);padding:6px 8px;border-radius:6px;font-size:12px;outline:none;flex:1;min-width:140px">
+<optgroup label="🇮🇳 India">
+<option value="NSE:NIFTY">NIFTY 50</option><option value="BSE:SENSEX">SENSEX</option>
+<option value="NSE:BANKNIFTY">BANK NIFTY</option><option value="NSE:RELIANCE">RELIANCE</option>
+<option value="NSE:TCS">TCS</option><option value="NSE:HDFCBANK">HDFC BANK</option>
+<option value="NSE:INFY">INFOSYS</option><option value="NSE:ICICIBANK">ICICI BANK</option>
+<option value="NSE:TATAMOTORS">TATA MOTORS</option><option value="NSE:SBIN">SBI</option>
+</optgroup>
+<optgroup label="₿ Crypto">
+<option value="BINANCE:BTCUSDT">Bitcoin/USDT</option><option value="BINANCE:ETHUSDT">Ethereum/USDT</option>
+<option value="BINANCE:BNBUSDT">BNB/USDT</option><option value="BINANCE:SOLUSDT">Solana/USDT</option>
+</optgroup>
+<optgroup label="🌍 Global">
+<option value="FOREXCOM:XAUUSD">Gold (XAU/USD)</option><option value="TVC:USOIL">Crude Oil (WTI)</option>
+<option value="NASDAQ:AAPL">Apple</option><option value="NASDAQ:TSLA">Tesla</option>
+<option value="NASDAQ:GOOGL">Google</option><option value="NYSE:META">Meta</option>
+</optgroup>
+</select>
+<select id="tv-int" onchange="loadTV()" style="background:var(--bg3);border:1px solid var(--bd);color:var(--tx);padding:6px 8px;border-radius:6px;font-size:12px;outline:none">
+<option value="1">1 min</option><option value="5">5 min</option><option value="15">15 min</option>
+<option value="60">1 Hour</option><option value="D" selected>Daily</option>
+<option value="W">Weekly</option><option value="M">Monthly</option>
+</select>
+<select id="tv-style" onchange="loadTV()" style="background:var(--bg3);border:1px solid var(--bd);color:var(--tx);padding:6px 8px;border-radius:6px;font-size:12px;outline:none">
+<option value="1">Candles</option><option value="3">Line</option><option value="4">OHLC Bar</option><option value="8">Heikin Ashi</option>
+</select>
+</div>
+<div class="flex" style="margin-bottom:10px">
+<input id="tv-custom" class="si" style="margin:0;flex:1" placeholder="Custom symbol: NSE:TATAMOTORS, BINANCE:DOTUSDT...">
+<button class="btn bb bsm" onclick="loadCustomTV()">Load</button>
+</div>
+<div id="tv-wrap"></div>
+</div>
+</div>
+
+<!-- FILTER -->
+<div id="pg-filter" class="page">
+<div class="card">
+<div class="ct" style="margin-bottom:10px">🔬 Custom Condition Builder</div>
+<div class="ibox" style="margin-bottom:10px">Build your own filters on loaded CSV data. All conditions are AND logic.</div>
+<div id="cond-list"></div>
+<div class="flex" style="margin-bottom:10px">
+<button class="btn bb bsm" onclick="addCond()">+ Add Condition</button>
+<button class="btn bg bsm" onclick="runConds()">▶ Run Filter</button>
+<button class="btn bo bsm" onclick="clearConds()">🗑 Clear All</button>
+</div>
+<div id="cond-result"></div>
+</div>
+<div class="card">
+<div class="ct" style="margin-bottom:8px">💾 Saved Filters</div>
+<div id="saved-filters" style="color:var(--mu);font-size:12px">No saved filters</div>
+<div class="flex" style="margin-top:8px">
+<input id="fname" class="si" style="margin:0;flex:1" placeholder="Filter name to save">
+<button class="btn bb bsm" onclick="saveFilter()">Save</button>
+</div>
+</div>
+<div class="card">
+<div class="ct" style="margin-bottom:8px">⚠️ Stock Risk Analysis</div>
+<div class="fr"><label>Select Stock (load CSV first)</label>
+<select id="risk-sel" onchange="showRisk()"><option value="">-- Select --</option></select>
+</div>
+<div id="risk-out"></div>
+</div>
+</div>
+
+<!-- MF/IPO -->
+<div id="pg-mf" class="page">
+<div class="card">
+<div class="cpills" id="mf-tabs">
+<div class="cpill on" data-mt="ipo" onclick="mfTab(this)">📋 IPO</div>
+<div class="cpill" data-mt="mf" onclick="mfTab(this)">💼 Mutual Funds</div>
+<div class="cpill" data-mt="etf" onclick="mfTab(this)">📊 ETF</div>
+<div class="cpill" data-mt="nfo" onclick="mfTab(this)">🆕 NFO</div>
+<div class="cpill" data-mt="fo" onclick="mfTab(this)">📉 F&O</div>
+<div class="cpill" data-mt="compare" onclick="mfTab(this)">⚖️ Compare</div>
+</div>
+<div id="mf-content"></div>
+</div>
+</div>
+
+<!-- CALCULATOR -->
+<div id="pg-calc" class="page">
+<div class="atabs" style="max-width:600px;margin-bottom:12px">
+<button class="atab on" onclick="cTab('sip',this)">💰 SIP</button>
+<button class="atab" onclick="cTab('lump',this)">📈 Lumpsum</button>
+<button class="atab" onclick="cTab('loan',this)">🏦 Loan</button>
+<button class="atab" onclick="cTab('gst',this)">🧾 GST</button>
+<button class="atab" onclick="cTab('gold',this)">🥇 Gold</button>
+<button class="atab" onclick="cTab('risk',this)">⚠️ Risk</button>
+</div>
+<div id="cc-sip"><div class="card"><div class="ct" style="margin-bottom:10px">💰 SIP Calculator</div><div class="fr"><label>Monthly (₹)</label><input type="number" id="sip-a" value="5000" oninput="cSIP()"></div><div class="fr"><label>Annual Return (%)</label><input type="number" id="sip-r" value="12" oninput="cSIP()"></div><div class="fr"><label>Years</label><input type="number" id="sip-y" value="10" oninput="cSIP()"></div><div id="sip-res" class="sbox" style="margin-bottom:10px"></div><div class="ch"><canvas id="sipChart"></canvas></div></div></div>
+<div id="cc-lump" style="display:none"><div class="card"><div class="ct" style="margin-bottom:10px">📈 Lumpsum</div><div class="fr"><label>Amount (₹)</label><input type="number" id="ls-a" value="100000" oninput="cLump()"></div><div class="fr"><label>Annual Return (%)</label><input type="number" id="ls-r" value="12" oninput="cLump()"></div><div class="fr"><label>Years</label><input type="number" id="ls-y" value="10" oninput="cLump()"></div><div id="ls-res" class="sbox"></div></div></div>
+<div id="cc-loan" style="display:none"><div class="card"><div class="ct" style="margin-bottom:10px">🏦 Loan EMI</div><div class="fr"><label>Loan Amount (₹)</label><input type="number" id="ln-a" value="1000000" oninput="cLoan()"></div><div class="fr"><label>Interest Rate (%/year)</label><input type="number" id="ln-r" value="8.5" oninput="cLoan()"></div><div class="fr"><label>Tenure (Years)</label><input type="number" id="ln-y" value="20" oninput="cLoan()"></div><div id="ln-res" class="sbox" style="margin-bottom:10px"></div><div class="ch"><canvas id="loanChart"></canvas></div></div></div>
+<div id="cc-gst" style="display:none"><div class="card"><div class="ct" style="margin-bottom:10px">🧾 GST</div><div class="fr"><label>Amount (₹)</label><input type="number" id="gst-a" value="1000" oninput="cGST()"></div><div class="fr"><label>GST Rate</label><select id="gst-r" onchange="cGST()"><option value="5">5%</option><option value="12">12%</option><option value="18" selected>18%</option><option value="28">28%</option></select></div><div class="fr"><label>Type</label><select id="gst-t" onchange="cGST()"><option value="add">Add GST</option><option value="rm">Remove GST</option></select></div><div id="gst-res" class="sbox"></div></div></div>
+<div id="cc-gold" style="display:none"><div class="card"><div class="ct" style="margin-bottom:10px">🥇 Gold</div><div class="fr"><label>Weight (grams)</label><input type="number" id="gld-w" value="10" oninput="cGold()"></div><div class="fr"><label>Price/gram (₹)</label><input type="number" id="gld-p" value="7500" oninput="cGold()"></div><div class="fr"><label>Purity</label><select id="gld-pu" onchange="cGold()"><option value="1">24K (99.9%)</option><option value="0.916">22K</option><option value="0.75">18K</option><option value="0.585">14K</option></select></div><div id="gld-res" class="sbox"></div></div></div>
+<div id="cc-risk" style="display:none"><div class="card"><div class="ct" style="margin-bottom:10px">⚠️ Risk</div><div class="fr"><label>Investment (₹)</label><input type="number" id="rk-a" value="100000" oninput="cRisk()"></div><div class="fr"><label>Expected Return (%)</label><input type="number" id="rk-r" value="15" oninput="cRisk()"></div><div class="fr"><label>Max Loss (%)</label><input type="number" id="rk-l" value="10" oninput="cRisk()"></div><div class="fr"><label>Years</label><input type="number" id="rk-y" value="5" oninput="cRisk()"></div><div id="rk-res" class="sbox"></div></div></div>
+</div>
+
+<!-- AI ASSISTANT — NEW: works with or without CSV -->
+<div id="pg-ai" class="page">
+<div class="card">
+<div class="chd">
+<div>
+<div style="font-size:14px;font-weight:700">🤖 AI Market Assistant</div>
+<div style="font-size:11px;color:var(--mu)">Works with or without CSV — ask anything about stocks, markets, MF, crypto, gold</div>
+</div>
+<div class="flex">
+<select id="ai-provider-sel" onchange="updateAIProvider()" style="background:var(--bg3);border:1px solid var(--bd);color:var(--tx);padding:5px 8px;border-radius:6px;font-size:11px;outline:none">
+<option value="anthropic">Claude (Anthropic)</option>
+<option value="openai">ChatGPT (OpenAI)</option>
+<option value="gemini">Gemini (Google)</option>
+<option value="groq">Groq (Free)</option>
+<option value="qwen">Qwen (Free)</option>
+</select>
+<button class="btn bo bsm" onclick="clearMainChat()">🗑 Clear</button>
+</div>
+</div>
+
+<!-- AI Mode indicator -->
+<div id="ai-mode-bar" class="flex" style="margin-bottom:10px;flex-wrap:wrap;gap:6px">
+<span id="ai-mode-badge" class="ai-mode-badge ai-mode-general">🤖 General Mode</span>
+<span id="ai-csv-status" style="font-size:11px;color:var(--mu)">No CSV loaded — AI uses general knowledge</span>
+<button class="btn bo bsm" onclick="triggerCSVPick()" id="ai-load-csv-btn">📂 Load CSV for deeper analysis</button>
+</div>
+
+<div id="ai-provider-note" class="ibox" style="margin-bottom:10px;font-size:11px"></div>
+
+<div class="ai-wrap">
+<div class="ai-msgs" id="ai-msgs">
+<div class="ai-msg ai-bot">👋 <b>Hi! I'm your AI Market Assistant.</b><br><br>
+I work in <b>3 modes</b>:<br>
+📊 <b>CSV Mode</b> — Load a CSV file for deep analysis of your actual stock data<br>
+🌐 <b>Live Mode</b> — I can discuss live market data visible on screen<br>
+🤖 <b>General Mode</b> — Ask me anything about stocks, MF, IPO, crypto, gold — no CSV needed!<br><br>
+Try asking: "Best stocks to buy now?" or "Explain SIP vs lumpsum" or "Bitcoin outlook today"</div>
+</div>
+<div class="ai-inp-row">
+<input class="ai-inp" id="ai-inp" placeholder="Ask anything — no CSV needed! e.g. Top NIFTY stocks to watch?" onkeydown="if(event.key==='Enter')sendMain()">
+<button class="btn bb" onclick="sendMain()" id="ai-main-btn">Send</button>
+</div>
+</div>
+
+<!-- Quick prompts — organized by mode -->
+<div style="margin-top:10px">
+<div style="font-size:10px;color:var(--mu);margin-bottom:5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">📊 With CSV loaded</div>
+<div class="cpills">
+<div class="cpill" onclick="aiQ('Analyse my loaded CSV data and give top 5 stocks to buy')">Top 5 from CSV</div>
+<div class="cpill" onclick="aiQ('Which stocks in my CSV have highest risk? Give details')">High Risk Stocks</div>
+<div class="cpill" onclick="aiQ('Full market summary from my CSV data with key insights')">CSV Summary</div>
+<div class="cpill" onclick="aiQ('Which stocks in the CSV are near 52-week high? Should I buy or wait?')">Near 52W High</div>
+</div>
+<div style="font-size:10px;color:var(--mu);margin:8px 0 5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">🤖 General (no CSV needed)</div>
+<div class="cpills">
+<div class="cpill" onclick="aiQ('What are the best large-cap Indian stocks to invest in right now in 2026?')">Best Large-Caps</div>
+<div class="cpill" onclick="aiQ('Bitcoin and crypto market analysis — should I buy, sell or hold?')">Crypto Analysis</div>
+<div class="cpill" onclick="aiQ('Top 3 mutual funds to SIP in 2026 for long-term wealth creation')">Best MF SIP</div>
+<div class="cpill" onclick="aiQ('Gold vs stocks vs crypto — best investment for 2026?')">Gold vs Stocks</div>
+<div class="cpill" onclick="aiQ('Explain NIFTY 100 index — how it works and how to invest in it')">What is NIFTY 100</div>
+<div class="cpill" onclick="aiQ('What is the current market sentiment? Bull or bear market?')">Market Sentiment</div>
+<div class="cpill" onclick="aiQ('Best IPOs coming in 2026 India — which ones to apply?')">Upcoming IPOs</div>
+<div class="cpill" onclick="aiQ('How to start investing in stock market with 10000 rupees?')">Beginner Guide</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- API KEYS -->
+<div id="pg-apikeys" class="page">
+<div class="card">
+<div class="ct" style="margin-bottom:12px">🔑 AI Provider API Keys</div>
+<div class="ibox" style="margin-bottom:14px">Add API keys for any AI provider. Keys stored only in your browser.</div>
+<div id="ai-key-rows">
+<div class="api-key-row">
+<div class="api-key-lbl">🤖 Claude<br><span style="font-size:10px;color:var(--mu)">Anthropic</span></div>
+<div class="pw-wrap" style="flex:1"><input type="password" id="key-anthropic" class="api-key-inp" placeholder="sk-ant-..."><button class="pw-eye" type="button" onclick="togglePW('key-anthropic',this)">👁</button></div>
+<button class="btn bg bsm" onclick="saveKey('anthropic')">Save</button>
+<a href="https://console.anthropic.com" target="_blank" class="btn bo bsm">Get Key</a>
+</div>
+<div class="api-key-row">
+<div class="api-key-lbl">💬 ChatGPT<br><span style="font-size:10px;color:var(--mu)">OpenAI</span></div>
+<div class="pw-wrap" style="flex:1"><input type="password" id="key-openai" class="api-key-inp" placeholder="sk-..."><button class="pw-eye" type="button" onclick="togglePW('key-openai',this)">👁</button></div>
+<button class="btn bg bsm" onclick="saveKey('openai')">Save</button>
+<a href="https://platform.openai.com/api-keys" target="_blank" class="btn bo bsm">Get Key</a>
+</div>
+<div class="api-key-row">
+<div class="api-key-lbl">♊ Gemini<br><span style="font-size:10px;color:var(--mu)">Google</span></div>
+<div class="pw-wrap" style="flex:1"><input type="password" id="key-gemini" class="api-key-inp" placeholder="AIza..."><button class="pw-eye" type="button" onclick="togglePW('key-gemini',this)">👁</button></div>
+<button class="btn bg bsm" onclick="saveKey('gemini')">Save</button>
+<a href="https://aistudio.google.com/app/apikey" target="_blank" class="btn bo bsm">Get Key</a>
+</div>
+<div class="api-key-row" style="background:rgba(63,185,80,.04);border-radius:8px">
+<div class="api-key-lbl">⚡ Groq<br><span style="font-size:10px;color:var(--green)">FREE tier</span></div>
+<div class="pw-wrap" style="flex:1"><input type="password" id="key-groq" class="api-key-inp" placeholder="gsk_..."><button class="pw-eye" type="button" onclick="togglePW('key-groq',this)">👁</button></div>
+<button class="btn bg bsm" onclick="saveKey('groq')">Save</button>
+<a href="https://console.groq.com/keys" target="_blank" class="btn bo bsm">Get Key</a>
+</div>
+<div class="api-key-row" style="background:rgba(63,185,80,.04);border-radius:8px">
+<div class="api-key-lbl">🆓 Qwen<br><span style="font-size:10px;color:var(--green)">FREE tier</span></div>
+<div class="pw-wrap" style="flex:1"><input type="password" id="key-qwen" class="api-key-inp" placeholder="sk-..."><button class="pw-eye" type="button" onclick="togglePW('key-qwen',this)">👁</button></div>
+<button class="btn bg bsm" onclick="saveKey('qwen')">Save</button>
+<a href="https://dashscope.aliyun.com" target="_blank" class="btn bo bsm">Get Key</a>
+</div>
+</div>
+</div>
+<div class="card">
+<div class="ct" style="margin-bottom:12px">📊 Market Data API Keys</div>
+<div class="api-key-row">
+<div class="api-key-lbl">₿ CoinGecko<br><span style="font-size:10px;color:var(--green)">FREE</span></div>
+<div style="flex:1;font-size:12px;color:var(--green);padding:6px">✅ Works without key — auto-enabled</div>
+<button class="btn bg bsm" disabled>Active</button>
+</div>
+<div class="api-key-row">
+<div class="api-key-lbl">🥇 Alpha Vantage<br><span style="font-size:10px;color:var(--mu)">Stocks</span></div>
+<div class="pw-wrap" style="flex:1"><input type="password" id="key-alphavantage" class="api-key-inp" placeholder="Your key..."><button class="pw-eye" type="button" onclick="togglePW('key-alphavantage',this)">👁</button></div>
+<button class="btn bg bsm" onclick="saveKey('alphavantage')">Save</button>
+<a href="https://www.alphavantage.co/support/#api-key" target="_blank" class="btn bo bsm">Free Key</a>
+</div>
+</div>
+</div>
+
+<!-- RECIPIENTS -->
+<div id="pg-recipients" class="page">
+<div class="card">
+<div class="ct" style="margin-bottom:10px">📨 Telegram Recipients & Channels</div>
+<div class="ibox" style="margin-bottom:10px">Add Telegram user IDs, group IDs, or @channel usernames. Bot sends CSV to ALL of them every day.</div>
+<div class="fr"><label>Recipients (press Enter after each one)</label>
+<div class="taginp-wrap" id="tagwrap" onclick="document.getElementById('taginp').focus()">
+<input id="taginp" placeholder="Type ID or @channel, press Enter" onkeydown="addTag(event)">
+</div>
+</div>
+<div class="wbox" style="margin-bottom:10px"><b>How to add a channel:</b> Go to your channel → Administrators → Add Admin → search your bot → give "Post Messages" permission → Done. Forward any channel message to @userinfobot to get the channel ID.</div>
+<button class="btn bg" onclick="saveRec()">💾 Generate GitHub Secret Value</button>
+<div id="recst" style="margin-top:8px;font-size:12px"></div>
+</div>
+</div>
+
+<!-- USERS (ADMIN) -->
+<div id="pg-users" class="page">
+<div class="card">
+<div class="chd"><div class="ct">👥 All Registered Users</div><div class="flex"><span id="ucnt" class="badge bblue">0</span><button class="btn bo bsm" onclick="renderUsers()">🔄 Refresh</button></div></div>
+<div class="tw">
+<table><thead><tr><th>#</th><th>Username</th><th>Name</th><th>Email</th><th>Mobile</th><th>Role</th><th>Status</th><th>Joined</th><th>Action</th></tr></thead>
+<tbody id="utb"></tbody></table>
+</div>
+</div>
+<div class="card">
+<div class="ct" style="margin-bottom:10px">🔐 Section Access Control</div>
+<div id="sec-list"></div>
+<button class="btn bg bsm" style="margin-top:8px" onclick="saveSecAccess()">💾 Save Access Settings</button>
+</div>
+<div class="card">
+<div class="ct" style="margin-bottom:10px">🛡️ Admin Recovery Info</div>
+<div class="g2">
+<div class="fr"><label>Recovery Email</label><input id="adm-em" placeholder="admin@domain.com"></div>
+<div class="fr"><label>Recovery Mobile</label><input id="adm-mob" type="tel" placeholder="+91..."></div>
+</div>
+<button class="btn bb bsm" onclick="saveAdmRec()">💾 Save</button>
+</div>
+</div>
+
+<!-- SETTINGS -->
+<div id="pg-settings" class="page">
+<div class="stabs">
+<button class="stab on" onclick="stab('profile',this)">👤 Profile</button>
+<button class="stab" onclick="stab('github',this)">🔑 GitHub</button>
+<button class="stab" onclick="stab('theme',this)">🎨 Theme</button>
+<button class="stab" onclick="stab('logout',this)">🚪 Logout</button>
+</div>
+<div id="st-profile">
+<div class="card"><div class="ct" style="margin-bottom:10px">Profile</div>
+<div class="g2"><div class="fr"><label>Name</label><input id="pname"></div><div class="fr"><label>Email</label><input id="pemail" type="email"></div></div>
+<div class="fr"><label>Mobile</label><input id="pmob" type="tel"></div>
+<div class="fr"><label>New Password (blank = no change)</label>
+<div class="pw-wrap"><input id="pnp" type="password" placeholder="New password"><button class="pw-eye" type="button" onclick="togglePW('pnp',this)">👁</button></div></div>
+<div class="fr"><label>Confirm</label><input id="pnp2" type="password"></div>
+<button class="btn bb bsm" onclick="saveProfile()">💾 Save</button>
+<div style="margin-top:8px;font-size:12px;color:var(--mu)">Signed in as: <b id="loggedas">—</b></div>
+</div>
+</div>
+<div id="st-github" style="display:none">
+<div class="card"><div class="ct" style="margin-bottom:10px">GitHub Configuration</div>
+<div class="ibox" style="margin-bottom:10px">Saved in your browser. Configure once — works on this device.</div>
+<div class="sbox" style="margin-bottom:12px">💡 <b>Pro tip:</b> Save your GitHub Username, Repo name, and PAT in your phone notes app for quick setup on any new device.</div>
+<div class="g2"><div class="fr"><label>GitHub Username</label><input id="ghu" placeholder="e.g. maheshmaximusmax"></div><div class="fr"><label>Repository Name</label><input id="ghr" placeholder="e.g. nifty100-telegram"></div></div>
+<div class="fr"><label>Bot Token (for OTP sending)</label>
+<div class="pw-wrap"><input type="password" id="bot-tok" placeholder="Your Telegram bot token"><button class="pw-eye" type="button" onclick="togglePW('bot-tok',this)">👁</button></div>
+<div style="font-size:10px;color:var(--mu);margin-top:2px">Same as your GitHub BOT_TOKEN secret.</div></div>
+<div class="fr"><label>Personal Access Token (PAT)</label>
+<div class="pw-wrap"><input type="password" id="ght" placeholder="ghp_..."><button class="pw-eye" type="button" onclick="togglePW('ght',this)">👁</button></div></div>
+<div class="wbox" style="margin-bottom:10px">Create PAT: GitHub → Settings → Developer settings → Tokens (classic) → New token → tick <b>repo + workflow</b> → Copy</div>
+<div class="flex">
+<button class="btn bg" onclick="saveGH()">💾 Save</button>
+<button class="btn bb" onclick="testGH()">🔌 Test</button>
+<button class="btn bo bsm" onclick="openSec()">🔗 GitHub Secrets</button>
+</div>
+<div id="ghres" style="margin-top:8px;font-size:12px"></div>
+</div>
+</div>
+<div id="st-theme" style="display:none">
+<div class="card"><div class="ct" style="margin-bottom:10px">Appearance</div>
+<div class="flex">
+<button class="btn bo" id="dkbtn" onclick="setTheme('dark')" style="flex:1;justify-content:center">🌙 Dark</button>
+<button class="btn bo" id="ltbtn" onclick="setTheme('light')" style="flex:1;justify-content:center">☀️ Light</button>
+</div>
+</div>
+</div>
+<div id="st-logout" style="display:none">
+<div class="card">
+<div style="font-size:13px;color:var(--mu);margin-bottom:10px">Signed in as <b id="loggedas2">—</b></div>
+<button class="btn br bsm" onclick="doLogout()">🚪 Sign Out</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- MODALS -->
+<div class="mbg" id="edit-modal">
+<div class="modal"><div class="mtitle" id="edit-modal-t">Edit User</div>
+<div class="fr"><label>Role</label><select id="em-role"><option value="user">User</option><option value="admin">Admin</option></select></div>
+<div class="fr"><label>Status</label><select id="em-st"><option value="active">Active</option><option value="suspended">Suspended</option></select></div>
+<div class="fr"><label>Reset Password (leave blank to keep)</label><input type="text" id="em-pw" placeholder="Set new password"></div>
+<div class="flex"><button class="btn bg" onclick="saveEdit()">Save</button><button class="btn bo" onclick="closeModal('edit-modal')">Cancel</button><button class="btn br bsm" onclick="delUser()">Delete</button></div>
+</div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+// STORAGE
+// ══════════════════════════════════════════════
+const K={gh:'nb6_gh',users:'nb6_users',sess:'nb6_sess',theme:'nb6_theme',aikeys:'nb6_aikeys',sects:'nb6_sects',adm:'nb6_adm',filters:'nb6_filters'};
+function ss(k,v){const s=JSON.stringify(v);try{localStorage.setItem(k,s)}catch(e){}try{sessionStorage.setItem(k,s)}catch(e){}}
+function gs(k){try{const v=localStorage.getItem(k);if(v!==null)return JSON.parse(v)}catch(e){}try{const v=sessionStorage.getItem(k);if(v!==null)return JSON.parse(v)}catch(e){}return null}
+const getUsers=()=>gs(K.users)||[];
+const saveUsers=u=>ss(K.users,u);
+const getSess=()=>gs(K.sess);
+const getGH=()=>gs(K.gh)||{};
+const getAIKeys=()=>gs(K.aikeys)||{};
+const DSECTS={control:true,analysis:true,table:true,live:true,filter:true,mf:true,calc:true,ai:true,apikeys:false,recipients:false};
+const SLABELS={control:'🎛️ Control',analysis:'📈 Analysis',table:'📋 Table',live:'📡 Live Charts',filter:'🔬 Filter',mf:'💼 MF/IPO',calc:'🧮 Calculator',ai:'🤖 AI',apikeys:'🔑 API Keys',recipients:'📨 Recipients'};
+
+function ensureAdmin(){
+  let u=getUsers();
+  if(!u.find(x=>x.username==='admin')){
+    u.push({username:'admin',password:btoa('admin123'),name:'Administrator',email:'admin@nifty100.com',mobile:'',role:'admin',status:'active',joined:new Date().toISOString()});
+    saveUsers(u);
+  }
+}
+ensureAdmin();
+
+// ══════════════════════════════════════════════
+// THEME
+// ══════════════════════════════════════════════
+function setTheme(t){
+  document.documentElement.setAttribute('data-theme',t);ss(K.theme,t);
+  ['theme-btn','auth-tb'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t==='dark'?'🌙':'☀️';});
+  ['dkbtn','ltbtn'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('bb');});
+  const b=document.getElementById(t==='dark'?'dkbtn':'ltbtn');if(b)b.classList.add('bb');
+  if(allRows.length)renderCharts();
+}
+function toggleTheme(){setTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark');}
+(()=>{setTheme(gs(K.theme)||'dark')})();
+function togglePW(id,btn){const el=document.getElementById(id);if(!el)return;el.type=el.type==='password'?'text':'password';btn.textContent=el.type==='password'?'👁':'🙈';}
+
+// ══════════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════════
+function aTab(n,btn){
+  document.querySelectorAll('.atab').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.aform').forEach(f=>f.classList.remove('on'));
+  document.getElementById('af-'+n).classList.add('on');
+  if(btn)btn.classList.add('on');
+}
+function amsg(id,msg,type){const el=document.getElementById(id);if(!el)return;el.textContent=msg;el.style.display=msg?'block':'none';el.className=type==='ok'?'aok':'aerr';}
+
+function doLogin(){
+  const u=document.getElementById('lu').value.trim().toLowerCase();
+  const p=document.getElementById('lp').value;
+  amsg('le','');
+  if(!u||!p){amsg('le','Please fill both username and password');return;}
+  ensureAdmin();
+  const found=getUsers().find(x=>x.username.toLowerCase()===u);
+  if(!found){amsg('le','Username not found. Register first.');return;}
+  if(found.password!==btoa(p)&&found.password!==p){amsg('le','Wrong password. Use Reset Password if forgotten.');return;}
+  if(found.status==='suspended'){amsg('le','Account suspended. Contact admin.');return;}
+  ss(K.sess,found);showApp(found);
+}
+
+let _otp='',_pu=null;
+function genOTP(){return String(Math.floor(100000+Math.random()*900000));}
+function buildOTPBoxes(){
+  const w=document.getElementById('otp-inputs');if(!w)return;
+  w.innerHTML='';
+  for(let i=0;i<6;i++){
+    const inp=document.createElement('input');inp.maxLength=1;inp.type='tel';
+    inp.style.cssText='width:42px;height:46px;text-align:center;font-size:18px;font-weight:800;background:var(--bg3);border:2px solid var(--bd);color:var(--tx);border-radius:8px;outline:none';
+    inp.addEventListener('input',e=>{if(e.target.value&&i<5)w.children[i+1].focus();});
+    inp.addEventListener('keydown',e=>{if(e.key==='Backspace'&&!e.target.value&&i>0)w.children[i-1].focus();});
+    w.appendChild(inp);
+  }
+}
+function getOTPVal(){const w=document.getElementById('otp-inputs');if(!w)return'';return Array.from(w.children).map(x=>x.value).join('');}
+
+async function regS1(){
+  amsg('re','');
+  const name=document.getElementById('rn').value.trim();
+  const user=document.getElementById('ru').value.trim().toLowerCase();
+  const email=document.getElementById('rem').value.trim();
+  const mob=document.getElementById('rmob').value.trim();
+  const pass=document.getElementById('rp').value;
+  const pass2=document.getElementById('rp2').value;
+  if(!name||!user||!email||!pass){amsg('re','Please fill all required fields');return;}
+  if(pass.length<6){amsg('re','Password must be at least 6 characters');return;}
+  if(pass!==pass2){amsg('re','Passwords do not match');return;}
+  if(!/^[a-z0-9_]+$/.test(user)){amsg('re','Username: only lowercase letters, numbers, underscore');return;}
+  ensureAdmin();
+  const users=getUsers();
+  if(users.find(x=>x.username===user)){amsg('re','Username already taken.');return;}
+  if(users.find(x=>x.email===email)){amsg('re','Email already registered.');return;}
+  _pu={username:user,password:btoa(pass),name,email,mobile:mob,role:'user',status:'active',joined:new Date().toISOString()};
+  _otp=genOTP();
+  buildOTPBoxes();
+  document.getElementById('reg-s1').style.display='none';
+  document.getElementById('reg-s2').style.display='block';
+  const fallback=document.getElementById('otp-fallback');
+  if(fallback)fallback.textContent=_otp;
+  amsg('ro','✅ Your OTP is shown above. Enter it below.','ok');
+  document.getElementById('otp-inputs')?.children[0]?.focus();
+}
+function backReg(){document.getElementById('reg-s2').style.display='none';document.getElementById('reg-s1').style.display='block';amsg('re','');amsg('ro','');}
+function verifyOTP(){
+  amsg('re','');
+  const entered=getOTPVal();
+  if(entered.length<6){amsg('re','Please enter all 6 digits');return;}
+  if(entered!==_otp){amsg('re','Incorrect OTP. Try again.');const w=document.getElementById('otp-inputs');if(w)Array.from(w.children).forEach(x=>{x.value='';});document.getElementById('otp-inputs')?.children[0]?.focus();return;}
+  let users=getUsers();users.push(_pu);saveUsers(users);
+  amsg('ro','✅ Account created! Signing you in...','ok');
+  document.getElementById('reg-s2').style.display='none';document.getElementById('reg-s1').style.display='block';
+  setTimeout(()=>{aTab('login',document.querySelectorAll('.atab')[0]);document.getElementById('lu').value=_pu.username;},1200);
+  _pu=null;_otp='';
+}
+function doForgot(){
+  amsg('fpe','');
+  const u=document.getElementById('fpu').value.trim().toLowerCase();
+  const em=document.getElementById('fpem').value.trim();
+  ensureAdmin();
+  const users=getUsers();
+  const found=users.find(x=>x.username.toLowerCase()===u);
+  if(!found){amsg('fpe','No account found with that username.');return;}
+  if(found.email!==em){amsg('fpe','Email does not match this account.');return;}
+  const tmp='Tmp'+Math.random().toString(36).slice(2,8);
+  found.password=btoa(tmp);saveUsers(users);
+  amsg('fpo','✅ New temporary password:\n\n'+tmp+'\n\nSign in and change it in Settings → Profile.','ok');
+}
+function doLogout(){
+  try{localStorage.removeItem(K.sess)}catch(e){}
+  try{sessionStorage.removeItem(K.sess)}catch(e){}
+  document.getElementById('app').style.display='none';
+  document.getElementById('auth').style.display='flex';
+  document.getElementById('lu').value='';document.getElementById('lp').value='';
+  amsg('le','');amsg('lo','');
+}
+
+// ══════════════════════════════════════════════
+// SHOW APP
+// ══════════════════════════════════════════════
+function showApp(user){
+  document.getElementById('auth').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.getElementById('uav').textContent=(user.name||user.username)[0].toUpperCase();
+  const sbu=document.getElementById('sb-username');if(sbu)sbu.textContent=user.username+(user.role==='admin'?' (Admin)':'');
+  document.getElementById('loggedas').textContent=user.username+(user.role==='admin'?' (Admin)':'');
+  document.getElementById('loggedas2').textContent=user.username;
+  document.getElementById('pname').value=user.name||'';
+  document.getElementById('pemail').value=user.email||'';
+  document.getElementById('pmob').value=user.mobile||'';
+  const isAdmin=user.role==='admin';
+  document.querySelectorAll('.admin-only').forEach(el=>el.style.display=isAdmin?'':'none');
+  document.getElementById('admbadge').style.display=isAdmin?'':'none';
+  if(!isAdmin){
+    const sects=gs(K.sects)||DSECTS;
+    document.querySelectorAll('.sb-btn').forEach(btn=>{
+      const m=(btn.getAttribute('onclick')||'').match(/pg\('([^']+)'/);
+      if(m&&sects[m[1]]===false)btn.style.display='none';
+    });
+  }
+  const gh=getGH();
+  if(gh.user)document.getElementById('ghu').value=gh.user;
+  if(gh.repo)document.getElementById('ghr').value=gh.repo;
+  if(gh.token)document.getElementById('ght').value=gh.token;
+  if(gh.botToken)document.getElementById('bot-tok').value=gh.botToken;
+  loadSavedKeys();
+  const adm=gs(K.adm)||{};
+  if(adm.email){const e=document.getElementById('adm-em');if(e)e.value=adm.email;}
+  if(adm.mobile){const e=document.getElementById('adm-mob');if(e)e.value=adm.mobile;}
+  checkCfg();renderSecList();
+  if(gh.user&&gh.repo&&gh.token)fetchRuns();
+  refreshMkt();loadMF('ipo');cSIP();bCron();updateAIProvider();
+  loadTagsUI();
+}
+
+ensureAdmin();
+const saved=getSess();
+if(saved){showApp(saved);}
+
+// ══════════════════════════════════════════════
+// SIDEBAR
+// ══════════════════════════════════════════════
+let sbCollapsed=false;
+function toggleSidebar(){
+  sbCollapsed=!sbCollapsed;
+  document.getElementById('sidebar').classList.toggle('collapsed',sbCollapsed);
+  document.getElementById('app-body').classList.toggle('sb-collapsed',sbCollapsed);
+}
+function closeMobileSidebar(){
+  document.getElementById('sidebar').classList.remove('mob-open');
+  document.getElementById('sb-mob-overlay').style.display='none';
+}
+document.getElementById('sb-toggle-btn')?.addEventListener('click',function(e){
+  if(window.innerWidth<=640){
+    document.getElementById('sidebar').classList.toggle('mob-open');
+    const ov=document.getElementById('sb-mob-overlay');
+    ov.style.display=document.getElementById('sidebar').classList.contains('mob-open')?'block':'none';
+    e.stopPropagation();
+  }
+});
+
+// ══════════════════════════════════════════════
+// PAGES
+// ══════════════════════════════════════════════
+function pg(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.sb-btn').forEach(b=>b.classList.remove('on'));
+  document.getElementById('pg-'+id)?.classList.add('on');
+  if(btn)btn.classList.add('on');
+  else{const b=document.getElementById('sbn-'+id);if(b)b.classList.add('on');}
+  if(id==='users')renderUsers();
+  if(id==='control')checkCfg();
+  if(id==='ai')updateAIModeBadge();
+}
+function stab(id,btn){
+  ['profile','github','theme','logout'].forEach(n=>{const el=document.getElementById('st-'+n);if(el)el.style.display='none';});
+  document.querySelectorAll('.stab').forEach(b=>b.classList.remove('on'));
+  const el=document.getElementById('st-'+id);if(el)el.style.display='block';
+  if(btn)btn.classList.add('on');
+}
+function closeModal(id){document.getElementById(id)?.classList.remove('open');}
+
+// ══════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════
+var toastTimer=null;
+function toast(msg,type='green'){
+  const t=document.getElementById('toast');if(!t)return;
+  t.textContent=msg;
+  t.style.display='block';
+  t.style.background=type==='green'?'var(--green)':type==='red'?'var(--red)':type==='blue'?'var(--blue)':'var(--yellow)';
+  t.style.color='#fff';
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.style.display='none',3500);
+}
+
+// ══════════════════════════════════════════════
+// GITHUB SETTINGS
+// ══════════════════════════════════════════════
+function saveGH(){
+  const u=document.getElementById('ghu').value.trim();
+  const r=document.getElementById('ghr').value.trim();
+  const t=document.getElementById('ght').value.trim();
+  const bt=document.getElementById('bot-tok').value.trim();
+  if(!u||!r||!t){toast('Fill GitHub username, repo, and PAT','red');return;}
+  ss(K.gh,{user:u,repo:r,token:t,botToken:bt});
+  toast('✅ GitHub settings saved!','green');
+  document.getElementById('ghres').textContent='✅ Saved. Click Test to verify.';
+  checkCfg();fetchRuns();
+}
+async function testGH(){
+  const gh=getGH();
+  if(!gh.user||!gh.token){toast('Save GitHub settings first','yellow');return;}
+  const el=document.getElementById('ghres');
+  el.textContent='Testing...';
+  try{
+    const r=await fetch(`https://api.github.com/repos/${gh.user}/${gh.repo}`,{headers:{'Authorization':'token '+gh.token,'Accept':'application/vnd.github+json'}});
+    if(r.ok){el.innerHTML='<span style="color:var(--green)">✅ Connected to '+gh.user+'/'+gh.repo+'</span>';toast('✅ GitHub connected!','green');}
+    else{el.innerHTML='<span style="color:var(--red)">❌ HTTP '+r.status+' — Check username/repo/PAT</span>';toast('❌ GitHub error '+r.status,'red');}
+  }catch(e){el.innerHTML='<span style="color:var(--red)">❌ Network error: '+e.message+'</span>';}
+}
+function openSec(){const gh=getGH();if(gh.user&&gh.repo)window.open('https://github.com/'+gh.user+'/'+gh.repo+'/settings/secrets/actions','_blank');}
+function checkCfg(){const gh=getGH();const el=document.getElementById('nocfg');if(el)el.style.display=(!gh.user||!gh.repo||!gh.token)?'block':'none';}
+
+// ══════════════════════════════════════════════
+// WORKFLOW TRIGGER — FIX: enables workflow first
+// ══════════════════════════════════════════════
+async function triggerWF(){
+  const gh=getGH();
+  if(!gh.user||!gh.repo||!gh.token){toast('⚠️ Configure GitHub settings first','yellow');pg('settings',null);return;}
+  const btn=document.getElementById('runbtn');
+  const st=document.getElementById('runst');
+  const log=document.getElementById('actlog');
+  const idx=document.getElementById('idx-sel').value;
+  if(btn){btn.disabled=true;btn.innerHTML='<span class="sp"></span> Sending...';}
+  if(st)st.textContent='Triggering workflow...';
+  if(log)log.textContent='▶ Triggering: '+idx+'...';
+  const headers={'Authorization':'token '+gh.token,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','Content-Type':'application/json'};
+  // Enable workflow first (in case GitHub auto-disabled it)
+  try{await fetch('https://api.github.com/repos/'+gh.user+'/'+gh.repo+'/actions/workflows/nifty100.yml/enable',{method:'PUT',headers});}catch(e){}
+  try{
+    const r=await fetch('https://api.github.com/repos/'+gh.user+'/'+gh.repo+'/actions/workflows/nifty100.yml/dispatches',{
+      method:'POST',headers,
+      body:JSON.stringify({ref:'main',inputs:{index_name:idx}})
+    });
+    if(r.status===204||r.ok){
+      toast('✅ Sent! Check Telegram in ~30 seconds','green');
+      if(st)st.textContent='✅ Triggered at '+new Date().toLocaleTimeString();
+      if(log)log.textContent='✅ Workflow triggered for: '+idx+'\n\nExpect Telegram message in ~30 seconds.\n\nIf no message:\n• Check Actions tab on GitHub\n• Verify BOT_TOKEN and RECIPIENTS secrets\n• Check your Telegram bot is active';
+      setTimeout(fetchRuns,8000);
+    }else{
+      let msg=r.status;try{const j=await r.json();msg=j.message||msg;}catch(e){}
+      toast('❌ Failed: '+msg,'red');
+      if(st)st.textContent='❌ Error: '+msg;
+      if(log)log.textContent='❌ Trigger failed: HTTP '+r.status+'\n'+msg;
+    }
+  }catch(e){
+    toast('❌ Network error: '+e.message,'red');
+    if(log)log.textContent='❌ Exception: '+e.message;
+  }finally{
+    if(btn){btn.disabled=false;btn.innerHTML='▶ Send to Telegram Now';}
+  }
+}
+
+// ══════════════════════════════════════════════
+// SCHEDULE BUILDER
+// ══════════════════════════════════════════════
+function bCron(){
+  let h=parseInt(document.getElementById('sh').value)||9;
+  let m=parseInt(document.getElementById('sm').value)||30;
+  const ap=document.getElementById('sap').value;
+  const days=document.getElementById('sdays').value;
+  h=Math.min(12,Math.max(1,h));m=Math.min(59,Math.max(0,m));
+  let h24=h;
+  if(ap==='AM'&&h===12)h24=0;
+  else if(ap==='PM'&&h!==12)h24=h+12;
+  // Convert IST to UTC (subtract 5h30m)
+  let utcMin=m-30;let utcH=h24-5;
+  if(utcMin<0){utcMin+=60;utcH--;}
+  if(utcH<0)utcH+=24;
+  const cron=utcMin+' '+utcH+' * * '+days;
+  document.getElementById('cron-val').textContent=cron;
+  const dispH=h;const dispM=String(m).padStart(2,'0');
+  document.getElementById('schdisp').textContent=dispH+':'+dispM+' '+ap;
+  const dayLabels={'1-5':'Mon–Fri','1-6':'Mon–Sat','*':'Every day','1,3,5':'Mon, Wed, Fri','2,4':'Tue, Thu','6':'Sat only','0':'Sun only'};
+  document.getElementById('schdays').textContent=dayLabels[days]||days;
+}
+
+async function applySchedule(){
+  const gh=getGH();
+  if(!gh.user||!gh.repo||!gh.token){toast('⚠️ Configure GitHub settings first','yellow');pg('settings',null);return;}
+  const cron=document.getElementById('cron-val').textContent.replace(/\\/g,'');
+  if(!cron||cron==='—'){toast('❌ Invalid cron. Set schedule first.','red');return;}
+  const log=document.getElementById('actlog');
+  if(log)log.textContent='⏳ Applying schedule "'+cron+'" to workflow file...';
+  const headers={'Authorization':'token '+gh.token,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','Content-Type':'application/json'};
+  const apiUrl='https://api.github.com/repos/'+gh.user+'/'+gh.repo+'/contents/.github/workflows/nifty100.yml';
+  try{
+    const getResp=await fetch(apiUrl,{headers});
+    if(!getResp.ok){const err=await getResp.json();toast('❌ Cannot read workflow: '+(err.message||getResp.status),'red');if(log)log.textContent='❌ Error: '+(err.message||getResp.status);return;}
+    const fileData=await getResp.json();
+    const sha=fileData.sha;
+    const currentContent=atob(fileData.content.replace(/\n/g,''));
+    const cronRegex=/- cron:\s*'[^']*'/;
+    if(!cronRegex.test(currentContent)){toast('❌ Cron line not found in workflow file','red');if(log)log.textContent='❌ No cron line found. Re-upload the fixed nifty100.yml first.';return;}
+    const newContent=currentContent.replace(cronRegex,"- cron: '"+cron+"'");
+    const putResp=await fetch(apiUrl,{
+      method:'PUT',headers,
+      body:JSON.stringify({message:'Update schedule to: '+cron,content:btoa(unescape(encodeURIComponent(newContent))),sha})
+    });
+    if(putResp.ok){
+      toast('✅ Schedule updated! '+document.getElementById('schdisp').textContent+' IST','green');
+      if(log)log.textContent='✅ Schedule: '+cron+' UTC = '+document.getElementById('schdisp').textContent+' IST\n'+document.getElementById('schdays').textContent+'\n\n⚠️ GitHub may delay first run up to 15 min.';
+    }else{
+      const err=await putResp.json();
+      toast('❌ Failed: '+(err.message||putResp.status),'red');
+      if(log)log.textContent='❌ GitHub error: '+JSON.stringify(err);
+    }
+  }catch(e){toast('❌ Network error: '+e.message,'red');if(log)log.textContent='❌ Exception: '+e.message;}
+}
+
+// ══════════════════════════════════════════════
+// RECENT RUNS
+// ══════════════════════════════════════════════
+async function fetchRuns(){
+  const gh=getGH();if(!gh.user||!gh.repo||!gh.token)return;
+  const log=document.getElementById('actlog');
+  const wrap=document.getElementById('runswrap');
+  try{
+    const r=await fetch('https://api.github.com/repos/'+gh.user+'/'+gh.repo+'/actions/workflows/nifty100.yml/runs?per_page=10',{
+      headers:{'Authorization':'token '+gh.token,'Accept':'application/vnd.github+json'}
+    });
+    if(!r.ok)return;
+    const d=await r.json();
+    const runs=d.workflow_runs||[];
+    document.getElementById('rrh').textContent=runs.length+' runs found';
+    if(!wrap)return;
+    if(!runs.length){wrap.innerHTML='<div style="color:var(--mu);font-size:12px;padding:12px;text-align:center">No runs yet. Click "Send to Telegram Now" to test.</div>';return;}
+    wrap.innerHTML=runs.map(r=>{
+      const st=r.status;const con=r.conclusion;
+      const icon=con==='success'?'✅':con==='failure'?'❌':st==='in_progress'?'⏳':'⏸️';
+      const dt=new Date(r.created_at).toLocaleString('en-IN',{timeZone:'Asia/Kolkata',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+      return '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--bd);font-size:12px">'
+        +'<span style="font-size:16px">'+icon+'</span>'
+        +'<div style="flex:1"><div style="font-weight:700">Run #'+r.run_number+' — '+r.event+'</div>'
+        +'<div style="color:var(--mu);font-size:11px">'+dt+' IST · '+(r.conclusion||r.status)+'</div></div>'
+        +'<a href="'+r.html_url+'" target="_blank" class="btn bo bsm">View</a></div>';
+    }).join('');
+    if(log&&runs[0]){
+      const last=runs[0];
+      const dt=new Date(last.created_at).toLocaleString('en-IN',{timeZone:'Asia/Kolkata'});
+      log.textContent='Last run: #'+last.run_number+' ('+last.event+') — '+(last.conclusion||last.status)+'\n'+dt+' IST';
+    }
+  }catch(e){if(log)log.textContent='Could not fetch runs: '+e.message;}
+}
+
+// ══════════════════════════════════════════════
+// CSV LOAD — FIX: proper FileReader + PapaParse
+// ══════════════════════════════════════════════
+let allRows=[], allCols=[];
+
+function triggerCSVPick(){
+  const inp=document.getElementById('csvf');
+  if(!inp)return;
+  inp.value=''; // reset so same file can be picked again
+  inp.click();
+}
+
+function loadCSV(event){
+  const file=event&&event.target&&event.target.files&&event.target.files[0];
+  if(!file){toast('❌ No file selected','red');return;}
+  if(!file.name.toLowerCase().endsWith('.csv')){toast('❌ Please select a .csv file','red');return;}
+  const filelbl=document.getElementById('filelbl');
+  if(filelbl)filelbl.textContent='Loading '+file.name+'...';
+  toast('📂 Loading CSV...','blue');
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      const text=e.target.result;
+      if(!text||!text.trim()){toast('❌ File is empty','red');if(filelbl)filelbl.textContent='File is empty';return;}
+      Papa.parse(text,{
+        header:true,
+        skipEmptyLines:true,
+        complete:function(results){
+          if(!results.data||results.data.length===0){toast('❌ CSV has no data rows','red');if(filelbl)filelbl.textContent='No data found';return;}
+          allRows=results.data;
+          allCols=results.meta.fields||Object.keys(allRows[0]||{});
+          if(filelbl)filelbl.textContent=file.name+' ('+allRows.length+' stocks)';
+          toast('✅ Loaded '+allRows.length+' stocks','green');
+          const nodata=document.getElementById('nodata');
+          const adata=document.getElementById('adata');
+          if(nodata)nodata.style.display='none';
+          if(adata)adata.style.display='block';
+          renderStats();renderCharts();renderTable(allRows);renderRiskSel();renderMovers();
+          updateAIModeBadge();
+        },
+        error:function(err){toast('❌ Parse error: '+(err.message||err),'red');if(filelbl)filelbl.textContent='Parse error';}
+      });
+    }catch(err){toast('❌ Error reading file: '+err.message,'red');}
+  };
+  reader.onerror=function(){toast('❌ Failed to read file. Try again.','red');};
+  reader.readAsText(file);
+}
+
+// ══════════════════════════════════════════════
+// STATS
+// ══════════════════════════════════════════════
+function getChgCol(){return allCols.find(c=>/pChange|perChange|change%|chg%/i.test(c))||allCols.find(c=>/change|chg/i.test(c))||'';}
+function getSymCol(){return allCols.find(c=>/symbol|ticker|scrip/i.test(c))||allCols[0]||'';}
+function getPriceCol(){return allCols.find(c=>/lastPrice|ltp|price|close/i.test(c))||'';}
+function getVolCol(){return allCols.find(c=>/totalTradedVolume|volume|vol/i.test(c))||'';}
+function getHighCol(){return allCols.find(c=>/52WeekHigh|yearHigh|52wHigh/i.test(c))||'';}
+function getLowCol(){return allCols.find(c=>/52WeekLow|yearLow|52wLow/i.test(c))||'';}
+function getSeriesCol(){return allCols.find(c=>/series/i.test(c))||'';}
+
+function renderStats(){
+  const chgCol=getChgCol();
+  let g=0,l=0,f=0;
+  allRows.forEach(r=>{
+    const v=parseFloat(r[chgCol]);
+    if(isNaN(v))f++;else if(v>0)g++;else if(v<0)l++;else f++;
+  });
+  document.getElementById('s1').textContent=allRows.length;
+  document.getElementById('s2').textContent=g;
+  document.getElementById('s3').textContent=l;
+  document.getElementById('s4').textContent=f;
+}
+
+// ══════════════════════════════════════════════
+// CHARTS
+// ══════════════════════════════════════════════
+const charts={};
+function destroyChart(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
+const isDark=()=>document.documentElement.getAttribute('data-theme')==='dark';
+const gc=()=>isDark()?'rgba(255,255,255,.08)':'rgba(0,0,0,.06)';
+const tc=()=>isDark()?'#8b949e':'#636c76';
+
+function mkChart(id,cfg){
+  destroyChart(id);
+  const c=document.getElementById(id);if(!c)return;
+  charts[id]=new Chart(c,cfg);
+}
+
+function renderCharts(){
+  const chgCol=getChgCol(),symCol=getSymCol(),priceCol=getPriceCol(),volCol=getVolCol();
+  const sorted=[...allRows].filter(r=>!isNaN(parseFloat(r[chgCol]))).sort((a,b)=>parseFloat(b[chgCol])-parseFloat(a[chgCol]));
+  const gainers=sorted.slice(0,10),losers=[...sorted].reverse().slice(0,10);
+  const labels=['Gainers','Losers','Flat'];
+  let g=0,l=0,f=0;
+  allRows.forEach(r=>{const v=parseFloat(r[chgCol]);if(isNaN(v))f++;else if(v>0)g++;else if(v<0)l++;else f++;});
+  mkChart('cPie',{type:'doughnut',data:{labels,datasets:[{data:[g,l,f],backgroundColor:['#3fb950','#f85149','#d29922'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:tc(),boxWidth:10,font:{size:10}}}}}});
+  const gLabels=gainers.map(r=>r[symCol]||'?');
+  const gData=gainers.map(r=>parseFloat(r[chgCol]));
+  mkChart('cGain',{type:'bar',data:{labels:gLabels,datasets:[{data:gData,backgroundColor:'rgba(63,185,80,.7)',borderWidth:0,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{color:gc()},ticks:{color:tc(),font:{size:9}}},y:{grid:{display:false},ticks:{color:tc(),font:{size:9}}}}}});
+  const lLabels=losers.map(r=>r[symCol]||'?');
+  const lData=losers.map(r=>parseFloat(r[chgCol]));
+  mkChart('cLoss',{type:'bar',data:{labels:lLabels,datasets:[{data:lData,backgroundColor:'rgba(248,81,73,.7)',borderWidth:0,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{color:gc()},ticks:{color:tc(),font:{size:9}}},y:{grid:{display:false},ticks:{color:tc(),font:{size:9}}}}}});
+  if(volCol){
+    const vSorted=[...allRows].filter(r=>parseFloat(r[volCol])>0).sort((a,b)=>parseFloat(b[volCol])-parseFloat(a[volCol])).slice(0,10);
+    mkChart('cVol',{type:'bar',data:{labels:vSorted.map(r=>r[symCol]||'?'),datasets:[{data:vSorted.map(r=>parseFloat(r[volCol])),backgroundColor:'rgba(88,166,255,.7)',borderWidth:0,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{color:gc()},ticks:{color:tc(),font:{size:9}}},y:{grid:{display:false},ticks:{color:tc(),font:{size:9}}}}}});
+  }
+  if(priceCol){
+    const pSorted=[...allRows].filter(r=>parseFloat(r[priceCol])>0).sort((a,b)=>parseFloat(b[priceCol])-parseFloat(a[priceCol])).slice(0,15);
+    mkChart('cPrice',{type:'bar',data:{labels:pSorted.map(r=>r[symCol]||'?'),datasets:[{data:pSorted.map(r=>parseFloat(r[priceCol])),backgroundColor:'rgba(188,140,255,.7)',borderWidth:0,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:tc(),font:{size:9},maxRotation:45}},y:{grid:{color:gc()},ticks:{color:tc(),font:{size:9}}}}}});
+  }
+  const wk52El=document.getElementById('ch-wk52');
+  if(wk52El&&wk52El.style.display!=='none'){
+    const h=getHighCol(),lo=getLowCol();
+    if(h&&lo){
+      const ws=[...allRows].filter(r=>parseFloat(r[h])>0).slice(0,15);
+      mkChart('cWk52',{type:'bar',data:{labels:ws.map(r=>r[symCol]||'?'),datasets:[{label:'52W High',data:ws.map(r=>parseFloat(r[h])),backgroundColor:'rgba(63,185,80,.6)',borderWidth:0,borderRadius:3},{label:'52W Low',data:ws.map(r=>parseFloat(r[lo])),backgroundColor:'rgba(248,81,73,.6)',borderWidth:0,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:tc(),font:{size:10}}}},scales:{x:{grid:{display:false},ticks:{color:tc(),font:{size:9},maxRotation:45}},y:{grid:{color:gc()},ticks:{color:tc(),font:{size:9}}}}}});
+    }
+  }
+  const serEl=document.getElementById('ch-series');
+  if(serEl&&serEl.style.display!=='none'){
+    const sc=getSeriesCol();
+    if(sc){
+      const cnt={};allRows.forEach(r=>{const s=r[sc]||'?';cnt[s]=(cnt[s]||0)+1;});
+      const keys=Object.keys(cnt);const vals=keys.map(k=>cnt[k]);
+      mkChart('cSeries',{type:'doughnut',data:{labels:keys,datasets:[{data:vals,backgroundColor:['#58a6ff','#3fb950','#d29922','#f85149','#bc8cff'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:tc(),boxWidth:10,font:{size:10}}}}}});
+    }
+  }
+}
+
+function toggleCh(pill){
+  pill.classList.toggle('on');
+  const ch=pill.dataset.ch;
+  const el=document.getElementById('ch-'+ch);
+  if(!el)return;
+  const show=pill.classList.contains('on');
+  el.style.display=show?'block':'none';
+  if(show&&allRows.length)renderCharts();
+}
+
+// ══════════════════════════════════════════════
+// TABLE
+// ══════════════════════════════════════════════
+let filteredRows=[];
+function renderTable(rows){
+  filteredRows=rows;
+  const th=document.getElementById('th');const tb=document.getElementById('tb');const tempty=document.getElementById('tempty');
+  if(!th||!tb)return;
+  if(!rows||!rows.length){if(tempty)tempty.style.display='block';th.innerHTML='';tb.innerHTML='';return;}
+  if(tempty)tempty.style.display='none';
+  document.getElementById('tblcnt').textContent='('+rows.length+' stocks)';
+  document.getElementById('dlbtn').style.display='';
+  const cols=allCols.slice(0,12);
+  th.innerHTML='<tr>'+cols.map(c=>'<th>'+c+'</th>').join('')+'</tr>';
+  const chgCol=getChgCol();
+  tb.innerHTML=rows.slice(0,500).map(r=>'<tr>'+cols.map(c=>{
+    const v=r[c]||'';
+    if(c===chgCol){const n=parseFloat(v);const cls=n>0?'up':n<0?'dn':'';return'<td class="'+cls+'">'+v+'</td>';}
+    return'<td>'+v+'</td>';
+  }).join('')+'</tr>').join('');
+}
+function filterTbl(){
+  const q=(document.getElementById('srch').value||'').toLowerCase();
+  if(!q){renderTable(allRows);return;}
+  const sym=getSymCol();
+  renderTable(allRows.filter(r=>{
+    if(r[sym]&&r[sym].toLowerCase().includes(q))return true;
+    return Object.values(r).some(v=>String(v).toLowerCase().includes(q));
+  }));
+}
+function dlCSV(){
+  if(!filteredRows.length)return;
+  const csv=Papa.unparse(filteredRows);
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='nifty_export.csv';a.click();
+}
+
+// ══════════════════════════════════════════════
+// HOME MOVERS
+// ══════════════════════════════════════════════
+function renderMovers(){
+  const el=document.getElementById('home-movers');if(!el||!allRows.length)return;
+  const chgCol=getChgCol(),symCol=getSymCol(),priceCol=getPriceCol();
+  const sorted=[...allRows].filter(r=>!isNaN(parseFloat(r[chgCol]))).sort((a,b)=>parseFloat(b[chgCol])-parseFloat(a[chgCol]));
+  const top5=sorted.slice(0,5),bot5=[...sorted].reverse().slice(0,5);
+  const row=r=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--bd);font-size:12px">
+    <span style="font-weight:700">${r[symCol]||'?'}</span>
+    <span>${priceCol?'₹'+(parseFloat(r[priceCol])||0).toFixed(2):''}</span>
+    <span class="${parseFloat(r[chgCol])>0?'up':'dn'}">${(parseFloat(r[chgCol])||0).toFixed(2)}%</span></div>`;
+  el.innerHTML='<div class="g2"><div><div style="font-size:11px;color:var(--green);font-weight:700;margin-bottom:4px">▲ Top Gainers</div>'+top5.map(row).join('')+'</div><div><div style="font-size:11px;color:var(--red);font-weight:700;margin-bottom:4px">▼ Top Losers</div>'+bot5.map(row).join('')+'</div></div>';
+}
+
+// ══════════════════════════════════════════════
+// LIVE MARKETS (CoinGecko + simulated NIFTY)
+// ══════════════════════════════════════════════
+const miniData={};
+function renderMini(id,val,pos){
+  const c=document.getElementById('mc-'+id);if(!c)return;
+  if(!miniData[id])miniData[id]=[];
+  miniData[id].push(val);if(miniData[id].length>20)miniData[id].shift();
+  destroyChart('mc'+id);
+  charts['mc'+id]=new Chart(c,{type:'line',data:{labels:miniData[id].map(()=>''),datasets:[{data:miniData[id],borderColor:pos?'#3fb950':'#f85149',borderWidth:1.5,pointRadius:0,fill:true,backgroundColor:pos?'rgba(63,185,80,.08)':'rgba(248,81,73,.08)',tension:0.4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{enabled:false}},scales:{x:{display:false},y:{display:false}}}});
+}
+function setMkt(id,val,chg){
+  const el=document.getElementById('mb-'+id);const ce=document.getElementById('mb-'+id+'c');
+  if(el)el.textContent=val;
+  if(ce){const pos=parseFloat(chg)>=0;ce.textContent=(pos?'▲ +':'▼ ')+chg+'%';ce.className='mblock-ch '+(pos?'up':'dn');}
+  renderMini(id,parseFloat(String(val).replace(/,/g,'')),parseFloat(chg)>=0);
+}
+async function refreshMkt(){
+  const t=document.getElementById('mkt-time');
+  if(t)t.textContent='Updating...';
+  try{
+    const r=await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd&include_24hr_change=true',{signal:AbortSignal.timeout(8000)});
+    if(r.ok){
+      const d=await r.json();
+      if(d.bitcoin){setMkt('btc','$'+(d.bitcoin.usd||0).toLocaleString(),(d.bitcoin.usd_24h_change||0).toFixed(2));}
+      if(d.ethereum){setMkt('eth','$'+(d.ethereum.usd||0).toLocaleString(),(d.ethereum.usd_24h_change||0).toFixed(2));}
+    }
+  }catch(e){}
+  // Simulated NIFTY/Gold/Oil/SENSEX with slight random variation
+  const base={n50:22850,gold:3350,oil:71,sx:75200};
+  const rnd=(v,pct)=>(v*(1+(Math.random()-.5)*pct/100)).toFixed(2);
+  const chg=()=>((Math.random()-.48)*2).toFixed(2);
+  setMkt('n50',(+rnd(base.n50,0.8)).toLocaleString('en-IN'),chg());
+  setMkt('gold','$'+rnd(base.gold,0.5),chg());
+  setMkt('oil','$'+rnd(base.oil,1.2),chg());
+  setMkt('sx',(+rnd(base.sx,0.8)).toLocaleString('en-IN'),chg());
+  if(t)t.textContent='Updated '+new Date().toLocaleTimeString('en-IN',{timeZone:'Asia/Kolkata'})+' IST';
+}
+function goLive(sym){pg('live',document.getElementById('sbn-live'));setTimeout(()=>{const s=document.getElementById('tv-sym');if(s)s.value=sym;loadTV();},100);}
+
+// ══════════════════════════════════════════════
+// TRADINGVIEW
+// ══════════════════════════════════════════════
+function loadTV(){
+  const sym=document.getElementById('tv-sym').value;
+  const intv=document.getElementById('tv-int').value;
+  const style=document.getElementById('tv-style').value;
+  buildTV(sym,intv,style);
+}
+function loadCustomTV(){
+  const sym=(document.getElementById('tv-custom').value||'').trim().toUpperCase();
+  if(!sym){toast('Enter a symbol first','yellow');return;}
+  buildTV(sym,document.getElementById('tv-int').value,document.getElementById('tv-style').value);
+}
+function buildTV(sym,intv,style){
+  const wrap=document.getElementById('tv-wrap');if(!wrap)return;
+  wrap.innerHTML='<iframe src="https://s.tradingview.com/widgetembed/?frameElementId=tv1&symbol='+encodeURIComponent(sym)+'&interval='+intv+'&theme='+(isDark()?'dark':'light')+'&style='+style+'&locale=en&toolbar_bg=%23f1f3f6&enable_publishing=0&hide_top_toolbar=0&hide_legend=0&save_image=0&studies=[]&show_popup_button=0" style="width:100%;height:500px;border:none;border-radius:8px"></iframe>';
+}
+
+// ══════════════════════════════════════════════
+// FILTER BUILDER
+// ══════════════════════════════════════════════
+let conditions=[];
+function addCond(){
+  conditions.push({col:'',op:'>',val:''});
+  renderConds();
+}
+function renderConds(){
+  const el=document.getElementById('cond-list');if(!el)return;
+  const cols=allCols.length?allCols:['No CSV loaded — load CSV first'];
+  el.innerHTML=conditions.map((c,i)=>`
+    <div class="cond-row">
+      <select onchange="conditions[${i}].col=this.value">${cols.map(col=>`<option ${col===c.col?'selected':''}>${col}</option>`).join('')}</select>
+      <select onchange="conditions[${i}].op=this.value">
+        ${['>','<','>=','<=','==','!=','contains'].map(o=>`<option ${o===c.op?'selected':''}>${o}</option>`).join('')}
+      </select>
+      <input value="${c.val}" oninput="conditions[${i}].val=this.value" placeholder="value">
+      <button class="btn br bsm" onclick="conditions.splice(${i},1);renderConds()">✕</button>
+    </div>`).join('');
+}
+function runConds(){
+  if(!allRows.length){toast('Load a CSV first','yellow');return;}
+  if(!conditions.length){toast('Add at least one condition','yellow');return;}
+  const res=allRows.filter(row=>conditions.every(c=>{
+    const v=row[c.col];const n=parseFloat(v);const cv=c.val;const cn=parseFloat(cv);
+    if(c.op==='>')return n>cn;if(c.op==='<')return n<cn;if(c.op==='>=')return n>=cn;
+    if(c.op==='<=')return n<=cn;if(c.op==='==')return v==cv;if(c.op==='!=')return v!=cv;
+    if(c.op==='contains')return String(v).toLowerCase().includes(cv.toLowerCase());
+    return false;
+  }));
+  const el=document.getElementById('cond-result');if(!el)return;
+  if(!res.length){el.innerHTML='<div class="wbox">No stocks match these conditions.</div>';return;}
+  const cols=allCols.slice(0,8);
+  el.innerHTML='<div style="font-size:12px;color:var(--green);margin-bottom:6px">✅ '+res.length+' stocks match</div><div class="tw"><table><thead><tr>'+cols.map(c=>'<th>'+c+'</th>').join('')+'</tr></thead><tbody>'+res.slice(0,50).map(r=>'<tr>'+cols.map(c=>'<td>'+( r[c]||'')+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
+}
+function clearConds(){conditions=[];renderConds();document.getElementById('cond-result').innerHTML='';}
+function saveFilter(){
+  const name=(document.getElementById('fname').value||'').trim();
+  if(!name){toast('Enter a filter name','yellow');return;}
+  const saved=gs(K.filters)||[];
+  saved.push({name,conditions:[...conditions]});
+  ss(K.filters,saved);
+  renderSavedFilters();
+  toast('✅ Filter saved: '+name,'green');
+}
+function renderSavedFilters(){
+  const el=document.getElementById('saved-filters');if(!el)return;
+  const saved=gs(K.filters)||[];
+  if(!saved.length){el.innerHTML='<span style="color:var(--mu);font-size:12px">No saved filters</span>';return;}
+  el.innerHTML=saved.map((f,i)=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
+    <span style="font-size:12px;font-weight:700;flex:1">${f.name} (${f.conditions.length} conditions)</span>
+    <button class="btn bb bsm" onclick="loadFilter(${i})">Load</button>
+    <button class="btn br bsm" onclick="deleteFilter(${i})">✕</button></div>`).join('');
+}
+function loadFilter(i){const saved=gs(K.filters)||[];if(saved[i]){conditions=[...saved[i].conditions];renderConds();toast('Filter loaded: '+saved[i].name,'green');}}
+function deleteFilter(i){const saved=gs(K.filters)||[];saved.splice(i,1);ss(K.filters,saved);renderSavedFilters();}
+
+// ══════════════════════════════════════════════
+// RISK
+// ══════════════════════════════════════════════
+function renderRiskSel(){
+  const sel=document.getElementById('risk-sel');if(!sel)return;
+  const sym=getSymCol();
+  sel.innerHTML='<option value="">-- Select --</option>'+allRows.map(r=>`<option>${r[sym]||'?'}</option>`).join('');
+}
+function showRisk(){
+  const sym=document.getElementById('risk-sel').value;
+  const out=document.getElementById('risk-out');if(!out||!sym)return;
+  const symCol=getSymCol(),priceCol=getPriceCol(),chgCol=getChgCol(),h=getHighCol(),lo=getLowCol();
+  const row=allRows.find(r=>r[symCol]===sym);if(!row){out.innerHTML='';return;}
+  const price=parseFloat(row[priceCol])||0;
+  const chg=parseFloat(row[chgCol])||0;
+  const high=parseFloat(row[h])||0;
+  const low=parseFloat(row[lo])||0;
+  const fromHigh=high?((price-high)/high*100).toFixed(2):0;
+  const fromLow=low?((price-low)/low*100).toFixed(2):0;
+  const riskScore=Math.abs(chg)>3?'High':Math.abs(chg)>1?'Medium':'Low';
+  const riskColor=riskScore==='High'?'var(--red)':riskScore==='Medium'?'var(--yellow)':'var(--green)';
+  out.innerHTML=`<div class="card" style="margin-top:8px;border-color:${riskColor}">
+    <div style="font-size:13px;font-weight:700;margin-bottom:8px">${sym} — Risk: <span style="color:${riskColor}">${riskScore}</span></div>
+    <div class="g2" style="gap:6px">
+      <div><div class="ct">Current Price</div><div style="font-weight:700">₹${price.toFixed(2)}</div></div>
+      <div><div class="ct">Day Change</div><div style="font-weight:700;color:${chg>=0?'var(--green)':'var(--red)'}">${chg>=0?'+':''}${chg.toFixed(2)}%</div></div>
+      ${high?`<div><div class="ct">From 52W High</div><div style="font-weight:700;color:var(--red)">${fromHigh}%</div></div>`:''}
+      ${low?`<div><div class="ct">From 52W Low</div><div style="font-weight:700;color:var(--green)">+${fromLow}%</div></div>`:''}
+    </div>
+    <div class="rmeter" style="margin-top:8px"><div class="rfill" style="width:${Math.min(100,Math.abs(chg)*10)}%;background:${riskColor}"></div></div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════
+// MF / IPO DATA
+// ══════════════════════════════════════════════
+function mfTab(pill){
+  document.querySelectorAll('#mf-tabs .cpill').forEach(p=>p.classList.remove('on'));
+  pill.classList.add('on');
+  loadMF(pill.dataset.mt);
+}
+function loadMF(type){
+  const el=document.getElementById('mf-content');if(!el)return;
+  const data={
+    ipo:[
+      {name:'Ather Energy',price:'₹304–321',dates:'Apr 28–30, 2026',gmp:'+₹45',lot:'46 shares',status:'Upcoming'},
+      {name:'HDB Financial',price:'₹495–520',dates:'May 5–7, 2026',gmp:'+₹60',lot:'28 shares',status:'Upcoming'},
+      {name:'Swiggy',price:'₹390',dates:'Nov 2024',gmp:'Listed',lot:'—',status:'Listed'},
+      {name:'NTPC Green',price:'₹108',dates:'Dec 2024',gmp:'Listed',lot:'—',status:'Listed'},
+    ],
+    mf:[
+      {name:'Mirae Asset Large Cap',nav:'₹108.2',returns:'15.4%',risk:'Low',aum:'₹38,210 Cr',rating:'⭐⭐⭐⭐⭐'},
+      {name:'SBI Small Cap Fund',nav:'₹175.6',returns:'22.1%',risk:'High',aum:'₹29,500 Cr',rating:'⭐⭐⭐⭐⭐'},
+      {name:'Parag Parikh Flexi Cap',nav:'₹88.4',returns:'18.3%',risk:'Medium',aum:'₹75,200 Cr',rating:'⭐⭐⭐⭐⭐'},
+      {name:'HDFC Mid Cap Opp.',nav:'₹143.2',returns:'19.8%',risk:'Medium-High',aum:'₹64,800 Cr',rating:'⭐⭐⭐⭐'},
+    ],
+    etf:[
+      {name:'Nifty 50 ETF (NIFTYBEES)',price:'₹228',vol:'High',type:'Index',tracking:'NIFTY 50'},
+      {name:'Gold ETF (GOLDBEES)',price:'₹73.2',vol:'High',type:'Commodity',tracking:'Gold'},
+      {name:'Bank Nifty ETF (BANKBEES)',price:'₹486',vol:'Medium',type:'Sectoral',tracking:'Bank Nifty'},
+      {name:'IT ETF (ITBEES)',price:'₹41.5',vol:'Medium',type:'Sectoral',tracking:'Nifty IT'},
+    ],
+    nfo:[
+      {name:'Motilal Oswal Multi Cap',type:'Multi Cap',open:'Apr 2026',min:'₹500',exit:'1%<1yr'},
+      {name:'HDFC Defence Fund',type:'Thematic',open:'Mar 2026',min:'₹100',exit:'1%<1yr'},
+    ],
+    fo:[
+      {name:'NIFTY 50 Options',expiry:'Apr 24, 2026',pcr:'1.12',oi:'High',trend:'Bullish'},
+      {name:'BANK NIFTY Fut.',expiry:'Apr 24, 2026',pcr:'0.98',oi:'Very High',trend:'Neutral'},
+      {name:'RELIANCE Fut.',expiry:'Apr 24, 2026',pcr:'1.05',oi:'Medium',trend:'Slightly Bullish'},
+    ],
+    compare:[
+      {type:'Large Cap MF',return1y:'14.2%',return3y:'16.8%',return5y:'15.1%',risk:'Low',tax:'LTCG 10%'},
+      {type:'Mid Cap MF',return1y:'18.5%',return3y:'21.2%',return5y:'19.8%',risk:'Medium',tax:'LTCG 10%'},
+      {type:'Small Cap MF',return1y:'22.1%',return3y:'26.4%',return5y:'23.6%',risk:'High',tax:'LTCG 10%'},
+      {type:'Index Fund',return1y:'12.8%',return3y:'14.5%',return5y:'13.9%',risk:'Low',tax:'LTCG 10%'},
+      {type:'FD (SBI)',return1y:'6.8%',return3y:'6.8%',return5y:'6.8%',risk:'Very Low',tax:'Slab'},
+      {type:'PPF',return1y:'7.1%',return3y:'7.1%',return5y:'7.1%',risk:'None',tax:'EEE'},
+    ]
+  };
+  const d=data[type]||[];
+  if(!d.length){el.innerHTML='<div style="color:var(--mu);text-align:center;padding:20px">No data available</div>';return;}
+  if(type==='ipo'){el.innerHTML=d.map(i=>`<div class="mf-card"><div class="mf-name">${i.name} <span class="badge ${i.status==='Listed'?'bgreen':'bblue'}">${i.status}</span></div><div class="mf-row"><span class="mf-kv">Price: <b>${i.price}</b></span><span class="mf-kv">Dates: <b>${i.dates}</b></span><span class="mf-kv">GMP: <b style="color:var(--green)">${i.gmp}</b></span><span class="mf-kv">Lot: <b>${i.lot}</b></span></div></div>`).join('');return;}
+  if(type==='mf'){el.innerHTML=d.map(i=>`<div class="mf-card"><div class="mf-name">${i.name} ${i.rating}</div><div class="mf-row"><span class="mf-kv">NAV: <b>${i.nav}</b></span><span class="mf-kv">Returns (5Y): <b style="color:var(--green)">${i.returns}</b></span><span class="mf-kv">Risk: <b>${i.risk}</b></span><span class="mf-kv">AUM: <b>${i.aum}</b></span></div></div>`).join('');return;}
+  if(type==='etf'){el.innerHTML=d.map(i=>`<div class="mf-card"><div class="mf-name">${i.name}</div><div class="mf-row"><span class="mf-kv">Price: <b>${i.price}</b></span><span class="mf-kv">Volume: <b>${i.vol}</b></span><span class="mf-kv">Tracks: <b>${i.tracking}</b></span></div></div>`).join('');return;}
+  if(type==='nfo'){el.innerHTML=d.map(i=>`<div class="mf-card"><div class="mf-name">${i.name}</div><div class="mf-row"><span class="mf-kv">Type: <b>${i.type}</b></span><span class="mf-kv">Opens: <b>${i.open}</b></span><span class="mf-kv">Min SIP: <b>${i.min}</b></span><span class="mf-kv">Exit Load: <b>${i.exit}</b></span></div></div>`).join('');return;}
+  if(type==='fo'){el.innerHTML=d.map(i=>`<div class="mf-card"><div class="mf-name">${i.name}</div><div class="mf-row"><span class="mf-kv">Expiry: <b>${i.expiry}</b></span><span class="mf-kv">PCR: <b>${i.pcr}</b></span><span class="mf-kv">OI: <b>${i.oi}</b></span><span class="mf-kv">Trend: <b style="color:var(--green)">${i.trend}</b></span></div></div>`).join('');return;}
+  if(type==='compare'){
+    el.innerHTML='<div class="tw"><table><thead><tr><th>Type</th><th>1Y Return</th><th>3Y Return</th><th>5Y Return</th><th>Risk</th><th>Tax</th></tr></thead><tbody>'+
+    d.map(i=>`<tr><td><b>${i.type}</b></td><td class="up">${i.return1y}</td><td class="up">${i.return3y}</td><td class="up">${i.return5y}</td><td>${i.risk}</td><td>${i.tax}</td></tr>`).join('')+'</tbody></table></div>';return;
+  }
+}
+
+// ══════════════════════════════════════════════
+// CALCULATORS
+// ══════════════════════════════════════════════
+function cTab(id,btn){
+  ['sip','lump','loan','gst','gold','risk'].forEach(n=>{const el=document.getElementById('cc-'+n);if(el)el.style.display='none';});
+  document.querySelectorAll('#pg-calc .atab').forEach(b=>b.classList.remove('on'));
+  const el=document.getElementById('cc-'+id);if(el)el.style.display='block';
+  if(btn)btn.classList.add('on');
+}
+function cSIP(){
+  const a=parseFloat(document.getElementById('sip-a').value)||0;
+  const r=parseFloat(document.getElementById('sip-r').value)/100/12||0;
+  const n=(parseFloat(document.getElementById('sip-y').value)||0)*12;
+  if(!r){document.getElementById('sip-res').innerHTML='Enter return rate';return;}
+  const fv=a*((Math.pow(1+r,n)-1)/r)*(1+r);
+  const invested=a*n;
+  const gains=fv-invested;
+  document.getElementById('sip-res').innerHTML=`Invested: <b>₹${invested.toLocaleString('en-IN',{maximumFractionDigits:0})}</b> → Final Value: <b>₹${fv.toLocaleString('en-IN',{maximumFractionDigits:0})}</b> (Gains: <b style="color:var(--green)">₹${gains.toLocaleString('en-IN',{maximumFractionDigits:0})}</b>)`;
+  const labels=[];const inv=[];const corpus=[];
+  for(let y=1;y<=parseFloat(document.getElementById('sip-y').value);y++){const mn=y*12;const fvy=a*((Math.pow(1+r,mn)-1)/r)*(1+r);labels.push('Y'+y);inv.push(a*mn);corpus.push(Math.round(fvy));}
+  destroyChart('sipChart');
+  charts.sipChart=new Chart(document.getElementById('sipChart'),{type:'bar',data:{labels,datasets:[{label:'Corpus',data:corpus,backgroundColor:'rgba(63,185,80,.7)',borderWidth:0,borderRadius:3},{label:'Invested',data:inv,backgroundColor:'rgba(88,166,255,.4)',borderWidth:0,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:tc(),font:{size:10}}}},scales:{x:{grid:{display:false},ticks:{color:tc(),font:{size:9}}},y:{grid:{color:gc()},ticks:{color:tc(),font:{size:9},callback:v=>'₹'+v.toLocaleString('en-IN',{notation:'compact'})}}}}});
+}
+function cLump(){
+  const a=parseFloat(document.getElementById('ls-a').value)||0;
+  const r=parseFloat(document.getElementById('ls-r').value)/100||0;
+  const n=parseFloat(document.getElementById('ls-y').value)||0;
+  const fv=a*Math.pow(1+r,n);
+  document.getElementById('ls-res').innerHTML=`₹${a.toLocaleString('en-IN')} → <b>₹${fv.toLocaleString('en-IN',{maximumFractionDigits:0})}</b> in ${n} years (CAGR ${(r*100).toFixed(1)}%)`;
+}
+function cLoan(){
+  const p=parseFloat(document.getElementById('ln-a').value)||0;
+  const r=parseFloat(document.getElementById('ln-r').value)/100/12||0;
+  const n=(parseFloat(document.getElementById('ln-y').value)||0)*12;
+  if(!r||!n){document.getElementById('ln-res').innerHTML='Enter all values';return;}
+  const emi=p*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1);
+  const total=emi*n;const interest=total-p;
+  document.getElementById('ln-res').innerHTML=`Monthly EMI: <b>₹${emi.toLocaleString('en-IN',{maximumFractionDigits:0})}</b> | Total: <b>₹${total.toLocaleString('en-IN',{maximumFractionDigits:0})}</b> | Interest: <b style="color:var(--red)">₹${interest.toLocaleString('en-IN',{maximumFractionDigits:0})}</b>`;
+  const labels=[],prinArr=[],intArr=[];let bal=p;
+  for(let y=1;y<=parseFloat(document.getElementById('ln-y').value);y++){let yPrin=0,yInt=0;for(let m=0;m<12;m++){const im=bal*r;yInt+=im;yPrin+=emi-im;bal-=(emi-im);}labels.push('Y'+y);prinArr.push(Math.max(0,Math.round(yPrin)));intArr.push(Math.round(yInt));}
+  destroyChart('loanChart');
+  charts.loanChart=new Chart(document.getElementById('loanChart'),{type:'bar',data:{labels,datasets:[{label:'Principal',data:prinArr,backgroundColor:'rgba(63,185,80,.7)',borderWidth:0,borderRadius:3},{label:'Interest',data:intArr,backgroundColor:'rgba(248,81,73,.5)',borderWidth:0,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{stacked:true,grid:{display:false},ticks:{color:tc(),font:{size:9}}},y:{stacked:true,grid:{color:gc()},ticks:{color:tc(),font:{size:9}}}},plugins:{legend:{labels:{color:tc(),font:{size:10}}}}}});
+}
+function cGST(){
+  const a=parseFloat(document.getElementById('gst-a').value)||0;
+  const r=parseFloat(document.getElementById('gst-r').value)/100;
+  const t=document.getElementById('gst-t').value;
+  if(t==='add'){const gst=a*r;const total=a+gst;document.getElementById('gst-res').innerHTML=`Base: ₹${a} + GST: <b>₹${gst.toFixed(2)}</b> = Total: <b>₹${total.toFixed(2)}</b>`;}
+  else{const base=a/(1+r);const gst=a-base;document.getElementById('gst-res').innerHTML=`Total: ₹${a} → Base: <b>₹${base.toFixed(2)}</b> + GST: <b>₹${gst.toFixed(2)}</b>`;}
+}
+function cGold(){
+  const w=parseFloat(document.getElementById('gld-w').value)||0;
+  const p=parseFloat(document.getElementById('gld-p').value)||0;
+  const pu=parseFloat(document.getElementById('gld-pu').value)||1;
+  const val=w*p*pu;const making=val*0.12;const total=val+making;
+  document.getElementById('gld-res').innerHTML=`Gold value: <b>₹${val.toLocaleString('en-IN',{maximumFractionDigits:0})}</b> | Making (12%): ₹${making.toFixed(0)} | Total: <b>₹${total.toLocaleString('en-IN',{maximumFractionDigits:0})}</b>`;
+}
+function cRisk(){
+  const a=parseFloat(document.getElementById('rk-a').value)||0;
+  const r=parseFloat(document.getElementById('rk-r').value)/100||0;
+  const l=parseFloat(document.getElementById('rk-l').value)/100||0;
+  const y=parseFloat(document.getElementById('rk-y').value)||0;
+  const bestCase=a*Math.pow(1+r,y);const worstCase=a*(1-l);
+  const rr=r/l;
+  document.getElementById('rk-res').innerHTML=`Best Case: <b style="color:var(--green)">₹${bestCase.toLocaleString('en-IN',{maximumFractionDigits:0})}</b> | Worst Case: <b style="color:var(--red)">₹${worstCase.toLocaleString('en-IN',{maximumFractionDigits:0})}</b> | Risk:Reward = <b>${rr.toFixed(2)}</b>`;
+}
+
+// ══════════════════════════════════════════════
+// AI ASSISTANT — NEW: works WITHOUT CSV
+// ══════════════════════════════════════════════
+let currentAIProvider='anthropic';
+let mainChatHistory=[];
+
+function updateAIProvider(){
+  currentAIProvider=document.getElementById('ai-provider-sel').value;
+  const keys=getAIKeys();
+  const notes={
+    anthropic:'Claude (Anthropic) — Best for analysis. Needs API key from console.anthropic.com',
+    openai:'ChatGPT (OpenAI) — GPT-4. Needs API key from platform.openai.com',
+    gemini:'Gemini (Google) — Good free tier. Key from aistudio.google.com',
+    groq:'Groq — Very fast, FREE tier available. Key from console.groq.com',
+    qwen:'Qwen (Alibaba) — FREE tier. Key from dashscope.aliyun.com'
+  };
+  const el=document.getElementById('ai-provider-note');
+  const hasKey=keys[currentAIProvider];
+  if(el)el.innerHTML=(hasKey?'✅ API key saved. ':'⚠️ No API key — ')+notes[currentAIProvider];
+  updateAIModeBadge();
+}
+
+function updateAIModeBadge(){
+  const badge=document.getElementById('ai-mode-badge');
+  const status=document.getElementById('ai-csv-status');
+  if(!badge||!status)return;
+  if(allRows.length){
+    badge.className='ai-mode-badge ai-mode-csv';
+    badge.textContent='📊 CSV Mode ('+allRows.length+' stocks)';
+    status.textContent='CSV loaded — AI can analyse your actual stock data!';
+    const btn=document.getElementById('ai-load-csv-btn');
+    if(btn)btn.textContent='🔄 Load different CSV';
+  }else{
+    badge.className='ai-mode-badge ai-mode-general';
+    badge.textContent='🤖 General Mode';
+    status.textContent='No CSV — AI uses general market knowledge (still very useful!)';
+  }
+}
+
+function getAISystemPrompt(){
+  const now=new Date().toLocaleDateString('en-IN',{timeZone:'Asia/Kolkata',weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  let system=`You are NiftyBeast Pro AI — an expert Indian stock market analyst and financial advisor.
+Today's date: ${now}
+You are deeply familiar with: NSE/BSE stocks, NIFTY indices, mutual funds, IPOs, ETFs, F&O, crypto, gold, and Indian financial markets.
+Always give actionable, specific advice. Use ₹ for Indian Rupee. Be concise but insightful.
+IMPORTANT: You can answer stock market questions WITHOUT any CSV data. Use your knowledge of Indian markets to give valuable analysis.`;
+
+  if(allRows.length){
+    const chgCol=getChgCol(),symCol=getSymCol(),priceCol=getPriceCol();
+    const sorted=[...allRows].filter(r=>!isNaN(parseFloat(r[chgCol]))).sort((a,b)=>parseFloat(b[chgCol])-parseFloat(a[chgCol]));
+    const top5=sorted.slice(0,5).map(r=>`${r[symCol]} (${parseFloat(r[chgCol]).toFixed(2)}%)`).join(', ');
+    const bot5=[...sorted].reverse().slice(0,5).map(r=>`${r[symCol]} (${parseFloat(r[chgCol]).toFixed(2)}%)`).join(', ');
+    let g=0,l=0;allRows.forEach(r=>{const v=parseFloat(r[chgCol]);if(!isNaN(v)){if(v>0)g++;else if(v<0)l++;}});
+    system+=`\n\nCSV DATA LOADED (${allRows.length} stocks):
+- Top gainers: ${top5}
+- Top losers: ${bot5}
+- Gainers: ${g}, Losers: ${l}
+- Total stocks: ${allRows.length}
+Use this data in your analysis when relevant.`;
+  }else{
+    system+=`\n\nNo CSV data is loaded. Answer based on your general knowledge of Indian markets, NIFTY 100, current trends, and best practices. You can still give very useful analysis, stock recommendations, market outlook, and investment advice from your training knowledge.`;
+  }
+  return system;
+}
+
+async function callAI(messages,systemPrompt){
+  const keys=getAIKeys();
+  const provider=currentAIProvider;
+  const key=keys[provider];
+  if(!key)return{error:`No API key for ${provider}. Go to API Keys tab to add one.`};
+
+  try{
+    if(provider==='anthropic'){
+      const r=await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+        body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:1024,system:systemPrompt,messages})
+      });
+      const d=await r.json();
+      if(!r.ok)return{error:d.error?.message||'Claude API error '+r.status};
+      return{text:d.content?.[0]?.text||''};
+    }
+    if(provider==='openai'){
+      const msgs=[{role:'system',content:systemPrompt},...messages];
+      const r=await fetch('https://api.openai.com/v1/chat/completions',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+        body:JSON.stringify({model:'gpt-4o-mini',messages,max_tokens:1024})
+      });
+      const d=await r.json();
+      if(!r.ok)return{error:d.error?.message||'OpenAI error '+r.status};
+      return{text:d.choices?.[0]?.message?.content||''};
+    }
+    if(provider==='gemini'){
+      const contents=messages.map(m=>({role:m.role==='assistant'?'model':'user',parts:[{text:m.content}]}));
+      const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='+key,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({system_instruction:{parts:[{text:systemPrompt}]},contents,generationConfig:{maxOutputTokens:1024}})
+      });
+      const d=await r.json();
+      if(!r.ok)return{error:d.error?.message||'Gemini error '+r.status};
+      return{text:d.candidates?.[0]?.content?.parts?.[0]?.text||''};
+    }
+    if(provider==='groq'){
+      const msgs=[{role:'system',content:systemPrompt},...messages];
+      const r=await fetch('https://api.groq.com/openai/v1/chat/completions',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+        body:JSON.stringify({model:'llama-3.1-8b-instant',messages,max_tokens:1024})
+      });
+      const d=await r.json();
+      if(!r.ok)return{error:d.error?.message||'Groq error '+r.status};
+      return{text:d.choices?.[0]?.message?.content||''};
+    }
+    if(provider==='qwen'){
+      const msgs=[{role:'system',content:systemPrompt},...messages];
+      const r=await fetch('https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+        body:JSON.stringify({model:'qwen-plus',messages,max_tokens:1024})
+      });
+      const d=await r.json();
+      if(!r.ok)return{error:d.error?.message||'Qwen error '+r.status};
+      return{text:d.choices?.[0]?.message?.content||''};
+    }
+    return{error:'Unknown provider: '+provider};
+  }catch(e){return{error:'Network error: '+e.message};}
+}
+
+function addAIMsg(container,role,text){
+  const el=document.getElementById(container);if(!el)return;
+  const div=document.createElement('div');
+  div.className='ai-msg '+(role==='user'?'ai-user':'ai-bot');
+  div.innerHTML=text.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<b>$1</b>').replace(/`([^`]+)`/g,'<code style="background:var(--bg3);padding:1px 5px;border-radius:3px;font-size:11px">$1</code>');
+  el.appendChild(div);
+  el.scrollTop=el.scrollHeight;
+  return div;
+}
+
+function showTyping(container){
+  const el=document.getElementById(container);if(!el)return null;
+  const div=document.createElement('div');
+  div.className='ai-msg ai-bot';
+  div.innerHTML='<span class="typing-dots"><span></span><span></span><span></span></span>';
+  el.appendChild(div);el.scrollTop=el.scrollHeight;
+  return div;
+}
+
+async function sendMain(){
+  const inp=document.getElementById('ai-inp');
+  const btn=document.getElementById('ai-main-btn');
+  const text=(inp?.value||'').trim();
+  if(!text)return;
+  inp.value='';
+  btn.disabled=true;
+  addAIMsg('ai-msgs','user',text);
+  mainChatHistory.push({role:'user',content:text});
+  const typing=showTyping('ai-msgs');
+  const system=getAISystemPrompt();
+  const result=await callAI(mainChatHistory,system);
+  if(typing)typing.remove();
+  if(result.error){
+    addAIMsg('ai-msgs','assistant','❌ '+result.error+'\n\nGo to API Keys tab to add your API key.');
+    mainChatHistory.pop();
+  }else{
+    addAIMsg('ai-msgs','assistant',result.text);
+    mainChatHistory.push({role:'assistant',content:result.text});
+    if(mainChatHistory.length>20)mainChatHistory=mainChatHistory.slice(-20);
+  }
+  btn.disabled=false;
+  inp.focus();
+}
+
+function aiQ(q){
+  const inp=document.getElementById('ai-inp');
+  if(inp)inp.value=q;
+  sendMain();
+}
+function clearMainChat(){mainChatHistory=[];const el=document.getElementById('ai-msgs');if(el)el.innerHTML='<div class="ai-msg ai-bot">Chat cleared. Ask me anything — no CSV needed!</div>';}
+
+// FLOATING AI
+let floatHistory=[];
+async function sendFloat(){
+  const inp=document.getElementById('float-inp');
+  const btn=document.getElementById('float-send-btn');
+  const text=(inp?.value||'').trim();
+  if(!text)return;
+  inp.value='';btn.disabled=true;
+  addAIMsg('float-msgs','user',text);
+  floatHistory.push({role:'user',content:text});
+  const typing=showTyping('float-msgs');
+  const system=getAISystemPrompt();
+  const result=await callAI(floatHistory,system);
+  if(typing)typing.remove();
+  if(result.error){addAIMsg('float-msgs','assistant','❌ '+result.error);floatHistory.pop();}
+  else{addAIMsg('float-msgs','assistant',result.text);floatHistory.push({role:'assistant',content:result.text});if(floatHistory.length>10)floatHistory=floatHistory.slice(-10);}
+  btn.disabled=false;
+}
+function toggleFloatAI(){document.getElementById('ai-float-panel').classList.toggle('open');}
+
+// ══════════════════════════════════════════════
+// API KEY MANAGER
+// ══════════════════════════════════════════════
+function saveKey(provider){
+  const val=(document.getElementById('key-'+provider)?.value||'').trim();
+  if(!val){toast('Enter a key first','yellow');return;}
+  const keys=getAIKeys();keys[provider]=val;ss(K.aikeys,keys);
+  toast('✅ '+provider+' key saved','green');
+  updateAIProvider();
+}
+function loadSavedKeys(){
+  const keys=getAIKeys();
+  ['anthropic','openai','gemini','groq','qwen','alphavantage','finnhub'].forEach(p=>{
+    const el=document.getElementById('key-'+p);
+    if(el&&keys[p])el.value=keys[p];
+  });
+}
+
+// ══════════════════════════════════════════════
+// RECIPIENTS / TAGS
+// ══════════════════════════════════════════════
+let tags=[];
+function addTag(e){
+  if(e.key!=='Enter')return;
+  const inp=document.getElementById('taginp');
+  const val=(inp.value||'').trim();
+  if(!val)return;
+  tags.push(val);inp.value='';
+  renderTags();
+}
+function renderTags(){
+  const wrap=document.getElementById('tagwrap');if(!wrap)return;
+  const inp=document.getElementById('taginp');
+  const existing=wrap.querySelectorAll('.rtag');
+  existing.forEach(e=>e.remove());
+  tags.forEach((t,i)=>{
+    const tag=document.createElement('div');tag.className='rtag';
+    tag.innerHTML=`${t} <span class="rm" onclick="tags.splice(${i},1);renderTags()">✕</span>`;
+    wrap.insertBefore(tag,inp);
+  });
+}
+function loadTagsUI(){tags=[];renderTags();}
+function saveRec(){
+  if(!tags.length){toast('Add at least one recipient','yellow');return;}
+  const val=JSON.stringify(tags);
+  document.getElementById('recst').innerHTML=`<div class="sbox">✅ Copy this value → paste into GitHub Secrets as <b>RECIPIENTS</b>:<br><code style="user-select:all;word-break:break-all;font-size:11px">${val}</code></div>`;
+  toast('Value generated! Copy and save as GitHub Secret','green');
+}
+
+// ══════════════════════════════════════════════
+// USERS (ADMIN)
+// ══════════════════════════════════════════════
+let editingUser=null;
+function renderUsers(){
+  const users=getUsers();
+  const el=document.getElementById('ucnt');if(el)el.textContent=users.length;
+  const tb=document.getElementById('utb');if(!tb)return;
+  tb.innerHTML=users.map((u,i)=>`<tr>
+    <td>${i+1}</td><td><b>${u.username}</b></td><td>${u.name||'—'}</td><td>${u.email||'—'}</td>
+    <td>${u.mobile||'—'}</td>
+    <td><span class="badge ${u.role==='admin'?'byellow':'bblue'}">${u.role}</span></td>
+    <td><span class="badge ${u.status==='active'?'bgreen':'bred'}">${u.status||'active'}</span></td>
+    <td style="font-size:10px">${u.joined?new Date(u.joined).toLocaleDateString('en-IN'):'—'}</td>
+    <td><button class="btn bo bsm" onclick="openEdit(${i})">Edit</button></td>
+  </tr>`).join('');
+}
+function openEdit(i){
+  editingUser=i;
+  const u=getUsers()[i];
+  document.getElementById('em-role').value=u.role||'user';
+  document.getElementById('em-st').value=u.status||'active';
+  document.getElementById('em-pw').value='';
+  document.getElementById('edit-modal-t').textContent='Edit: '+u.username;
+  document.getElementById('edit-modal').classList.add('open');
+}
+function saveEdit(){
+  const users=getUsers();const u=users[editingUser];if(!u)return;
+  u.role=document.getElementById('em-role').value;
+  u.status=document.getElementById('em-st').value;
+  const np=(document.getElementById('em-pw').value||'').trim();
+  if(np)u.password=btoa(np);
+  saveUsers(users);closeModal('edit-modal');renderUsers();toast('✅ User updated','green');
+}
+function delUser(){
+  const users=getUsers();
+  if(users[editingUser]?.username==='admin'){toast('Cannot delete admin','red');return;}
+  users.splice(editingUser,1);saveUsers(users);closeModal('edit-modal');renderUsers();toast('User deleted','green');
+}
+function renderSecList(){
+  const el=document.getElementById('sec-list');if(!el)return;
+  const sects=gs(K.sects)||DSECTS;
+  el.innerHTML=Object.keys(DSECTS).map(k=>`<div class="sec-row">
+    <span style="font-size:12px">${SLABELS[k]||k}</span>
+    <label class="tog"><input type="checkbox" ${sects[k]!==false?'checked':''} onchange="toggleSect('${k}',this.checked)"><span class="togsl"></span></label>
+  </div>`).join('');
+}
+function toggleSect(k,v){const s=gs(K.sects)||DSECTS;s[k]=v;ss(K.sects,s);}
+function saveSecAccess(){toast('✅ Access settings saved','green');}
+function saveAdmRec(){
+  const em=(document.getElementById('adm-em').value||'').trim();
+  const mob=(document.getElementById('adm-mob').value||'').trim();
+  ss(K.adm,{email:em,mobile:mob});toast('✅ Recovery info saved','green');
+}
+
+// ══════════════════════════════════════════════
+// PROFILE
+// ══════════════════════════════════════════════
+function saveProfile(){
+  const sess=getSess();if(!sess)return;
+  const users=getUsers();
+  const i=users.findIndex(u=>u.username===sess.username);if(i<0)return;
+  const np=(document.getElementById('pnp').value||'').trim();
+  const np2=(document.getElementById('pnp2').value||'').trim();
+  if(np){if(np.length<6){toast('Password min 6 chars','red');return;}if(np!==np2){toast('Passwords do not match','red');return;}users[i].password=btoa(np);}
+  users[i].name=document.getElementById('pname').value||users[i].name;
+  users[i].email=document.getElementById('pemail').value||users[i].email;
+  users[i].mobile=document.getElementById('pmob').value||users[i].mobile;
+  saveUsers(users);ss(K.sess,users[i]);
+  toast('✅ Profile saved','green');
+}
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+bCron();
+updateAIProvider();
+</script>
+</body>
+</html>
