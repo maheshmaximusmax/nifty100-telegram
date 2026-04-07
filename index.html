@@ -815,7 +815,7 @@ function setTheme(t){
   if(allRows.length)renderCharts();
 }
 function toggleTheme(){setTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark');}
-try{(()=>{setTheme(gs(K.theme)||'dark')})();}catch(e){}
+try{(()=>{setTheme(gs(K.theme)||'dark')})();}catch(e){console.error('[theme] init error:',e);}
 function togglePW(id,btn){const el=document.getElementById(id);if(!el)return;el.type=el.type==='password'?'text':'password';btn.textContent=el.type==='password'?'👁':'🙈';}
 
 // ══════════════════════════════════════════════
@@ -1418,7 +1418,7 @@ function dlCSV(){
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    setTimeout(()=>URL.revokeObjectURL(url),1000);
+    setTimeout(()=>URL.revokeObjectURL(url),1000); // 1s delay ensures download starts before URL is revoked
   }catch(err){toast('❌ Download failed: '+err.message,'red');}
 }
 
