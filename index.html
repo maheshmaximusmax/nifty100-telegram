@@ -776,6 +776,23 @@ Try asking: "Best stocks to buy now?" or "Explain SIP vs lumpsum" or "Bitcoin ou
 </div>
 
 <script>
+// ══ GLOBAL VARIABLES — declared first to avoid TDZ errors ══
+var toastTimer = null;
+var allRows = [];
+var allCols = [];
+var filteredRows = [];
+var conditions = [];
+var currentAIProvider = 'anthropic';
+var mainChatHistory = [];
+var floatHistory = [];
+var tags = [];
+var editingUser = null;
+var sbCollapsed = false;
+var charts = {};
+var miniData = {};
+var _otp = '';
+var _pu = null;
+
 // ══════════════════════════════════════════════
 // STORAGE
 // ══════════════════════════════════════════════
@@ -837,7 +854,6 @@ function doLogin(){
   ss(K.sess,found);showApp(found);
 }
 
-let _otp='',_pu=null;
 function genOTP(){return String(Math.floor(100000+Math.random()*900000));}
 function buildOTPBoxes(){
   const w=document.getElementById('otp-inputs');if(!w)return;
@@ -957,7 +973,6 @@ if(saved){showApp(saved);}
 // ══════════════════════════════════════════════
 // SIDEBAR
 // ══════════════════════════════════════════════
-let sbCollapsed=false;
 function toggleSidebar(){
   sbCollapsed=!sbCollapsed;
   document.getElementById('sidebar').classList.toggle('collapsed',sbCollapsed);
@@ -1000,7 +1015,6 @@ function closeModal(id){document.getElementById(id)?.classList.remove('open');}
 // ══════════════════════════════════════════════
 // TOAST
 // ══════════════════════════════════════════════
-var toastTimer=null;
 function toast(msg,type='green'){
   const t=document.getElementById('toast');if(!t)return;
   t.textContent=msg;
@@ -1173,7 +1187,6 @@ async function fetchRuns(){
 // ══════════════════════════════════════════════
 // CSV LOAD — FIX: proper FileReader + PapaParse
 // ══════════════════════════════════════════════
-let allRows=[], allCols=[];
 
 function triggerCSVPick(){
   const inp=document.getElementById('csvf');
@@ -1245,7 +1258,6 @@ function renderStats(){
 // ══════════════════════════════════════════════
 // CHARTS
 // ══════════════════════════════════════════════
-const charts={};
 function destroyChart(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
 const isDark=()=>document.documentElement.getAttribute('data-theme')==='dark';
 const gc=()=>isDark()?'rgba(255,255,255,.08)':'rgba(0,0,0,.06)';
@@ -1311,7 +1323,6 @@ function toggleCh(pill){
 // ══════════════════════════════════════════════
 // TABLE
 // ══════════════════════════════════════════════
-let filteredRows=[];
 function renderTable(rows){
   filteredRows=rows;
   const th=document.getElementById('th');const tb=document.getElementById('tb');const tempty=document.getElementById('tempty');
@@ -1362,7 +1373,6 @@ function renderMovers(){
 // ══════════════════════════════════════════════
 // LIVE MARKETS (CoinGecko + simulated NIFTY)
 // ══════════════════════════════════════════════
-const miniData={};
 function renderMini(id,val,pos){
   const c=document.getElementById('mc-'+id);if(!c)return;
   if(!miniData[id])miniData[id]=[];
@@ -1421,7 +1431,6 @@ function buildTV(sym,intv,style){
 // ══════════════════════════════════════════════
 // FILTER BUILDER
 // ══════════════════════════════════════════════
-let conditions=[];
 function addCond(){
   conditions.push({col:'',op:'>',val:''});
   renderConds();
@@ -1639,8 +1648,6 @@ function cRisk(){
 // ══════════════════════════════════════════════
 // AI ASSISTANT — NEW: works WITHOUT CSV
 // ══════════════════════════════════════════════
-let currentAIProvider='anthropic';
-let mainChatHistory=[];
 
 function updateAIProvider(){
   currentAIProvider=document.getElementById('ai-provider-sel').value;
@@ -1712,7 +1719,7 @@ async function callAI(messages,systemPrompt){
       const r=await fetch('https://api.anthropic.com/v1/messages',{
         method:'POST',
         headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-        body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:1024,system:systemPrompt,messages})
+        body:JSON.stringify({model:'claude-haiku-4-5',max_tokens:1024,system:systemPrompt,messages})
       });
       const d=await r.json();
       if(!r.ok)return{error:d.error?.message||'Claude API error '+r.status};
@@ -1745,7 +1752,7 @@ async function callAI(messages,systemPrompt){
       const r=await fetch('https://api.groq.com/openai/v1/chat/completions',{
         method:'POST',
         headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
-        body:JSON.stringify({model:'llama-3.1-8b-instant',messages,max_tokens:1024})
+        body:JSON.stringify({model:'llama3-8b-8192',messages,max_tokens:1024})
       });
       const d=await r.json();
       if(!r.ok)return{error:d.error?.message||'Groq error '+r.status};
@@ -1818,7 +1825,6 @@ function aiQ(q){
 function clearMainChat(){mainChatHistory=[];const el=document.getElementById('ai-msgs');if(el)el.innerHTML='<div class="ai-msg ai-bot">Chat cleared. Ask me anything — no CSV needed!</div>';}
 
 // FLOATING AI
-let floatHistory=[];
 async function sendFloat(){
   const inp=document.getElementById('float-inp');
   const btn=document.getElementById('float-send-btn');
@@ -1858,7 +1864,6 @@ function loadSavedKeys(){
 // ══════════════════════════════════════════════
 // RECIPIENTS / TAGS
 // ══════════════════════════════════════════════
-let tags=[];
 function addTag(e){
   if(e.key!=='Enter')return;
   const inp=document.getElementById('taginp');
@@ -1889,7 +1894,6 @@ function saveRec(){
 // ══════════════════════════════════════════════
 // USERS (ADMIN)
 // ══════════════════════════════════════════════
-let editingUser=null;
 function renderUsers(){
   const users=getUsers();
   const el=document.getElementById('ucnt');if(el)el.textContent=users.length;
