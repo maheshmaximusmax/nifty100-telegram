@@ -1,0 +1,64 @@
+name: Nifty 100 Auto Download
+
+on:
+  # SCHEDULED AUTO-RUN (default 9:30 AM IST = 4:00 AM UTC, Mon-Fri)
+  # IST = UTC + 5:30, so 9:30 AM IST = 04:00 UTC
+  # Change this cron using the "Apply Schedule" button in the dashboard
+  schedule:
+    - cron: '0 4 * * 1-5'
+
+  # MANUAL TRIGGER from dashboard "Send Now" button
+  workflow_dispatch:
+    inputs:
+      index_name:
+        description: 'NSE Index to download'
+        required: false
+        default: 'NIFTY 100'
+        type: choice
+        options:
+          - NIFTY 100
+          - NIFTY 50
+          - NIFTY NEXT 50
+          - NIFTY MIDCAP 100
+          - NIFTY SMALLCAP 100
+          - NIFTY BANK
+          - NIFTY IT
+          - NIFTY PHARMA
+          - NIFTY AUTO
+          - NIFTY FMCG
+          - NIFTY METAL
+
+  # KEEP-ALIVE: prevents GitHub from auto-disabling the schedule
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/nifty100.yml'
+      - 'schedule.json'
+
+jobs:
+  send-nifty-csv:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: pip install requests pytz
+
+      - name: Run Nifty Bot
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          RECIPIENTS: ${{ secrets.RECIPIENTS }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          INDEX_NAME: ${{ github.event.inputs.index_name || 'NIFTY 100' }}
+        run: python nifty100_bot.py
