@@ -1,8 +1,13 @@
 {
-  "cron": "13 18 * * 1-5",
-  "hour": 11,
-  "minute": 43,
-  "ampm": "PM",
-  "days": "1-5",
-  "description": "11:43 PM IST → UTC cron: 13 18 * * 1-5"
+  "schedule": {
+    "hour": 9,
+    "minute": 30,
+    "ampm": "AM",
+    "days": "1-5",
+    "timezone": "Asia/Kolkata",
+    "cron_utc": "0 4 * * 1-5",
+    "display": "9:30 AM IST, Mon-Fri"
+  },
+  "index": "NIFTY 100",
+  "last_updated": "2026-04-07"
 }
