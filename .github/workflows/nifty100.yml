@@ -5,7 +5,7 @@ on:
   # IST = UTC + 5:30, so 9:30 AM IST = 04:00 UTC
   # Change this cron using the "Apply Schedule" button in the dashboard
   schedule:
-    - cron: '52 4 * * 1-5'
+    - cron: '0 4 * * 1-5'
 
   # MANUAL TRIGGER from dashboard "Send Now" button
   workflow_dispatch:
