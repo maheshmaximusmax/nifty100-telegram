@@ -793,6 +793,10 @@ var miniData = {};
 var _otp = '';
 var _pu = null;
 
+function isDark(){return document.documentElement.getAttribute('data-theme')==='dark';}
+function gc(){return isDark()?'rgba(255,255,255,.08)':'rgba(0,0,0,.06)';}
+function tc(){return isDark()?'#8b949e':'#636c76';}
+
 // ══════════════════════════════════════════════
 // STORAGE
 // ══════════════════════════════════════════════
@@ -1057,36 +1061,40 @@ function checkCfg(){const gh=getGH();const el=document.getElementById('nocfg');i
 // ══════════════════════════════════════════════
 async function triggerWF(){
   const gh=getGH();
-  if(!gh.user||!gh.repo||!gh.token){toast('⚠️ Configure GitHub settings first','yellow');pg('settings',null);return;}
+  if(!gh.user||!gh.repo||!gh.token){toast('Configure GitHub in Settings first','yellow');pg('settings',null);return;}
   const btn=document.getElementById('runbtn');
   const st=document.getElementById('runst');
   const log=document.getElementById('actlog');
   const idx=document.getElementById('idx-sel').value;
   if(btn){btn.disabled=true;btn.innerHTML='<span class="sp"></span> Sending...';}
-  if(st)st.textContent='Triggering workflow...';
-  if(log)log.textContent='▶ Triggering: '+idx+'...';
+  if(st)st.textContent='Triggering...';
+  if(log)log.textContent='Triggering workflow for: '+idx+'...';
   const headers={'Authorization':'token '+gh.token,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','Content-Type':'application/json'};
-  // Enable workflow first (in case GitHub auto-disabled it)
-  try{await fetch('https://api.github.com/repos/'+gh.user+'/'+gh.repo+'/actions/workflows/nifty100.yml/enable',{method:'PUT',headers});}catch(e){}
+  // Step 1: Enable workflow (un-pauses it if GitHub disabled it)
+  try{
+    await fetch('https://api.github.com/repos/'+gh.user+'/'+gh.repo+'/actions/workflows/nifty100.yml/enable',{method:'PUT',headers});
+  }catch(e){console.log('Enable step skipped:',e.message);}
+  // Step 2: Trigger dispatch
   try{
     const r=await fetch('https://api.github.com/repos/'+gh.user+'/'+gh.repo+'/actions/workflows/nifty100.yml/dispatches',{
       method:'POST',headers,
       body:JSON.stringify({ref:'main',inputs:{index_name:idx}})
     });
     if(r.status===204||r.ok){
-      toast('✅ Sent! Check Telegram in ~30 seconds','green');
-      if(st)st.textContent='✅ Triggered at '+new Date().toLocaleTimeString();
-      if(log)log.textContent='✅ Workflow triggered for: '+idx+'\n\nExpect Telegram message in ~30 seconds.\n\nIf no message:\n• Check Actions tab on GitHub\n• Verify BOT_TOKEN and RECIPIENTS secrets\n• Check your Telegram bot is active';
-      setTimeout(fetchRuns,8000);
+      toast('Sent! CSV coming to Telegram in ~45 seconds','green');
+      if(st)st.textContent='Triggered at '+new Date().toLocaleTimeString();
+      if(log)log.textContent='Workflow triggered for: '+idx+'\n\nExpect Telegram CSV in ~45 seconds.\n\nIf nothing arrives:\n• Check Actions tab on GitHub for errors\n• Verify BOT_TOKEN secret is set\n• Verify RECIPIENTS secret has your chat ID';
+      setTimeout(fetchRuns,10000);
     }else{
-      let msg=r.status;try{const j=await r.json();msg=j.message||msg;}catch(e){}
-      toast('❌ Failed: '+msg,'red');
-      if(st)st.textContent='❌ Error: '+msg;
-      if(log)log.textContent='❌ Trigger failed: HTTP '+r.status+'\n'+msg;
+      let msg='HTTP '+r.status;
+      try{const j=await r.json();msg=j.message||msg;}catch(e2){}
+      toast('Trigger failed: '+msg,'red');
+      if(st)st.textContent='Failed: '+msg;
+      if(log)log.textContent='Error: '+msg+'\n\nFix: Check PAT has workflow scope. Create new PAT with repo+workflow permissions.';
     }
   }catch(e){
-    toast('❌ Network error: '+e.message,'red');
-    if(log)log.textContent='❌ Exception: '+e.message;
+    toast('Network error: '+e.message,'red');
+    if(log)log.textContent='Network error: '+e.message;
   }finally{
     if(btn){btn.disabled=false;btn.innerHTML='▶ Send to Telegram Now';}
   }
@@ -1118,40 +1126,48 @@ function bCron(){
 
 async function applySchedule(){
   const gh=getGH();
-  if(!gh.user||!gh.repo||!gh.token){toast('⚠️ Configure GitHub settings first','yellow');pg('settings',null);return;}
-  const cron=document.getElementById('cron-val').textContent.replace(/\\/g,'');
-  if(!cron||cron==='—'){toast('❌ Invalid cron. Set schedule first.','red');return;}
+  if(!gh.user||!gh.repo||!gh.token){toast('Configure GitHub settings first','yellow');pg('settings',null);return;}
+  const cron=document.getElementById('cron-val').textContent;
+  if(!cron||cron==='0 4 * * 1-5'||!cron.trim()){;}
   const log=document.getElementById('actlog');
-  if(log)log.textContent='⏳ Applying schedule "'+cron+'" to workflow file...';
+  if(log)log.textContent='Applying schedule: '+cron+'...';
   const headers={'Authorization':'token '+gh.token,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','Content-Type':'application/json'};
   const apiUrl='https://api.github.com/repos/'+gh.user+'/'+gh.repo+'/contents/.github/workflows/nifty100.yml';
   try{
     const getResp=await fetch(apiUrl,{headers});
-    if(!getResp.ok){const err=await getResp.json();toast('❌ Cannot read workflow: '+(err.message||getResp.status),'red');if(log)log.textContent='❌ Error: '+(err.message||getResp.status);return;}
+    if(!getResp.ok){
+      const err=await getResp.json();
+      toast('Cannot read workflow file: '+(err.message||getResp.status),'red');
+      if(log)log.textContent='Error: '+(err.message||getResp.status)+'. Make sure nifty100.yml is uploaded to .github/workflows/';
+      return;
+    }
     const fileData=await getResp.json();
     const sha=fileData.sha;
-    const currentContent=atob(fileData.content.replace(/\n/g,''));
+    const currentContent=decodeURIComponent(atob(fileData.content.replace(/
+/g,'')).split('').map(c=>'%'+('00'+c.charCodeAt(0).toString(16)).slice(-2)).join(''));
     const cronRegex=/- cron:\s*'[^']*'/;
-    if(!cronRegex.test(currentContent)){toast('❌ Cron line not found in workflow file','red');if(log)log.textContent='❌ No cron line found. Re-upload the fixed nifty100.yml first.';return;}
+    if(!cronRegex.test(currentContent)){
+      toast('cron line not found - re-upload nifty100.yml first','red');
+      if(log)log.textContent='Cron line missing in workflow file. Re-upload nifty100.yml.';
+      return;
+    }
     const newContent=currentContent.replace(cronRegex,"- cron: '"+cron+"'");
-    const putResp=await fetch(apiUrl,{
-      method:'PUT',headers,
-      body:JSON.stringify({message:'Update schedule to: '+cron,content:btoa(unescape(encodeURIComponent(newContent))),sha})
-    });
+    const encoded=btoa(unescape(encodeURIComponent(newContent)));
+    const putResp=await fetch(apiUrl,{method:'PUT',headers,body:JSON.stringify({message:'Schedule updated: '+cron,content:encoded,sha:sha})});
     if(putResp.ok){
-      toast('✅ Schedule updated! '+document.getElementById('schdisp').textContent+' IST','green');
-      if(log)log.textContent='✅ Schedule: '+cron+' UTC = '+document.getElementById('schdisp').textContent+' IST\n'+document.getElementById('schdays').textContent+'\n\n⚠️ GitHub may delay first run up to 15 min.';
+      toast('Schedule saved! '+document.getElementById('schdisp').textContent+' IST','green');
+      if(log)log.textContent='Schedule applied: '+cron+' UTC = '+document.getElementById('schdisp').textContent+' IST\nDays: '+document.getElementById('schdays').textContent+'\n\nGitHub may delay first run by up to 15 minutes.';
     }else{
       const err=await putResp.json();
-      toast('❌ Failed: '+(err.message||putResp.status),'red');
-      if(log)log.textContent='❌ GitHub error: '+JSON.stringify(err);
+      toast('Save failed: '+(err.message||putResp.status),'red');
+      if(log)log.textContent='GitHub error: '+(err.message||putResp.status);
     }
-  }catch(e){toast('❌ Network error: '+e.message,'red');if(log)log.textContent='❌ Exception: '+e.message;}
+  }catch(e){
+    toast('Error: '+e.message,'red');
+    if(log)log.textContent='Exception: '+e.message;
+  }
 }
 
-// ══════════════════════════════════════════════
-// RECENT RUNS
-// ══════════════════════════════════════════════
 async function fetchRuns(){
   const gh=getGH();if(!gh.user||!gh.repo||!gh.token)return;
   const log=document.getElementById('actlog');
@@ -1259,9 +1275,6 @@ function renderStats(){
 // CHARTS
 // ══════════════════════════════════════════════
 function destroyChart(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
-const isDark=()=>document.documentElement.getAttribute('data-theme')==='dark';
-const gc=()=>isDark()?'rgba(255,255,255,.08)':'rgba(0,0,0,.06)';
-const tc=()=>isDark()?'#8b949e':'#636c76';
 
 function mkChart(id,cfg){
   destroyChart(id);
@@ -1730,7 +1743,7 @@ async function callAI(messages,systemPrompt){
       const r=await fetch('https://api.openai.com/v1/chat/completions',{
         method:'POST',
         headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
-        body:JSON.stringify({model:'gpt-4o-mini',messages,max_tokens:1024})
+        body:JSON.stringify({model:'gpt-4o-mini',messages:msgs,max_tokens:1024})
       });
       const d=await r.json();
       if(!r.ok)return{error:d.error?.message||'OpenAI error '+r.status};
@@ -1752,7 +1765,7 @@ async function callAI(messages,systemPrompt){
       const r=await fetch('https://api.groq.com/openai/v1/chat/completions',{
         method:'POST',
         headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
-        body:JSON.stringify({model:'llama3-8b-8192',messages,max_tokens:1024})
+        body:JSON.stringify({model:'llama3-8b-8192',messages:msgs,max_tokens:1024})
       });
       const d=await r.json();
       if(!r.ok)return{error:d.error?.message||'Groq error '+r.status};
@@ -1763,7 +1776,7 @@ async function callAI(messages,systemPrompt){
       const r=await fetch('https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions',{
         method:'POST',
         headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
-        body:JSON.stringify({model:'qwen-plus',messages,max_tokens:1024})
+        body:JSON.stringify({model:'qwen-plus',messages:msgs,max_tokens:1024})
       });
       const d=await r.json();
       if(!r.ok)return{error:d.error?.message||'Qwen error '+r.status};
